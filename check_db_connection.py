@@ -18,9 +18,9 @@ import psycopg2
 # GS_PWD = "bns*789"
 # GS_HOST = "localhost"
 
-GS_USER = "Heart_watch_UN"
+GS_USER = "postgres"
 GS_DB = "Heart_watch_DB"
-GS_PWD = "heartwatch*789"
+GS_PWD = "heartwatch"
 GS_HOST = "localhost"
 
 
