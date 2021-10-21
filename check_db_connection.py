@@ -23,6 +23,7 @@ GS_DB = "Heart_watch_DB"
 GS_PWD = "heartwatch*789"
 GS_HOST = "localhost"
 
+
 print("Connecting to database.......")
 db_conn = psycopg2.connect(database=GS_DB, user=GS_USER, password=GS_PWD, host=GS_HOST, port=5432)
 print("Connected.")
