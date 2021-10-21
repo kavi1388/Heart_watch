@@ -117,8 +117,8 @@ DATABASES = {
    'default': {
        'ENGINE': 'django.db.backends.postgresql',
        'NAME': 'Heart_watch_DB',# <database_name>
-       'USER': 'Heart_watch_user',# <database_username>
-       'PASSWORD': 'heartwatch*789',# <password>
+       'USER': 'postgres',# <database_username>
+       'PASSWORD': 'heartwatch',# <password>
        'HOST': 'localhost',# <database_hostname_or_ip>
        'PORT': '5432',# <database_port>
    }
