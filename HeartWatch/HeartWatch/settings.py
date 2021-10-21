@@ -100,12 +100,25 @@ WSGI_APPLICATION = 'HeartWatch.wsgi.application'
 #             },
 # }
 
+# Local DB
+# DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.postgresql',
+#        'NAME': 'rajnish_psf',# <database_name>
+#        'USER': 'rajnish_bns',# <database_username>
+#        'PASSWORD': 'bns*789',# <password>
+#        'HOST': 'localhost',# <database_hostname_or_ip>
+#        'PORT': '5432',# <database_port>
+#    }
+# }
+
+# Server DB
 DATABASES = {
    'default': {
        'ENGINE': 'django.db.backends.postgresql',
-       'NAME': 'rajnish_psf',# <database_name>
-       'USER': 'rajnish_bns',# <database_username>
-       'PASSWORD': 'bns*789',# <password>
+       'NAME': 'Heart_watch_DB',# <database_name>
+       'USER': 'Heart_watch_user',# <database_username>
+       'PASSWORD': 'heartwatch*789',# <password>
        'HOST': 'localhost',# <database_hostname_or_ip>
        'PORT': '5432',# <database_port>
    }
