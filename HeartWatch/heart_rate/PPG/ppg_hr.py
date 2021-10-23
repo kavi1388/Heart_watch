@@ -20,7 +20,7 @@ def ppg_plot_hr(ppg_sig, time_val, fl=0.4, fh=3.5, o=4, n=12, diff_max=4, r=12):
     t_diff_afib = []
     dppg_comb = []
 
-    print('PPG Signal is {} seconds long'.format(len(ppg_sig)/fs))
+    # print('PPG Signal is {} seconds long'.format(len(ppg_sig)/fs))
     for i in range(n, len(ppg_sig), jump):
 
         p1 = (ppg_sig*18.3/128.0/1000)[i-n:i]
@@ -110,7 +110,7 @@ def ppg_plot_hr(ppg_sig, time_val, fl=0.4, fh=3.5, o=4, n=12, diff_max=4, r=12):
 
     ppg_bpf = np.asarray(ppg_bpf)
     peaks_all2 = np.unique(np.asarray(np.sort(peaks_all)).astype(int))
-    print('Number of Peaks Detected in PPG is {}'.format(len(peaks_all2)))
+    # print('Number of Peaks Detected in PPG is {}'.format(len(peaks_all2)))
     hr_pr_df = pd.DataFrame()
     hr_pr_df['timestamps'] = time_stamp
     hr_pr_df['heart predicted by peak detection'] = pd.Series(hr_pred).rolling(r).median()
