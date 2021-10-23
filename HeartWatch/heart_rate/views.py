@@ -46,7 +46,7 @@ class proccess_heart_rate_data(viewsets.ModelViewSet):
         # print(heart_rate_data_list)
         result = self.ailments_stats(heart_rate_data_list)
 
-        print(result)
+        # print(result)
 
         return Response(serializer.data)
 
@@ -97,7 +97,7 @@ class proccess_heart_rate_data(viewsets.ModelViewSet):
                     strike = 0
 
                 if strike == count:
-                    print('Patient has Sinus Bradycardia')
+                    # print('Patient has Sinus Bradycardia')
                     brady_in = True
 
                     # One API call for Bradycardia
@@ -108,7 +108,7 @@ class proccess_heart_rate_data(viewsets.ModelViewSet):
                     strike_tachy = 0
 
                 if strike_tachy == count:
-                    print('Patient has Sinus Tachycardia')
+                    # print('Patient has Sinus Tachycardia')
                     tachy_in = True
 
                     # One API call for Tachycardia
@@ -119,7 +119,7 @@ class proccess_heart_rate_data(viewsets.ModelViewSet):
                 else:
                     strike_afib = 0
                 if strike_afib == count_afib:
-                    print('Patient has Atrial Fibrillation')
+                    # print('Patient has Atrial Fibrillation')
                     afib_in = True
 
             # One API call for Atrial Fibrillation
