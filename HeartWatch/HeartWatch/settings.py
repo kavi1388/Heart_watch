@@ -27,6 +27,7 @@ SECRET_KEY = 'django-insecure-td^!_o3o3a9v@c5rht4nm$qe=s_iax4&tyx^@8@ejxw(rxe8ur
 DEBUG = True
 
 ALLOWED_HOSTS = ['164.52.214.242']
+# ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -57,9 +58,19 @@ REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+        # 'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+        'rest_framework.permissions.AllowAny',
     ]
 }
+
+# REST_FRAMEWORK = {
+#    'DEFAULT_AUTHENTICATION_CLASSES': (
+#        'rest_framework.authentication.TokenAuthentication',
+#    ),
+#    'DEFAULT_PERMISSION_CLASSES': (
+#         'rest_framework.permissions.IsAdminUser'
+#    ),
+# }
 
 ROOT_URLCONF = 'HeartWatch.urls'
 
