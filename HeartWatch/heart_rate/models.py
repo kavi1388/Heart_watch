@@ -19,3 +19,10 @@ class PPG_data(models.Model):
 
     def __str__(self):
         return str(self.id)
+
+class Accelerometer_data(models.Model):
+    id = models.AutoField(primary_key=True)
+    Accelerometer = jsonfield.JSONField()
+
+    def __str__(self):
+        return str(self.id)

@@ -1,6 +1,6 @@
 from rest_framework import viewsets, status
-from .serializers import heart_rate_Serializer, heart_rate_get_Serializer
-from .models import heart_rate_data, PPG_data
+from .serializers import heart_rate_Serializer, heart_rate_get_Serializer, Accelerometer_Serializer
+from .models import PPG_data, Accelerometer_data
 from rest_framework.response import Response
 from .PPG.ppg_hr import *
 import datetime
@@ -21,7 +21,7 @@ class heart_rate_ViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data,
-                            status=status.HTTP_201_CREATED)
+                            status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -130,3 +130,16 @@ class proccess_heart_rate_data(viewsets.ModelViewSet):
         else:
             statement = 'Data missing for over 2 minutes , PPG analysis not done'
             return 0
+
+# Accelerometer Data insert
+class Accelerometer_ViewSet(viewsets.ModelViewSet):
+    queryset = Accelerometer_data.objects.all()
+    serializer_class = Accelerometer_Serializer
+
+    def post(self, request, format=None):
+        serializer = Accelerometer_Serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,
+                            status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
