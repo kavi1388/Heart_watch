@@ -44,11 +44,12 @@ class proccess_heart_rate_data(viewsets.ModelViewSet):
             heart_rate_data_list.append(gg)
 
         # print(heart_rate_data_list)
+        # call ailments_stats method
         result = self.ailments_stats(heart_rate_data_list)
 
         # print(result)
 
-        return Response(serializer.data)
+        return Response(result)
 
     def ailments_stats(self, ppg_list):
 
@@ -123,8 +124,9 @@ class proccess_heart_rate_data(viewsets.ModelViewSet):
                     afib_in = True
 
             # One API call for Atrial Fibrillation
-            return ppg_sig, hr_extracted, final_pr, afib_in, tachy_in, brady_in, data_valid
+            # return ppg_sig, hr_extracted, final_pr, afib_in, tachy_in, brady_in, data_valid
+            return afib_in, tachy_in, brady_in
 
         else:
             statement = 'Data missing for over 2 minutes , PPG analysis not done'
-            return ppg_sig, data_valid
+            return 0
