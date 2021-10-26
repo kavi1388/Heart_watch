@@ -20,8 +20,27 @@ class PPG_data(models.Model):
     def __str__(self):
         return str(self.id)
 
+
+class PPG_data_new(models.Model):
+    id = models.AutoField(primary_key=True)
+    user_id = models.CharField(max_length=500, blank=True)
+    heart_rate_voltage = jsonfield.JSONField()
+
+    def __str__(self):
+        return str(self.id)
+
+
 class Accelerometer_data(models.Model):
     id = models.AutoField(primary_key=True)
+    Accelerometer = jsonfield.JSONField()
+
+    def __str__(self):
+        return str(self.id)
+
+
+class Accelerometer_data_new(models.Model):
+    id = models.AutoField(primary_key=True)
+    user_id = models.CharField(max_length=500, blank=True)
     Accelerometer = jsonfield.JSONField()
 
     def __str__(self):
