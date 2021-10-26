@@ -34,7 +34,7 @@ class proccess_heart_rate_data(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         heart_rate_data_list = []
-        ppg_instance = PPG_data.objects.all().order_by('-id')[:30]
+        ppg_instance = PPG_data.objects.all().order_by('-id')[:60]
 
         serializer = heart_rate_get_Serializer(ppg_instance, many=True)
         heart_rate_insta = serializer.data
