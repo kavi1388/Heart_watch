@@ -157,7 +157,7 @@ class proccess_Accelerometer_data(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         Accelerometer_list = []
-        Accelerometer_instance = Accelerometer_data.objects.all().order_by('-id')[:30]
+        Accelerometer_instance = Accelerometer_data.objects.all().order_by('-id')[:10]
 
         serializer = Accelerometer_Serializer(Accelerometer_instance, many=True)
         Accelerometer_insta = serializer.data
