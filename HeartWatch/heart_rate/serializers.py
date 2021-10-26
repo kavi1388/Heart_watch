@@ -19,3 +19,9 @@ class Accelerometer_Serializer(serializers.ModelSerializer):
    class Meta:
        model = Accelerometer_data
        fields = '__all__'
+
+
+class Accelerometer_get_Serializer(serializers.ModelSerializer):
+   class Meta:
+       model = Accelerometer_data
+       fields = '__all__'

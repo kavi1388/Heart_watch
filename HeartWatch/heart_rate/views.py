@@ -1,5 +1,5 @@
 from rest_framework import viewsets, status
-from .serializers import heart_rate_Serializer, heart_rate_get_Serializer, Accelerometer_Serializer
+from .serializers import heart_rate_Serializer, heart_rate_get_Serializer, Accelerometer_Serializer, Accelerometer_get_Serializer
 from .models import PPG_data, Accelerometer_data
 from rest_framework.response import Response
 from .PPG.ppg_hr import *
@@ -7,6 +7,7 @@ import datetime
 import time
 import json
 from .PPG.custom_modules import decimal_to_binary
+from .Accelerometer.HAR_Fall import call_model
 
 
 # Create your views here.
@@ -43,13 +44,16 @@ class proccess_heart_rate_data(viewsets.ModelViewSet):
             gg = i['heart_rate_voltage']
             heart_rate_data_list.append(gg)
 
-        # print(heart_rate_data_list)
         # call ailments_stats method
         result = self.ailments_stats(heart_rate_data_list)
 
-        # print(result)
+        heart_rate = {
+            "afib_in": result[0],
+            "tachy_in": result[1],
+            "brady_in": result[2]
 
-        return Response(result)
+        }
+        return Response(heart_rate)
 
     def ailments_stats(self, ppg_list):
 
@@ -67,11 +71,10 @@ class proccess_heart_rate_data(viewsets.ModelViewSet):
 
         # reading of the input file starts here
         for ind in range(len(ppg_list)):
-            a = ppg_list[ind].replace('\"', '')
-            json_acceptable_string = a.replace('\\', '').replace("'", '"')
-            ppg_data = json.loads(json_acceptable_string)
-            ppg_sec = ppg_data['heart_rate_voltage']['data']
-            time_val.append(ppg_data['heart_rate_voltage']['app_date'].split()[1])
+            a = ppg_list[ind]
+            ppg_data = json.loads(a)
+            ppg_sec = ppg_data['data']
+            time_val.append(ppg_data['app_date'].split()[1])
             for j in range(2, len(ppg_sec), 3):
                 ppg_bytes.append(decimal_to_binary(ppg_sec[j + 1]) + decimal_to_binary(ppg_sec[j]))
         ppg_sig = []
@@ -131,6 +134,7 @@ class proccess_heart_rate_data(viewsets.ModelViewSet):
             statement = 'Data missing for over 2 minutes , PPG analysis not done'
             return 0
 
+
 # Accelerometer Data insert
 class Accelerometer_ViewSet(viewsets.ModelViewSet):
     queryset = Accelerometer_data.objects.all()
@@ -143,3 +147,33 @@ class Accelerometer_ViewSet(viewsets.ModelViewSet):
             return Response(serializer.data,
                             status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class proccess_Accelerometer_data(viewsets.ModelViewSet):
+    queryset = Accelerometer_data.objects.all()
+
+    def get_serializer_class(self):
+        return Accelerometer_Serializer
+
+    def list(self, request, *args, **kwargs):
+        Accelerometer_list = []
+        Accelerometer_instance = Accelerometer_data.objects.all().order_by('-id')[:30]
+
+        serializer = Accelerometer_Serializer(Accelerometer_instance, many=True)
+        Accelerometer_insta = serializer.data
+        # print(heart_rate_insta)
+
+        for i in Accelerometer_insta:
+            gg = i['Accelerometer']
+            Accelerometer_list.append(gg)
+
+        # print("Accelerometer_list ::", Accelerometer_list)
+
+        # call ailments_stats method
+        activity, fall = call_model(Accelerometer_list)
+
+        dd = {
+            "activity": activity,
+            "fall": fall
+        }
+        return Response(dd)
