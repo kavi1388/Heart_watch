@@ -259,7 +259,8 @@ class HeartRateDetail(APIView):
         for i in heart_rate_insta:
             gg = i['heart_rate_voltage']
             heart_rate_data_list.append(gg)
-            # call ailments_stats method
+        print(heart_rate_data_list)
+        # call ailments_stats method
         result = self.ailments_stats(heart_rate_data_list)
 
         heart_rate = {
