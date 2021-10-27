@@ -343,6 +343,9 @@ class HeartRateDetail(APIView):
 
             # One API call for Atrial Fibrillation
             # return ppg_sig, hr_extracted, final_pr, afib_in, tachy_in, brady_in, data_valid
+            print(afib_in)
+            print(tachy_in)
+            print(brady_in)
             return afib_in, tachy_in, brady_in
 
         else:
