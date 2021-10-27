@@ -259,16 +259,19 @@ class HeartRateDetail(APIView):
         for i in heart_rate_insta:
             gg = i['heart_rate_voltage']
             heart_rate_data_list.append(gg)
-        print(heart_rate_data_list)
-        # call ailments_stats method
-        result = self.ailments_stats(heart_rate_data_list)
+        try:
+            # call ailments_stats method
+            result = self.ailments_stats(heart_rate_data_list)
+            heart_rate = {
+                "afib_in": result[0],
+                "tachy_in": result[1],
+                "brady_in": result[2]
 
-        heart_rate = {
-            "afib_in": result[0],
-            "tachy_in": result[1],
-            "brady_in": result[2]
-
-        }
+            }
+        except:
+            heart_rate = {
+                'result': 'Data missing for over 2 minutes , PPG analysis not done'
+            }
         return Response(heart_rate)
 
     def ailments_stats(self, ppg_list):
@@ -344,9 +347,6 @@ class HeartRateDetail(APIView):
 
             # One API call for Atrial Fibrillation
             # return ppg_sig, hr_extracted, final_pr, afib_in, tachy_in, brady_in, data_valid
-            print(afib_in)
-            print(tachy_in)
-            print(brady_in)
             return afib_in, tachy_in, brady_in
 
         else:
