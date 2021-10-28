@@ -1,8 +1,9 @@
 from rest_framework import viewsets, status
 from .serializers import heart_rate_Serializer, heart_rate_get_Serializer, Accelerometer_Serializer, \
-    Accelerometer_get_Serializer, heart_rate_new_Serializer, heart_rate_get_new_Serializer, \
+    heart_rate_new_Serializer, heart_rate_get_new_Serializer, \
     Accelerometer_new_Serializer, Accelerometer_get_new_Serializer
-from .models import PPG_data, Accelerometer_data, PPG_data_new, Accelerometer_data_new
+from .models import PPG_data, Accelerometer_data, PPG_data_new, Accelerometer_data_new, PPG_result_save, \
+    Accelerometer_result_save
 from rest_framework.response import Response
 from .PPG.ppg_hr import *
 import datetime
@@ -222,6 +223,7 @@ class AccelerometerDetail(APIView):
             "activity": activity,
             "fall": fall
         }
+        Accelerometer_result_save.objects.create(final_result=dd, user_id=user_id)
         return Response(dd)
 
 
@@ -261,16 +263,7 @@ class HeartRateDetail(APIView):
             heart_rate_data_list.append(gg)
             # call ailments_stats method
         result = self.ailments_stats(heart_rate_data_list)
-        #     heart_rate = {
-        #         "afib_in": result[0],
-        #         "tachy_in": result[1],
-        #         "brady_in": result[2]
-        #
-        #     }
-        # except:
-        #     heart_rate = {
-        #         'result': 'Data missing for over 2 minutes , PPG analysis not done'
-        #     }
+        PPG_result_save.objects.create(final_result=result, user_id=user_id)
         return Response(result)
 
     def ailments_stats(self, ppg_list):
