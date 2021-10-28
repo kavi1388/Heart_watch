@@ -178,7 +178,8 @@ class proccess_Accelerometer_data(viewsets.ModelViewSet):
 
         dd = {
             "activity": activity,
-            "fall": fall
+            "fall": fall,
+            "check": 'new'
         }
         return Response(dd)
 
@@ -259,22 +260,21 @@ class HeartRateDetail(APIView):
         for i in heart_rate_insta:
             gg = i['heart_rate_voltage']
             heart_rate_data_list.append(gg)
-        try:
             # call ailments_stats method
-            result = self.ailments_stats(heart_rate_data_list)
-            heart_rate = {
-                "afib_in": result[0],
-                "tachy_in": result[1],
-                "brady_in": result[2]
+        result = self.ailments_stats(heart_rate_data_list)
+        #     heart_rate = {
+        #         "afib_in": result[0],
+        #         "tachy_in": result[1],
+        #         "brady_in": result[2]
+        #
+        #     }
+        # except:
+        #     heart_rate = {
+        #         'result': 'Data missing for over 2 minutes , PPG analysis not done'
+        #     }
+        return Response(result)
 
-            }
-        except:
-            heart_rate = {
-                'result': 'Data missing for over 2 minutes , PPG analysis not done'
-            }
-        return Response(heart_rate)
-
-    def ailments_stats(self, ppg_list):
+    def ailments_stats(ppg_list):
 
         strike = 0
         strike_tachy = 0
@@ -346,9 +346,12 @@ class HeartRateDetail(APIView):
                     afib_in = True
 
             # One API call for Atrial Fibrillation
-            # return ppg_sig, hr_extracted, final_pr, afib_in, tachy_in, brady_in, data_valid
-            return afib_in, tachy_in, brady_in
 
+            res = {'Last time': time_val[-1], 'Extracted HR': hr_extracted, 'RR peak intervals': t_diff_afib,
+                   'A Fib': afib_in, 'Tachycardia': tachy_in, 'Bradycardia': brady_in}
+
+            # return ppg_sig, hr_extracted, final_pr, afib_in, tachy_in, brady_in, data_valid
+            return res
         else:
             statement = 'Data missing for over 2 minutes , PPG analysis not done'
-            return 0
+            return statement
