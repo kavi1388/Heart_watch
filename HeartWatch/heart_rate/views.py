@@ -273,7 +273,7 @@ class HeartRateDetail(APIView):
         #     }
         return Response(result)
 
-    def ailments_stats(ppg_list):
+    def ailments_stats(self, ppg_list):
 
         strike = 0
         strike_tachy = 0
