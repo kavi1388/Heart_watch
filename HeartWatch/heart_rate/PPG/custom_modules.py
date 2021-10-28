@@ -158,5 +158,4 @@ def remove_close_peaks(n_peaks, ir_valley_locs, x, min_dist):
         i += 1
 
     sorted_indices[:n_peaks] = sorted(sorted_indices[:n_peaks])
-
     return sorted_indices, n_peaks

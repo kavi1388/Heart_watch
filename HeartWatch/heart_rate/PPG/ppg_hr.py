@@ -88,7 +88,6 @@ def ppg_plot_hr(ppg_sig, time_val, fl=0.4, fh=3.5, o=4, n=12, diff_max=4, r=12):
                 hr_calc2.append(hrcalc2)
         else:
             hr_calc2.append(hrcalc2)
-
         if len(hr_acf) > 0:
             if (hr_acf[-1] - hracp) > diff_max:
                 hr_acf.append(hr_acf[-1] - diff_max)

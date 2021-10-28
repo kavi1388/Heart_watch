@@ -185,7 +185,6 @@ class proccess_Accelerometer_data(viewsets.ModelViewSet):
 
 
 ############################################## NEW Accelerometer API Start #############################################
-
 class Accelerometer_new_ViewSet(viewsets.ModelViewSet):
     queryset = Accelerometer_data_new.objects.all()
     serializer_class = Accelerometer_new_Serializer

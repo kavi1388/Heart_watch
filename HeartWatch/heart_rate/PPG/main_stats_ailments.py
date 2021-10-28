@@ -21,7 +21,6 @@ def ailments_stats(ppg_list):
     data_valid = True
     ppg_bytes = []
     time_val = []
-
     # reading of the input file starts here
     for ind in range(len(ppg_list)):
         a = ppg_list[ind]
