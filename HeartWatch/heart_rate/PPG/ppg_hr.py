@@ -1,8 +1,9 @@
-from ..PPG.custom_modules import *
+from custom_modules import *
 import pandas as pd
 import numpy as np
 from scipy.signal import correlate
 from scipy.signal import find_peaks
+import matplotlib.pyplot as plt
 
 
 def ppg_plot_hr(ppg_sig, time_val, fl=0.4, fh=3.5, o=4, n=12, diff_max=4, r=12):
@@ -108,10 +109,28 @@ def ppg_plot_hr(ppg_sig, time_val, fl=0.4, fh=3.5, o=4, n=12, diff_max=4, r=12):
         else:
             hr_diff.append(hrd)
 
+        if i - n == 0:
+            for s in range(len(ppg_11)):
+                ppg_bpf.append(ppg_11[s])
+
+        else:
+            for s in range(len(ppg_11)):
+                if s > (n - fs - 1):
+                    ppg_bpf.append(ppg_11[s])
+    p1 = (ppg_sig * 18.3 / 128.0 / 1000)
+    ppg_bpf = butter_bandpass_filter(p1, 0.4, 3.67, fs=fs, order=4)
     ppg_bpf = np.asarray(ppg_bpf)
-    peaks_all2 = np.unique(np.asarray(np.sort(peaks_all)).astype(int))
+    peaks, _ = find_peaks(ppg_bpf, height=np.var(ppg_bpf, ddof=1) / 2, distance=10)
+    peaks_all2 = peaks
+    non_uniform=0
     for a in range(len(peaks_all2) - 1):
-        rr_interval.append((peaks_all2[a + 1] - peaks_all2[a]) / fs)
+        if len(rr_interval)>0 and 399 < (peaks_all2[a + 1] - peaks_all2[a]) *1000 / fs <2000.0:
+            rr_interval.append((peaks_all2[a + 1] - peaks_all2[a]) *1000 / fs)
+        elif len(rr_interval)>0:
+            rr_interval.append(rr_interval[-1])
+            non_uniform+=1
+        else:
+            rr_interval.append((peaks_all2[a + 1] - peaks_all2[a]) * 1000 / fs)
     # print('Number of Peaks Detected in PPG is {}'.format(len(peaks_all2)))
     hr_pr_df = pd.DataFrame()
     hr_pr_df['timestamps'] = time_stamp
@@ -137,5 +156,9 @@ def ppg_plot_hr(ppg_sig, time_val, fl=0.4, fh=3.5, o=4, n=12, diff_max=4, r=12):
     final_pr.iloc[:, 1:] = final_pr.iloc[:, 1:].astype('int64')
     #     print(final_pr)
 
-    hr_extracted = final_pr['heart predicted by acf'].to_numpy()
-    return final_pr, dppg_comb, ppg_sig, ppg_bpf, rr_interval, hr_extracted
+    hr_extracted = final_pr['heart predicted avg of 5 ways'].to_numpy()
+
+    # plt.plot(ppg_bpf)
+    # plt.scatter(peaks_all2, ppg_bpf[peaks_all2])
+    # plt.show()
+    return final_pr, dppg_comb, ppg_sig, ppg_bpf, rr_interval, hr_extracted, peaks_all2,non_uniform
