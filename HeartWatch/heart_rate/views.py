@@ -219,6 +219,7 @@ class AccelerometerDetail(APIView):
         activity, fall = call_model(Accelerometer_data_list)
 
         dd = {
+            "data input" :Accelerometer_data_list,
             "activity": activity,
             "fall": fall
         }
@@ -247,7 +248,7 @@ class HeartRateDetail(APIView):
         # Returns an object instance that should
         # be used for detail views.
         try:
-            return PPG_data_new.objects.filter(user_id=user_id)[:60]
+            return PPG_data_new.objects.filter(user_id=user_id)[:30]
         except PPG_data_new.DoesNotExist:
             raise Http404
 
@@ -273,7 +274,7 @@ class HeartRateDetail(APIView):
         #     }
         return Response(result)
 
-    def ailments_stats(ppg_list):
+    def ailments_stats(self,ppg_list):
 
         strike = 0
         strike_tachy = 0
@@ -286,7 +287,6 @@ class HeartRateDetail(APIView):
         data_valid = True
         ppg_bytes = []
         time_val = []
-
         # reading of the input file starts here
         for ind in range(len(ppg_list)):
             a = ppg_list[ind]
@@ -310,7 +310,8 @@ class HeartRateDetail(APIView):
                 if time_step_v[-2] - time_step_v[-1] > 120:
                     data_valid = False
         if data_valid:
-            final_pr, ppg_21, ppg_sig, ppg_bpf, t_diff_afib, hr_extracted = ppg_plot_hr(ppg_sig, time_val)
+            final_pr, ppg_21, ppg_sig, ppg_bpf, t_diff_afib, hr_extracted, peaks_all2, non_uniform = ppg_plot_hr(
+                ppg_sig, time_val)
 
             for i in range(len(hr_extracted)):
                 if 60 > hr_extracted[i] >= 40:
@@ -335,18 +336,18 @@ class HeartRateDetail(APIView):
 
                     # One API call for Tachycardia
 
-            for i in range(len(t_diff_afib) - 1):
-                if t_diff_afib[i + 1] - t_diff_afib[i] > 10:
-                    strike_afib += 1
-                else:
-                    strike_afib = 0
-                if strike_afib == count_afib:
-                    # print('Patient has Atrial Fibrillation')
-                    afib_in = True
+            # for i in range(len(t_diff_afib) - 1):
+            #     if t_diff_afib[i + 1] - t_diff_afib[i] > 10:
+            #         strike_afib += 1
+            #     else:
+            #         strike_afib = 0
+            if non_uniform == count_afib:
+                # print('Patient has Atrial Fibrillation')
+                afib_in = True
 
             # One API call for Atrial Fibrillation
 
-            res = {'Last time': time_val[-1], 'Extracted HR': hr_extracted, 'RR peak intervals': t_diff_afib,
+            res = {'input data': ppg_list, 'Last time': time_val[-1], 'Extracted HR': hr_extracted, 'RR peak intervals': t_diff_afib,
                    'A Fib': afib_in, 'Tachycardia': tachy_in, 'Bradycardia': brady_in}
 
             # return ppg_sig, hr_extracted, final_pr, afib_in, tachy_in, brady_in, data_valid
