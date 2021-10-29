@@ -219,11 +219,11 @@ class AccelerometerDetail(APIView):
         activity, fall = call_model(Accelerometer_data_list)
 
         dd = {
-            "data input" :Accelerometer_data_list,
+            "last time" :Accelerometer_data_list,
             "activity": activity,
             "fall": fall
         }
-        PPG_result_save.objects.create(final_result=dd, user_id=user_id)
+        Accelerometer_result_save.objects.create(final_result=dd, user_id=user_id)
         return Response(dd)
 
 
@@ -339,7 +339,7 @@ class HeartRateDetail(APIView):
 
             # One API call for Atrial Fibrillation
 
-            res = {'input data': ppg_list, 'Last time': time_val[-1], 'Extracted HR': hr_extracted, 'RR peak intervals': t_diff_afib,
+            res = {'Predicted HR': final_pr, 'RR peak intervals': t_diff_afib,
                    'A Fib': afib_in, 'Tachycardia': tachy_in, 'Bradycardia': brady_in}
 
             # return ppg_sig, hr_extracted, final_pr, afib_in, tachy_in, brady_in, data_valid
