@@ -216,10 +216,10 @@ class AccelerometerDetail(APIView):
         for i in Accelerometer_insta:
             gg = i['Accelerometer']
             Accelerometer_data_list.append(gg)
-        activity, fall = call_model(Accelerometer_data_list)
+        time_last, activity, fall = call_model(Accelerometer_data_list)
 
         dd = {
-            "last time" :Accelerometer_data_list,
+            "last time" :time_last,
             "activity": activity,
             "fall": fall
         }
