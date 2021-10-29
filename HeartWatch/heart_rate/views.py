@@ -256,12 +256,15 @@ class HeartRateDetail(APIView):
     def get(self, request, user_id, format=None):
         heart_rate_data_list = []
         heart_rate_obj = self.get_object(user_id)
+        print("heart_rate_obj ::", heart_rate_obj)
         serializer = heart_rate_get_new_Serializer(heart_rate_obj, many=True)
         heart_rate_insta = serializer.data
         for i in heart_rate_insta:
             gg = i['heart_rate_voltage']
             heart_rate_data_list.append(gg)
-            # call ailments_stats method
+
+        print("heart_rate_data_list ::", heart_rate_data_list)
+        # call ailments_stats method
         result = self.ailments_stats(heart_rate_data_list)
         PPG_result_save.objects.create(final_result=result, user_id=user_id)
         return Response(result)
