@@ -204,7 +204,7 @@ class AccelerometerDetail(APIView):
         # Returns an object instance that should
         # be used for detail views.
         try:
-            return Accelerometer_data_new.objects.filter(user_id=user_id)[:10]
+            return Accelerometer_data_new.objects.filter(user_id=user_id).order_by('-id')[:10]
         except Accelerometer_data_new.DoesNotExist:
             raise Http404
 
@@ -248,7 +248,7 @@ class HeartRateDetail(APIView):
         # Returns an object instance that should
         # be used for detail views.
         try:
-            return PPG_data_new.objects.filter(user_id=user_id)[:30]
+            return PPG_data_new.objects.filter(user_id=user_id).order_by('-id')[:30]
         except PPG_data_new.DoesNotExist:
             raise Http404
 
@@ -262,16 +262,6 @@ class HeartRateDetail(APIView):
             heart_rate_data_list.append(gg)
             # call ailments_stats method
         result = self.ailments_stats(heart_rate_data_list)
-        #     heart_rate = {
-        #         "afib_in": result[0],
-        #         "tachy_in": result[1],
-        #         "brady_in": result[2]
-        #
-        #     }
-        # except:
-        #     heart_rate = {
-        #         'result': 'Data missing for over 2 minutes , PPG analysis not done'
-        #     }
         return Response(result)
 
     def ailments_stats(self,ppg_list):
