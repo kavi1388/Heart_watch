@@ -244,7 +244,27 @@ class AccelerometerNotify(APIView):
         # print("Accelerometer_obj ::", Accelerometer_obj)
         serializer = Accelerometer_notify_Serializer(Accelerometer_obj, many=True)
         Accelerometer_insta = serializer.data
-        print(Accelerometer_insta)
+        # print(Accelerometer_insta)
+        for i in Accelerometer_insta:
+            final_result = i['final_result']
+            ff = eval(final_result)
+            d = dict(ff)
+            last_time = d['time']
+
+            current_time = time.strftime('%H:%M:%S', time.localtime())
+            x = time.strptime(current_time, '%H:%M:%S')
+            y = time.strptime(last_time, '%H:%M:%S')
+            time_diff = datetime.timedelta(hours=x.tm_hour, minutes=x.tm_min,
+                                           seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
+                                                                                                  minutes=y.tm_min,
+                                                                                                  seconds=y.tm_sec).total_seconds()
+            if abs(time_diff) > 30:
+                Accelerometer_insta = {
+                  "user_id": user_id,
+                  "final_result": 'No activity detected'
+                }
+            else:
+                Accelerometer_insta = Accelerometer_insta
 
         return Response(Accelerometer_insta)
 
@@ -386,6 +406,6 @@ class HeartRateNotify(APIView):
         # print("HeartRate_obj ::", HeartRate_obj)
         serializer = HeartRate_notify_Serializer(HeartRate_obj, many=True)
         HeartRate_insta = serializer.data
-        print(HeartRate_insta)
+        # print(HeartRate_insta)
 
         return Response(HeartRate_insta)
