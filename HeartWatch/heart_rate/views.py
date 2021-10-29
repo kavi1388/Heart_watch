@@ -1,9 +1,8 @@
 from rest_framework import viewsets, status
 from .serializers import heart_rate_Serializer, heart_rate_get_Serializer, Accelerometer_Serializer, \
-    heart_rate_new_Serializer, heart_rate_get_new_Serializer, \
+    Accelerometer_get_Serializer, heart_rate_new_Serializer, heart_rate_get_new_Serializer, \
     Accelerometer_new_Serializer, Accelerometer_get_new_Serializer
-from .models import PPG_data, Accelerometer_data, PPG_data_new, Accelerometer_data_new, PPG_result_save, \
-    Accelerometer_result_save
+from .models import PPG_data, Accelerometer_data, PPG_data_new, Accelerometer_data_new
 from rest_framework.response import Response
 from .PPG.ppg_hr import *
 import datetime
@@ -205,7 +204,7 @@ class AccelerometerDetail(APIView):
         # Returns an object instance that should
         # be used for detail views.
         try:
-            return Accelerometer_data_new.objects.filter(user_id=user_id).order_by('-id')[:10]
+            return Accelerometer_data_new.objects.filter(user_id=user_id)[:10]
         except Accelerometer_data_new.DoesNotExist:
             raise Http404
 
@@ -220,10 +219,10 @@ class AccelerometerDetail(APIView):
         activity, fall = call_model(Accelerometer_data_list)
 
         dd = {
+            "data input" :Accelerometer_data_list,
             "activity": activity,
             "fall": fall
         }
-        Accelerometer_result_save.objects.create(final_result=dd, user_id=user_id)
         return Response(dd)
 
 
@@ -249,7 +248,7 @@ class HeartRateDetail(APIView):
         # Returns an object instance that should
         # be used for detail views.
         try:
-            return PPG_data_new.objects.filter(user_id=user_id).order_by('-id')[:60]
+            return PPG_data_new.objects.filter(user_id=user_id)[:30]
         except PPG_data_new.DoesNotExist:
             raise Http404
 
@@ -261,12 +260,21 @@ class HeartRateDetail(APIView):
         for i in heart_rate_insta:
             gg = i['heart_rate_voltage']
             heart_rate_data_list.append(gg)
-        # call ailments_stats method
+            # call ailments_stats method
         result = self.ailments_stats(heart_rate_data_list)
-        PPG_result_save.objects.create(final_result=result, user_id=user_id)
+        #     heart_rate = {
+        #         "afib_in": result[0],
+        #         "tachy_in": result[1],
+        #         "brady_in": result[2]
+        #
+        #     }
+        # except:
+        #     heart_rate = {
+        #         'result': 'Data missing for over 2 minutes , PPG analysis not done'
+        #     }
         return Response(result)
 
-    def ailments_stats(self, ppg_list):
+    def ailments_stats(self,ppg_list):
 
         strike = 0
         strike_tachy = 0
@@ -279,7 +287,6 @@ class HeartRateDetail(APIView):
         data_valid = True
         ppg_bytes = []
         time_val = []
-
         # reading of the input file starts here
         for ind in range(len(ppg_list)):
             a = ppg_list[ind]
@@ -303,7 +310,8 @@ class HeartRateDetail(APIView):
                 if time_step_v[-2] - time_step_v[-1] > 120:
                     data_valid = False
         if data_valid:
-            final_pr, ppg_21, ppg_sig, ppg_bpf, t_diff_afib, hr_extracted = ppg_plot_hr(ppg_sig, time_val)
+            final_pr, ppg_21, ppg_sig, ppg_bpf, t_diff_afib, hr_extracted, peaks_all2, non_uniform = ppg_plot_hr(
+                ppg_sig, time_val)
 
             for i in range(len(hr_extracted)):
                 if 60 > hr_extracted[i] >= 40:
@@ -328,18 +336,18 @@ class HeartRateDetail(APIView):
 
                     # One API call for Tachycardia
 
-            for i in range(len(t_diff_afib) - 1):
-                if t_diff_afib[i + 1] - t_diff_afib[i] > 10:
-                    strike_afib += 1
-                else:
-                    strike_afib = 0
-                if strike_afib == count_afib:
-                    # print('Patient has Atrial Fibrillation')
-                    afib_in = True
+            # for i in range(len(t_diff_afib) - 1):
+            #     if t_diff_afib[i + 1] - t_diff_afib[i] > 10:
+            #         strike_afib += 1
+            #     else:
+            #         strike_afib = 0
+            if non_uniform == count_afib:
+                # print('Patient has Atrial Fibrillation')
+                afib_in = True
 
             # One API call for Atrial Fibrillation
 
-            res = {'Last time': time_val[-1], 'Extracted HR': hr_extracted, 'RR peak intervals': t_diff_afib,
+            res = {'input data': ppg_list, 'Last time': time_val[-1], 'Extracted HR': hr_extracted, 'RR peak intervals': t_diff_afib,
                    'A Fib': afib_in, 'Tachycardia': tachy_in, 'Bradycardia': brady_in}
 
             # return ppg_sig, hr_extracted, final_pr, afib_in, tachy_in, brady_in, data_valid
