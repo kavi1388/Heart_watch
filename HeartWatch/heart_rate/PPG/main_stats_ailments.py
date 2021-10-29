@@ -45,7 +45,7 @@ def ailments_stats(ppg_list):
             if time_step_v[-2] - time_step_v[-1] > 120:
                 data_valid = False
     if data_valid:
-        final_pr, ppg_21, ppg_sig, ppg_bpf, t_diff_afib, hr_extracted, peaks_all2,non_uniform = ppg_plot_hr(ppg_sig, time_val)
+        final_pr, ppg_21, ppg_sig, ppg_bpf, t_diff_afib, hr_extracted, peaks_all2,non_uniform = ppg_plot_hr(ppg_sig, time_val, fl=0.2, fh=3.5, o=4, n=6, diff_max=4, r=1)
 
         for i in range(len(hr_extracted)):
             if 60 > hr_extracted[i] >= 40:
@@ -81,8 +81,8 @@ def ailments_stats(ppg_list):
 
         # One API call for Atrial Fibrillation
 
-        res = {'Last time': time_val[-1],'Extracted HR' : hr_extracted,'RR peak intervals':t_diff_afib,'A Fib': afib_in, 'Tachycardia':tachy_in, 'Bradycardia': brady_in }
-
+        res = {'Predicted HR': final_pr, 'RR peak intervals': t_diff_afib,
+               'A Fib': afib_in, 'Tachycardia': tachy_in, 'Bradycardia': brady_in}
         # return ppg_sig, hr_extracted, final_pr, afib_in, tachy_in, brady_in, data_valid
         return res, ppg_bpf, t_diff_afib,peaks_all2,final_pr
     else:
@@ -93,14 +93,14 @@ def ailments_stats(ppg_list):
 # save ppg_sig, hr_extracted, final_pr, afib, tachy, brady, data_valid
 
 data = pd.read_csv(r'C:\Users\Yuvraj\Desktop\HW\HeartWatch\heart_rate\PPG\PPG_data_new-2021-10-28.csv')
-result,ppg_bpf,rr_int, peaks_all2 ,final_pr= ailments_stats(data.iloc[:,2].to_list())
-print(result)
+result,ppg_bpf,rr_int, peaks_all2 ,final_pr= ailments_stats(data.iloc[0:30,2].to_list())
+# print(result)
 # print(ppg_bpf)
 # print(rr_int)
 # print(final_pr)
 # plt.title('rr intervals: {}'.format(rr_int*1000))
-plt.plot(ppg_bpf)
+# plt.plot(ppg_bpf)
 # plt.text(0.,0.9,rr_int,fontsize=10)
-plt.scatter(peaks_all2,ppg_bpf[peaks_all2])
-plt.show()
+# plt.scatter(peaks_all2,ppg_bpf[peaks_all2])
+# plt.show()
 # print(result)

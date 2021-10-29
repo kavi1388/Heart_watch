@@ -18,6 +18,7 @@ def call_model(data):
     two_minutes = 120
     predict_activity = []
     fall_timestamps = []
+    time_val=[]
 
     for index, dt in enumerate(data):
         # dt = dt.replace('\\', '')
@@ -25,7 +26,7 @@ def call_model(data):
 
         dt = ast.literal_eval(dt)
         # print
-
+        time_val.append(dt['app_date'].split()[1])
         # dt = dt['Accelerometer']
         acc_data_df.loc[index, 'data'] = dt['data']
         acc_data_df.loc[index, '_id'] = dt['_id']
@@ -60,4 +61,4 @@ def call_model(data):
                     window_df = window_df.drop(window_df.index[range(0, len(window_df))])
                     window_df = window_df.dropna()
 
-    return predict_activity, fall_timestamps
+    return time_val[-1], predict_activity, fall_timestamps
