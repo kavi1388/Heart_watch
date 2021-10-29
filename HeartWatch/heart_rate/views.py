@@ -1,8 +1,10 @@
 from rest_framework import viewsets, status
 from .serializers import heart_rate_Serializer, heart_rate_get_Serializer, Accelerometer_Serializer, \
     Accelerometer_get_Serializer, heart_rate_new_Serializer, heart_rate_get_new_Serializer, \
-    Accelerometer_new_Serializer, Accelerometer_get_new_Serializer
-from .models import PPG_data, Accelerometer_data, PPG_data_new, Accelerometer_data_new, PPG_result_save, Accelerometer_result_save
+    Accelerometer_new_Serializer, Accelerometer_get_new_Serializer, Accelerometer_notify_Serializer, \
+    HeartRate_notify_Serializer
+from .models import PPG_data, Accelerometer_data, PPG_data_new, Accelerometer_data_new, PPG_result_save, \
+    Accelerometer_result_save
 from rest_framework.response import Response
 from .PPG.ppg_hr import *
 import datetime
@@ -227,6 +229,26 @@ class AccelerometerDetail(APIView):
         return Response(dd)
 
 
+class AccelerometerNotify(APIView):
+
+    def get_object(self, user_id):
+        # Returns an object instance that should
+        # be used for detail views.
+        try:
+            return Accelerometer_result_save.objects.filter(user_id=user_id).order_by('-id')[:1]
+        except Accelerometer_result_save.DoesNotExist:
+            raise Http404
+
+    def get(self, request, user_id, format=None):
+        Accelerometer_obj = self.get_object(user_id)
+        # print("Accelerometer_obj ::", Accelerometer_obj)
+        serializer = Accelerometer_notify_Serializer(Accelerometer_obj, many=True)
+        Accelerometer_insta = serializer.data
+        print(Accelerometer_insta)
+
+        return Response(Accelerometer_insta)
+
+
 ############################################## NEW Heart rate API Start ################################################
 
 
@@ -266,7 +288,7 @@ class HeartRateDetail(APIView):
         PPG_result_save.objects.create(final_result=result, user_id=user_id)
         return Response(result)
 
-    def ailments_stats(self,ppg_list):
+    def ailments_stats(self, ppg_list):
 
         strike = 0
         strike_tachy = 0
@@ -347,3 +369,23 @@ class HeartRateDetail(APIView):
         else:
             statement = 'Data missing for over 2 minutes , PPG analysis not done'
             return statement
+
+
+class HeartRateNotify(APIView):
+
+    def get_object(self, user_id):
+        # Returns an object instance that should
+        # be used for detail views.
+        try:
+            return PPG_result_save.objects.filter(user_id=user_id).order_by('-id')[:1]
+        except PPG_result_save.DoesNotExist:
+            raise Http404
+
+    def get(self, request, user_id, format=None):
+        HeartRate_obj = self.get_object(user_id)
+        # print("HeartRate_obj ::", HeartRate_obj)
+        serializer = HeartRate_notify_Serializer(HeartRate_obj, many=True)
+        HeartRate_insta = serializer.data
+        print(HeartRate_insta)
+
+        return Response(HeartRate_insta)

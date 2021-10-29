@@ -1,7 +1,8 @@
 from django.urls import include, path
 from rest_framework import routers
 from .views import heart_rate_ViewSet, heart_rate_new_ViewSet, proccess_heart_rate_data, Accelerometer_ViewSet, \
-    proccess_Accelerometer_data, HeartRateDetail, Accelerometer_new_ViewSet, AccelerometerDetail
+    proccess_Accelerometer_data, HeartRateDetail, Accelerometer_new_ViewSet, AccelerometerDetail, AccelerometerNotify, \
+    HeartRateNotify
 
 router = routers.DefaultRouter()
 router.register(r'heart_rate_voltage', heart_rate_ViewSet)
@@ -17,4 +18,6 @@ urlpatterns = [
     path('', proccess_Accelerometer_data.as_view({'get': 'list'})),
     path('HeartRateDetail/<str:user_id>/', HeartRateDetail.as_view()),
     path('AccelerometerDetail/<str:user_id>/', AccelerometerDetail.as_view()),
+    path('Accelerometer_notify/<str:user_id>/', AccelerometerNotify.as_view()),
+    path('HeartRate_notify/<str:user_id>/', HeartRateNotify.as_view()),
 ]
