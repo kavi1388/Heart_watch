@@ -219,7 +219,7 @@ class AccelerometerDetail(APIView):
         time_last, activity, fall = call_model(Accelerometer_data_list)
 
         dd = {
-            "last time" :time_last,
+            "time": time_last,
             "activity": activity,
             "fall": fall
         }
@@ -303,7 +303,7 @@ class HeartRateDetail(APIView):
                     data_valid = False
         if data_valid:
             final_pr, ppg_21, ppg_sig, ppg_bpf, t_diff_afib, hr_extracted, peaks_all2, non_uniform = ppg_plot_hr(
-                ppg_sig, time_val)
+                ppg_sig, time_val, fl=0.2, fh=3.5, o=4, n=6, diff_max=4, r=1)
 
             for i in range(len(hr_extracted)):
                 if 60 > hr_extracted[i] >= 40:
