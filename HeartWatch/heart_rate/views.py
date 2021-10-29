@@ -205,7 +205,7 @@ class AccelerometerDetail(APIView):
         # Returns an object instance that should
         # be used for detail views.
         try:
-            return Accelerometer_data_new.objects.filter(user_id=user_id)[:10]
+            return Accelerometer_data_new.objects.filter(user_id=user_id).order_by('-id')[:10]
         except Accelerometer_data_new.DoesNotExist:
             raise Http404
 
@@ -249,8 +249,6 @@ class HeartRateDetail(APIView):
         # Returns an object instance that should
         # be used for detail views.
         try:
-            ff = PPG_data_new.objects.filter(user_id=user_id).order_by('-id')[:60]
-            print("FF ::", ff)
             return PPG_data_new.objects.filter(user_id=user_id).order_by('-id')[:60]
         except PPG_data_new.DoesNotExist:
             raise Http404
@@ -258,14 +256,11 @@ class HeartRateDetail(APIView):
     def get(self, request, user_id, format=None):
         heart_rate_data_list = []
         heart_rate_obj = self.get_object(user_id)
-        print("heart_rate_obj ::", heart_rate_obj)
         serializer = heart_rate_get_new_Serializer(heart_rate_obj, many=True)
         heart_rate_insta = serializer.data
         for i in heart_rate_insta:
             gg = i['heart_rate_voltage']
             heart_rate_data_list.append(gg)
-
-        print("heart_rate_data_list ::", heart_rate_data_list)
         # call ailments_stats method
         result = self.ailments_stats(heart_rate_data_list)
         PPG_result_save.objects.create(final_result=result, user_id=user_id)
