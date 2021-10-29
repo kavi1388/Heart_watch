@@ -23,7 +23,8 @@ class Accelerometer_data_newAdmin(ExportActionMixin, admin.ModelAdmin):
     list_display = ('id', 'user_id', 'Accelerometer')
 
 
-admin.site.register(heart_rate_data)
+admin.site.register(PPG_result_save)
+admin.site.register(Accelerometer_result_save)
 admin.site.register(PPG_data, PPG_DataAdmin)
 admin.site.register(PPG_data_new, PPG_data_newAdmin)
 admin.site.register(Accelerometer_data, Accelerometer_dataAdmin)

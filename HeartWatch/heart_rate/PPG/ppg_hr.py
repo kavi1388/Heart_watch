@@ -1,4 +1,4 @@
-from ..PPG.custom_modules import *
+from custom_modules import *
 import pandas as pd
 import numpy as np
 from scipy.signal import correlate
