@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 from ppg_hr import *
-from custom_modules import *
+from ..PPG.custom_modules import *
 import datetime
 import time
 import json
