@@ -240,34 +240,38 @@ class AccelerometerNotify(APIView):
             raise Http404
 
     def get(self, request, user_id, format=None):
+        Accelerometer_data = ""
         Accelerometer_obj = self.get_object(user_id)
         # print("Accelerometer_obj ::", Accelerometer_obj)
         serializer = Accelerometer_notify_Serializer(Accelerometer_obj, many=True)
         Accelerometer_insta = serializer.data
         # print(Accelerometer_insta)
-        for i in Accelerometer_insta:
-            final_result = i['final_result']
-            ff = eval(final_result)
-            d = dict(ff)
-            last_time = d['time']
+        try:
+            for i in Accelerometer_insta:
+                final_result = i['final_result']
+                ff = eval(final_result)
+                d = dict(ff)
+                last_time = d['time']
 
-            current_time = time.strftime('%H:%M:%S', time.localtime())
-            x = time.strptime(current_time, '%H:%M:%S')
-            y = time.strptime(last_time, '%H:%M:%S')
-            time_diff = datetime.timedelta(hours=x.tm_hour, minutes=x.tm_min,
-                                           seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
-                                                                                                  minutes=y.tm_min,
-                                                                                                  seconds=y.tm_sec).total_seconds()
-            if abs(time_diff) > 30:
-                Accelerometer_insta = {
-                  "user_id": user_id,
-                  "final_result": 'No activity detected'
-                }
-            else:
-                Accelerometer_insta = Accelerometer_insta
-
-        return Response(Accelerometer_insta)
-
+                current_time = time.strftime('%H:%M:%S', time.localtime())
+                x = time.strptime(current_time, '%H:%M:%S')
+                y = time.strptime(last_time, '%H:%M:%S')
+                time_diff = datetime.timedelta(hours=x.tm_hour, minutes=x.tm_min,
+                                               seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
+                                                                                                      minutes=y.tm_min,
+                                                                                                      seconds=y.tm_sec).total_seconds()
+                if abs(time_diff) > 30:
+                    Accelerometer_data = {
+                      "final_result": 'No activity detected'
+                    }
+                else:
+                    activity = d['activity'][0]
+                    Accelerometer_data = {
+                        'activity': activity
+                    }
+            return Response(Accelerometer_data)
+        except :
+            return Http404
 
 ############################################## NEW Heart rate API Start ################################################
 
