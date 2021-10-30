@@ -1,3 +1,4 @@
+import requests
 from rest_framework import viewsets, status
 from .serializers import heart_rate_Serializer, heart_rate_get_Serializer, Accelerometer_Serializer, \
     Accelerometer_get_Serializer, heart_rate_new_Serializer, heart_rate_get_new_Serializer, \
@@ -69,7 +70,7 @@ class proccess_heart_rate_data(viewsets.ModelViewSet):
         count = 20
         count_afib = 10
         brady_in = False
-        tachy_in = False
+        tachy_in = True
         afib_in = False
         data_valid = True
         ppg_bytes = []
@@ -379,7 +380,7 @@ class HeartRateDetail(APIView):
         count = 20
         count_afib = 10
         brady_in = False
-        tachy_in = False
+        tachy_in = True
         afib_in = False
         data_valid = True
         ppg_bytes = []
@@ -397,6 +398,7 @@ class HeartRateDetail(APIView):
             ppg_sig.append(as_signed_big(ppg_bytes[i]))
         ppg_sig = np.asarray(ppg_sig)
 
+
         time_step_v = []
         for i in range(len(time_val)):
 
@@ -408,7 +410,7 @@ class HeartRateDetail(APIView):
                     data_valid = False
         if data_valid:
             final_pr, ppg_21, ppg_sig, ppg_bpf, t_diff_afib, hr_extracted, peaks_all2, non_uniform = ppg_plot_hr(
-                ppg_sig, time_val, fl=0.2, fh=3.5, o=4, n=6, diff_max=4, r=1)
+                ppg_sig, time_val, fl=0.4, fh=3.5, o=4, n=10, diff_max=4, r=1)
 
             for i in range(len(hr_extracted)):
                 if 60 > hr_extracted[i] >= 40:
@@ -432,6 +434,8 @@ class HeartRateDetail(APIView):
                     tachy_in = True
 
                     # One API call for Tachycardia
+                # if tachy_in:
+                    # response_t=requests.post('http://164.52.214.242:9098/user-alerts?secret_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjYwNTJlNGRjNjA1ZjUwMDAwNGVmNmQzZiIsImVtYWlsIjoiZHM4ODk5N0BnbWFpbC5jb20iLCJwcm92aWRlciI6ImxvY2FsIn0sImlhdCI6MTYzMjMyMjIwMX0.Dgyv2GKLiIWOf2NRWpl7FNxLDyC-xNGPzH3eDBeoaLc&3=Fall Detected&1=Depressesed Heart Rate Detected&2=Elevated Heart Rate Detected', data={'key':2})
 
             # for i in range(len(t_diff_afib) - 1):
             #     if t_diff_afib[i + 1] - t_diff_afib[i] > 10:

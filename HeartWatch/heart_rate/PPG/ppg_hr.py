@@ -6,7 +6,7 @@ from scipy.signal import find_peaks
 import matplotlib.pyplot as plt
 
 
-def ppg_plot_hr(ppg_sig, time_val, fl=0.4, fh=3.5, o=4, n=12, diff_max=4, r=12):
+def ppg_plot_hr(ppg_sig, time_val, fl=0.4, fh=3.5, o=4, n=10, diff_max=4, r=1):
     ppg_bpf = []
     peaks_all = []
     time_stamp = []
@@ -21,6 +21,7 @@ def ppg_plot_hr(ppg_sig, time_val, fl=0.4, fh=3.5, o=4, n=12, diff_max=4, r=12):
     t_diff_afib = []
     dppg_comb = []
     rr_interval = []
+
 
     # print('PPG Signal is {} seconds long'.format(len(ppg_sig) // fs))
     for i in range(n, len(ppg_sig), jump):
