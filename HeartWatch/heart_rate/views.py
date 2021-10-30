@@ -237,10 +237,10 @@ class AccelerometerDetail_new(APIView):
         Accelerometer_data = ""
         serializer1 = Accelerometer_new_Serializer(data=request.data)
         if serializer1.is_valid():
-            # serializer1.save()
-            # acc_obj = serializer1.data
-            # user_id = acc_obj['user_id']
-            user_id = "6052e4dc605f500004ef6d3f"
+            serializer1.save()
+            acc_obj = serializer1.data
+            user_id = acc_obj['user_id']
+            # user_id = "6052e4dc605f500004ef6d3f"
             first_ten = Accelerometer_data_new.objects.filter(user_id=user_id).order_by('-id')[:10]
             # print(first_ten)
             serializer = Accelerometer_get_new_Serializer(first_ten, many=True)
