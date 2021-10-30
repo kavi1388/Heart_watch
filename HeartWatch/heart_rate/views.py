@@ -230,6 +230,55 @@ class AccelerometerDetail(APIView):
         return Response(dd)
 
 
+class AccelerometerDetail_new(APIView):
+    serializer_class = Accelerometer_new_Serializer, Accelerometer_get_new_Serializer
+    def post(self, request, format=None):
+        Accelerometer_data_list = []
+        Accelerometer_data = ""
+        serializer1 = Accelerometer_new_Serializer(data=request.data)
+        if serializer1.is_valid():
+            serializer1.save()
+            acc_obj = serializer1.data
+            user_id = acc_obj['user_id']
+            # user_id = "6052e4dc605f500004ef6d3f"
+            first_ten = Accelerometer_data_new.objects.filter(user_id=user_id).order_by('-id')[:10]
+            # print(first_ten)
+            serializer = Accelerometer_get_new_Serializer(first_ten, many=True)
+            Accelerometer_insta = serializer.data
+            # print(Accelerometer_insta)
+            for i in Accelerometer_insta:
+                gg = i['Accelerometer']
+                Accelerometer_data_list.append(gg)
+            time_last, activity, fall = call_model(Accelerometer_data_list)
+
+            dd = {
+                "time": time_last,
+                "activity": activity,
+                "fall": fall
+            }
+
+            last_time = dd['time']
+            # print(last_time)
+            current_time = time.strftime('%H:%M:%S', time.localtime())
+            x = time.strptime(current_time, '%H:%M:%S')
+            y = time.strptime(last_time, '%H:%M:%S')
+            time_diff = datetime.timedelta(hours=x.tm_hour, minutes=x.tm_min,
+                                           seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
+                                                                                                  minutes=y.tm_min,
+                                                                                                  seconds=y.tm_sec).total_seconds()
+            if abs(time_diff) > 30:
+                Accelerometer_data = {
+                    "final_result": 'No activity detected'
+                }
+            else:
+                activity = dd['activity'][0]
+                Accelerometer_data = {
+                    'activity': activity
+                }
+            return Response(Accelerometer_data,
+                            status=status.HTTP_200_OK)
+        return Http404
+
 class Accelerometer_new_V1_ViewSet(APIView):
 
     def get_object(self, user_id):
