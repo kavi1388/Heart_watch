@@ -22,6 +22,7 @@ def ppg_plot_hr(ppg_sig, time_val, fl=0.4, fh=3.5, o=4, n=10, diff_max=4, r=1):
     dppg_comb = []
     rr_interval = []
 
+
     # print('PPG Signal is {} seconds long'.format(len(ppg_sig) // fs))
     for i in range(n, len(ppg_sig), jump):
 

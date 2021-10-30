@@ -339,6 +339,7 @@ class HeartRateDetail(APIView):
             ppg_sig.append(as_signed_big(ppg_bytes[i]))
         ppg_sig = np.asarray(ppg_sig)
 
+
         time_step_v = []
         for i in range(len(time_val)):
 
