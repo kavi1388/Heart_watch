@@ -375,6 +375,7 @@ class HeartRateDetail(APIView):
                     tachy_in = True
 
                     # One API call for Tachycardia
+                if tachy_in:
                     response_t=requests.post('http://164.52.214.242:9098/user-alerts?secret_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjYwNTJlNGRjNjA1ZjUwMDAwNGVmNmQzZiIsImVtYWlsIjoiZHM4ODk5N0BnbWFpbC5jb20iLCJwcm92aWRlciI6ImxvY2FsIn0sImlhdCI6MTYzMjMyMjIwMX0.Dgyv2GKLiIWOf2NRWpl7FNxLDyC-xNGPzH3eDBeoaLc&3=Fall Detected&1=Depressesed Heart Rate Detected&2=Elevated Heart Rate Detected', data={'key':2})
 
             # for i in range(len(t_diff_afib) - 1):
