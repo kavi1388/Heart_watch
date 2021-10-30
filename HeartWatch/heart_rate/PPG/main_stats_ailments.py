@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 from ppg_hr import *
-from ..PPG.custom_modules import *
+from custom_modules import *
 import datetime
 import time
 import json
@@ -14,7 +14,7 @@ def ailments_stats(ppg_list):
     strike = 0
     strike_tachy = 0
     strike_afib = 0
-    count = 20
+    count = 6
     count_afib = 10
     brady_in= False
     tachy_in = False
@@ -92,15 +92,21 @@ def ailments_stats(ppg_list):
 
 # save ppg_sig, hr_extracted, final_pr, afib, tachy, brady, data_valid
 
-data = pd.read_csv(r'C:\Users\Yuvraj\Desktop\HW\HeartWatch\heart_rate\PPG\PPG_data_new-2021-10-28.csv')
+data = pd.read_csv(r'C:\Users\Yuvraj\Desktop\Live Testing\PPG_data_new-2021-10-29.csv')
+hr_orig=pd.read_csv(r'C:\Users\Yuvraj\Desktop\Live Testing\hr_device_29th.csv')
+
 result,ppg_bpf,rr_int, peaks_all2 ,final_pr= ailments_stats(data.iloc[0:30,2].to_list())
 # print(result)
-# print(ppg_bpf)
+hr_orig=hr_orig.rename(columns={'heart_data_timestamp_array':'timestamps'})
+# print(hr_orig)
 # print(rr_int)
 # print(final_pr)
 # plt.title('rr intervals: {}'.format(rr_int*1000))
-# plt.plot(ppg_bpf)
-# plt.text(0.,0.9,rr_int,fontsize=10)
-# plt.scatter(peaks_all2,ppg_bpf[peaks_all2])
-# plt.show()
-# print(result)
+plt.plot(ppg_bpf)
+plt.text(0.,0.9,rr_int,fontsize=10)
+plt.scatter(peaks_all2,ppg_bpf[peaks_all2])
+plt.show()
+result['Predicted HR']=result['Predicted HR'].merge(hr_orig,on = 'timestamps',how = 'inner')
+hr_pr=result['Predicted HR'].dropna()
+hr_pr.plot()
+plt.show()
