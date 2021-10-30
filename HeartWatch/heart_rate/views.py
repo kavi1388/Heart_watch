@@ -70,7 +70,7 @@ class proccess_heart_rate_data(viewsets.ModelViewSet):
         count = 20
         count_afib = 10
         brady_in = False
-        tachy_in = False
+        tachy_in = True
         afib_in = False
         data_valid = True
         ppg_bytes = []
@@ -321,7 +321,7 @@ class HeartRateDetail(APIView):
         count = 20
         count_afib = 10
         brady_in = False
-        tachy_in = False
+        tachy_in = True
         afib_in = False
         data_valid = True
         ppg_bytes = []
