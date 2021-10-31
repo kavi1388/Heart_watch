@@ -5,7 +5,6 @@ from scipy.signal import correlate
 from scipy.signal import find_peaks
 import matplotlib.pyplot as plt
 
-
 def ppg_plot_hr(ppg_sig, time_val, fl=0.4, fh=3.5, o=4, n=10, diff_max=4, r=1):
     ppg_bpf = []
     peaks_all = []
@@ -22,12 +21,11 @@ def ppg_plot_hr(ppg_sig, time_val, fl=0.4, fh=3.5, o=4, n=10, diff_max=4, r=1):
     dppg_comb = []
     rr_interval = []
 
-
-    # print('PPG Signal is {} seconds long'.format(len(ppg_sig) // fs))
     for i in range(n, len(ppg_sig), jump):
 
         p1 = (ppg_sig * 18.3 / 128.0 / 1000)[i - n:i]
         ppg_1 = butter_bandpass_filter(p1, fl, fh, fs=fs, order=o)
+
 
         ppg_11 = standardize(ppg_1)
         # Power spectrum
@@ -35,11 +33,19 @@ def ppg_plot_hr(ppg_sig, time_val, fl=0.4, fh=3.5, o=4, n=10, diff_max=4, r=1):
         dppg = []
         for v in range(1, len(ppg_11) - 1, 1):
             dppg.append(ppg_11[v + 1] - ppg_11[v - 1])
-        ppg_21 = np.asarray(dppg)
+        # ppg_21 = np.asarray(dppg)
+        ppg_21=ppg_11
         corr = correlate(ppg_11, ppg_11, mode='full')
         corr = corr[len(corr) // 2:]
-        peaks, _ = find_peaks(ppg_21, height=np.var(ppg_21, ddof=1) / 3, distance=4)
-        peaks_acf, _ = find_peaks(corr, height=0, distance=4)
+        c=[]
+        for p in ppg_21:
+            if p<0:
+                c.append(p/20)
+            else:
+                c.append(p*20)
+        peaks, _ = find_peaks(c, height=np.var(ppg_21, ddof=1) / 3, distance=10)
+
+        peaks_acf, _ = find_peaks(corr, height=np.min(corr), distance=4)
         time_stamp.append(time_val[i // fs])
 
         dppg_comb.append(ppg_21)
@@ -119,20 +125,20 @@ def ppg_plot_hr(ppg_sig, time_val, fl=0.4, fh=3.5, o=4, n=10, diff_max=4, r=1):
                 if s > (n - fs - 1):
                     ppg_bpf.append(ppg_11[s])
     p1 = (ppg_sig * 18.3 / 128.0 / 1000)
-    ppg_bpf = butter_bandpass_filter(p1, 0.4, 3.67, fs=fs, order=4)
+    ppg_bpf = butter_bandpass_filter(p1, 0.4, 3.5, fs=fs, order=4)
     ppg_bpf = np.asarray(ppg_bpf)
-    peaks, _ = find_peaks(ppg_bpf, height=np.var(ppg_bpf, ddof=1) / 2, distance=10)
+    peaks, _ = find_peaks(ppg_bpf*20, height=np.var(ppg_bpf, ddof=1) / 3, distance=10)
     peaks_all2 = peaks
     non_uniform=0
     for a in range(len(peaks_all2) - 1):
-        if len(rr_interval)>0 and 399 < (peaks_all2[a + 1] - peaks_all2[a]) *1000 / fs <2000.0:
+        if len(rr_interval)>0 and 399 < (peaks_all2[a + 1] - peaks_all2[a]) *1000 / fs <1800.0:
             rr_interval.append((peaks_all2[a + 1] - peaks_all2[a]) *1000 / fs)
         elif len(rr_interval)>0:
             rr_interval.append(rr_interval[-1])
             non_uniform+=1
         else:
             rr_interval.append((peaks_all2[a + 1] - peaks_all2[a]) * 1000 / fs)
-    # print('Number of Peaks Detected in PPG is {}'.format(len(peaks_all2)))
+
     hr_pr_df = pd.DataFrame()
     hr_pr_df['timestamps'] = time_stamp
     hr_pr_df['heart predicted by peak detection'] = pd.Series(hr_pred).rolling(r).median()
@@ -155,11 +161,7 @@ def ppg_plot_hr(ppg_sig, time_val, fl=0.4, fh=3.5, o=4, n=10, diff_max=4, r=1):
 
     final_pr = hr_pr_df.dropna()
     final_pr.iloc[:, 1:] = final_pr.iloc[:, 1:].astype('int64')
-    #     print(final_pr)
 
-    hr_extracted = final_pr['heart predicted avg of 5 ways'].to_numpy()
+    hr_extracted = final_pr['heart predicted by acf'].to_numpy()
 
-    # plt.plot(ppg_bpf)
-    # plt.scatter(peaks_all2, ppg_bpf[peaks_all2])
-    # plt.show()
-    return final_pr, dppg_comb, ppg_sig, ppg_bpf, rr_interval, hr_extracted, peaks_all2,non_uniform
+    return final_pr, dppg_comb, ppg_sig, ppg_bpf, rr_interval, hr_extracted, peaks_all2, non_uniform

@@ -9,6 +9,8 @@ import pandas as pd
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
 
+
+
 def ailments_stats(ppg_list):
 
     strike = 0
@@ -45,7 +47,8 @@ def ailments_stats(ppg_list):
             if time_step_v[-2] - time_step_v[-1] > 120:
                 data_valid = False
     if data_valid:
-        final_pr, ppg_21, ppg_sig, ppg_bpf, t_diff_afib, hr_extracted, peaks_all2,non_uniform = ppg_plot_hr(ppg_sig, time_val, fl=0.2, fh=3.5, o=4, n=6, diff_max=4, r=1)
+        final_pr, ppg_21, ppg_sig, ppg_bpf, t_diff_afib, hr_extracted, peaks_all2,non_uniform = ppg_plot_hr(ppg_sig, time_val, fl=0.1, fh=7, o=6, n=4, diff_max=2, r=7)
+
 
         for i in range(len(hr_extracted)):
             if 60 > hr_extracted[i] >= 40:
@@ -95,18 +98,72 @@ def ailments_stats(ppg_list):
 data = pd.read_csv(r'C:\Users\Yuvraj\Desktop\Live Testing\PPG_data_new-2021-10-29.csv')
 hr_orig=pd.read_csv(r'C:\Users\Yuvraj\Desktop\Live Testing\hr_device_29th.csv')
 
-result,ppg_bpf,rr_int, peaks_all2 ,final_pr= ailments_stats(data.iloc[0:30,2].to_list())
-# print(result)
+result,ppg_bpf,rr_int, peaks_all2 ,final_pr= ailments_stats(data.iloc[:60,2].to_list())
+print(result)
 hr_orig=hr_orig.rename(columns={'heart_data_timestamp_array':'timestamps'})
 # print(hr_orig)
 # print(rr_int)
 # print(final_pr)
 # plt.title('rr intervals: {}'.format(rr_int*1000))
 plt.plot(ppg_bpf)
-plt.text(0.,0.9,rr_int,fontsize=10)
+plt.text(0.5,0.9,rr_int,fontsize=10)
 plt.scatter(peaks_all2,ppg_bpf[peaks_all2])
 plt.show()
 result['Predicted HR']=result['Predicted HR'].merge(hr_orig,on = 'timestamps',how = 'inner')
 hr_pr=result['Predicted HR'].dropna()
+
 hr_pr.plot()
+
+plt.figure()
+plt.plot(hr_pr['heart predicted by acf'],label='ACF')
+plt.plot(hr_pr['heart_data_array'],label='Actual HR')
+plt.plot(hr_pr['heart predicted by peak detection'],label='Peak detection')
+plt.plot(hr_pr['heart predicted by peak time diff'],label='peak time diff')
+plt.plot(hr_pr['heart predicted by maxim code'],label='maxim code')
+plt.plot(hr_pr['heart predicted by maxim code ver2'],label='maxim code ver2')
+plt.legend()
+plt.show()
+
+plt.figure()
+plt.title('Error Plot')
+plt.plot(hr_pr['heart predicted by acf']-hr_pr['heart_data_array'],label='ACF')
+plt.plot(hr_pr['heart predicted by peak detection']-hr_pr['heart_data_array'],label='Peak detection')
+plt.plot(hr_pr['heart predicted by peak time diff']-hr_pr['heart_data_array'],label='peak time diff')
+plt.plot(hr_pr['heart predicted by maxim code']-hr_pr['heart_data_array'],label='maxim code')
+plt.plot(hr_pr['heart predicted by maxim code ver2']-hr_pr['heart_data_array'],label='maxim code ver2')
+plt.legend()
+plt.show()
+
+plt.figure()
+plt.plot(hr_pr['heart predicted by acf'],label='ACF')
+plt.plot(hr_pr['heart predicted avg of 5 ways'],label='avg')
+plt.plot(hr_pr['heart_data_array'],label='Actual HR')
+plt.legend()
+plt.show()
+
+plt.figure()
+plt.plot(hr_pr['heart predicted by peak time diff'],label='peak time diff')
+plt.plot(hr_pr['heart_data_array'],label='Actual HR')
+plt.legend()
+plt.show()
+
+plt.figure()
+plt.plot(hr_pr['heart predicted by peak detection'],label='peak')
+plt.plot(hr_pr['heart_data_array'],label='Actual HR')
+plt.legend()
+plt.show()
+
+plt.figure()
+plt.plot(hr_pr['heart predicted avg of 5 ways'],label='avg')
+plt.plot(hr_pr['heart predicted avg of acf and maxim'],label='avg of 2')
+plt.plot(hr_pr['heart predicted avg of acf,maxim and maxim2'],label='avg of 3')
+plt.plot(hr_pr['heart_data_array'],label='Actual HR')
+plt.legend()
+plt.show()
+
+plt.figure()
+plt.plot(hr_pr['heart predicted by maxim code'],label='maxim code')
+plt.plot(hr_pr['heart predicted by maxim code ver2'],label='maxim code ver2')
+plt.plot(hr_pr['heart_data_array'],label='Actual HR')
+plt.legend()
 plt.show()
