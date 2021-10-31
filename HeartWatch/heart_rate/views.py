@@ -507,7 +507,7 @@ class HeartRateDetail(APIView):
             if non_uniform == count_afib:
                 afib_in = True
 
-            res = {'Predicted HR': hr_extracted, 'RR peak intervals': t_diff_afib,
+            res = {'Time Interval':(time_val[0],time_val[1]), Predicted HR': hr_extracted, 'RR peak intervals': t_diff_afib,
                    'A Fib': afib_in, 'Tachycardia': tachy_in, 'Bradycardia': brady_in}
 
             return res
