@@ -472,7 +472,7 @@ class HeartRateDetail(APIView):
                 if time_step_v[-2] - time_step_v[-1] > 120:
                     data_valid = False
         if data_valid:
-            final_pr, ppg_21, ppg_sig, ppg_bpf, t_diff_afib, hr_extracted, peaks_all2, non_uniform = ppg_plot_hr(
+            final_pr, ppg_sig, ppg_bpf, t_diff_afib, hr_extracted, peaks_all2, non_uniform = ppg_plot_hr(
                 ppg_sig, time_val, fl=0.1, fh=7, o=6, n=4, diff_max=2, r=7)
 
             for i in range(len(hr_extracted)):
@@ -510,7 +510,7 @@ class HeartRateDetail(APIView):
             res = {'Predicted HR': hr_extracted, 'RR peak intervals': t_diff_afib,
                    'A Fib': afib_in, 'Tachycardia': tachy_in, 'Bradycardia': brady_in}
 
-            return res, ppg_bpf, t_diff_afib, peaks_all2, final_pr
+            return res
         else:
             statement = 'Data missing for over 2 minutes , PPG analysis not done'
             return statement

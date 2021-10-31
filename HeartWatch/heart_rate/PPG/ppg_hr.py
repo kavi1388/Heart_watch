@@ -164,4 +164,4 @@ def ppg_plot_hr(ppg_sig, time_val, fl=0.4, fh=3.5, o=4, n=10, diff_max=4, r=1):
 
     hr_extracted = final_pr['heart predicted by acf'].to_numpy()
 
-    return final_pr, dppg_comb, ppg_sig, ppg_bpf, rr_interval, hr_extracted, peaks_all2, non_uniform
+    return final_pr,  ppg_sig, ppg_bpf, rr_interval, hr_extracted, peaks_all2, non_uniform
