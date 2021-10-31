@@ -436,7 +436,7 @@ class HeartRateDetail(APIView):
         PPG_result_save.objects.create(final_result=result, user_id=user_id)
         return Response(result)
 
-    def ailments_stats(ppg_list):
+    def ailments_stats(self, ppg_list):
 
         strike = 0
         strike_tachy = 0
