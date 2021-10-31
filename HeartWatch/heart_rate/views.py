@@ -221,10 +221,10 @@ class AccelerometerDetail(APIView):
             Accelerometer_data_list.append(gg)
         time_last, activity, fall = call_model(Accelerometer_data_list)
         if fall[0][0] == 'No Fall':
-            return 'No Fall'
+            api_type=None
         else:
             #One API for Fall with type 3==True
-            return 3
+            api_type=3
 
         dd = {
             "time": time_last,
@@ -256,10 +256,10 @@ class AccelerometerDetail_new(APIView):
                 Accelerometer_data_list.append(gg)
             time_last, activity, fall = call_model(Accelerometer_data_list)
             if fall[0][0] == 'No Fall':
-                return 'No Fall'
+                api_type=None
             else:
                 # One API for Fall with type 3==True
-                return 3
+                api_type=3
 
             dd = {
                 "time": time_last,
@@ -309,10 +309,10 @@ class Accelerometer_new_V1_ViewSet(APIView):
             Accelerometer_data_list.append(gg)
         time_last, activity, fall = call_model(Accelerometer_data_list)
         if fall[0][0] == 'No Fall':
-            return 'No Fall'
+            api_type= None
         else:
             #One API for Fall with type 3==True
-            return 3
+            api_type= 3
 
         dd = {
             "time": time_last,
@@ -487,7 +487,8 @@ class HeartRateDetail(APIView):
 
                     # One API call for Bradycardia (type 1==True)
                 else:
-                    return 'No Bradycardia'
+                    brady_in=False
+                    # return 'No Bradycardia'
 
                 if 100 < hr_extracted[i] <= 130:
                     strike_tachy += 1
@@ -500,7 +501,8 @@ class HeartRateDetail(APIView):
 
                     # One API call for Tachycardia (type 2==True)
                 else:
-                    return 'No Tachycardia'
+                    # return 'No Tachycardia'
+                    tachy_in=False
 
             if non_uniform == count_afib:
                 afib_in = True

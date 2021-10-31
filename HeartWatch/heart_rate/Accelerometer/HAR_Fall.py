@@ -12,7 +12,7 @@ import ast
 def call_model (data):
     window_df = pd.DataFrame(columns=range(0,120))
     acc_data_df = pd.DataFrame(columns=['data' , '_id' , 'app_date' ,'Gap'])
-    CNN_model = load_model('CNN_Features_Corr_10s.h5')
+    CNN_model = load_model('/home/heartwatch/rajnishh/Heart_watch/HeartWatch/heart_rate/Accelerometer/CNN_Features_Corr_10s.h5')
     window_size = 10
     two_minutes = 120
     predict_activity = []
