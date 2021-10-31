@@ -139,7 +139,7 @@ class proccess_heart_rate_data(viewsets.ModelViewSet):
 
         else:
             statement = 'Data missing for over 2 minutes , PPG analysis not done'
-            return 0
+            return statement
 
 
 # Accelerometer Data insert
@@ -220,6 +220,11 @@ class AccelerometerDetail(APIView):
             gg = i['Accelerometer']
             Accelerometer_data_list.append(gg)
         time_last, activity, fall = call_model(Accelerometer_data_list)
+        if fall[0][0] == 'No Fall':
+            return 'No Fall'
+        else:
+            #One API for Fall with type 3==True
+            return 3
 
         dd = {
             "time": time_last,
@@ -250,6 +255,11 @@ class AccelerometerDetail_new(APIView):
                 gg = i['Accelerometer']
                 Accelerometer_data_list.append(gg)
             time_last, activity, fall = call_model(Accelerometer_data_list)
+            if fall[0][0] == 'No Fall':
+                return 'No Fall'
+            else:
+                # One API for Fall with type 3==True
+                return 3
 
             dd = {
                 "time": time_last,
@@ -298,6 +308,11 @@ class Accelerometer_new_V1_ViewSet(APIView):
             gg = i['Accelerometer']
             Accelerometer_data_list.append(gg)
         time_last, activity, fall = call_model(Accelerometer_data_list)
+        if fall[0][0] == 'No Fall':
+            return 'No Fall'
+        else:
+            #One API for Fall with type 3==True
+            return 3
 
         dd = {
             "time": time_last,
@@ -404,7 +419,7 @@ class HeartRateDetail(APIView):
         # Returns an object instance that should
         # be used for detail views.
         try:
-            return PPG_data_new.objects.filter(user_id=user_id).order_by('-id')[:30]
+            return PPG_data_new.objects.filter(user_id=user_id).order_by('-id')[:45]
         except PPG_data_new.DoesNotExist:
             raise Http404
 
@@ -421,15 +436,15 @@ class HeartRateDetail(APIView):
         PPG_result_save.objects.create(final_result=result, user_id=user_id)
         return Response(result)
 
-    def ailments_stats(self, ppg_list):
+    def ailments_stats(ppg_list):
 
         strike = 0
         strike_tachy = 0
-        strike_afib = 0
+        # strike_afib = 0
         count = 20
         count_afib = 10
         brady_in = False
-        tachy_in = True
+        tachy_in = False
         afib_in = False
         data_valid = True
         ppg_bytes = []
@@ -447,7 +462,6 @@ class HeartRateDetail(APIView):
             ppg_sig.append(as_signed_big(ppg_bytes[i]))
         ppg_sig = np.asarray(ppg_sig)
 
-
         time_step_v = []
         for i in range(len(time_val)):
 
@@ -459,7 +473,7 @@ class HeartRateDetail(APIView):
                     data_valid = False
         if data_valid:
             final_pr, ppg_21, ppg_sig, ppg_bpf, t_diff_afib, hr_extracted, peaks_all2, non_uniform = ppg_plot_hr(
-                ppg_sig, time_val, fl=0.4, fh=3.5, o=4, n=10, diff_max=4, r=1)
+                ppg_sig, time_val, fl=0.1, fh=7, o=6, n=4, diff_max=2, r=7)
 
             for i in range(len(hr_extracted)):
                 if 60 > hr_extracted[i] >= 40:
@@ -468,10 +482,12 @@ class HeartRateDetail(APIView):
                     strike = 0
 
                 if strike == count:
-                    # print('Patient has Sinus Bradycardia')
+
                     brady_in = True
 
-                    # One API call for Bradycardia
+                    # One API call for Bradycardia (type 1==True)
+                else:
+                    return 'No Bradycardia'
 
                 if 100 < hr_extracted[i] <= 130:
                     strike_tachy += 1
@@ -479,29 +495,20 @@ class HeartRateDetail(APIView):
                     strike_tachy = 0
 
                 if strike_tachy == count:
-                    # print('Patient has Sinus Tachycardia')
+
                     tachy_in = True
 
-                    # One API call for Tachycardia
-                # if tachy_in:
-                    # response_t=requests.post('http://164.52.214.242:9098/user-alerts?secret_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjYwNTJlNGRjNjA1ZjUwMDAwNGVmNmQzZiIsImVtYWlsIjoiZHM4ODk5N0BnbWFpbC5jb20iLCJwcm92aWRlciI6ImxvY2FsIn0sImlhdCI6MTYzMjMyMjIwMX0.Dgyv2GKLiIWOf2NRWpl7FNxLDyC-xNGPzH3eDBeoaLc&3=Fall Detected&1=Depressesed Heart Rate Detected&2=Elevated Heart Rate Detected', data={'key':2})
+                    # One API call for Tachycardia (type 2==True)
+                else:
+                    return 'No Tachycardia'
 
-            # for i in range(len(t_diff_afib) - 1):
-            #     if t_diff_afib[i + 1] - t_diff_afib[i] > 10:
-            #         strike_afib += 1
-            #     else:
-            #         strike_afib = 0
             if non_uniform == count_afib:
-                # print('Patient has Atrial Fibrillation')
                 afib_in = True
 
-            # One API call for Atrial Fibrillation
-
-            res = {'Predicted HR': final_pr, 'RR peak intervals': t_diff_afib,
+            res = {'Predicted HR': hr_extracted, 'RR peak intervals': t_diff_afib,
                    'A Fib': afib_in, 'Tachycardia': tachy_in, 'Bradycardia': brady_in}
 
-            # return ppg_sig, hr_extracted, final_pr, afib_in, tachy_in, brady_in, data_valid
-            return res
+            return res, ppg_bpf, t_diff_afib, peaks_all2, final_pr
         else:
             statement = 'Data missing for over 2 minutes , PPG analysis not done'
             return statement
