@@ -16,7 +16,7 @@ def ailments_stats(ppg_list):
     strike = 0
     strike_tachy = 0
     strike_afib = 0
-    count = 6
+    count = 15
     count_afib = 10
     brady_in= False
     tachy_in = False
@@ -47,8 +47,7 @@ def ailments_stats(ppg_list):
             if time_step_v[-2] - time_step_v[-1] > 120:
                 data_valid = False
     if data_valid:
-        final_pr, ppg_21, ppg_sig, ppg_bpf, t_diff_afib, hr_extracted, peaks_all2,non_uniform = ppg_plot_hr(ppg_sig, time_val, fl=0.1, fh=7, o=6, n=4, diff_max=2, r=7)
-
+        final_pr, ppg_21, ppg_sig, ppg_bpf, t_diff_afib, hr_extracted, peaks_all2,non_uniform = ppg_plot_hr(ppg_sig, time_val, fl=0.4, fh=7, o=5, n=4, diff_max=4, r=5)
 
         for i in range(len(hr_extracted)):
             if 60 > hr_extracted[i] >= 40:
