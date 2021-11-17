@@ -254,7 +254,7 @@ class AccelerometerDetail_new(APIView):
             for i in Accelerometer_insta:
                 gg = i['Accelerometer']
                 Accelerometer_data_list.append(gg)
-            time_last, activity, fall = call_model(Accelerometer_data_list)
+            time_last, activity, fall = call_model(Accelerometer_data_list[-1::-1])
             if fall[0][0] == 'No Fall':
                 api_type=None
             else:
@@ -435,17 +435,17 @@ class HeartRateDetail(APIView):
             gg = i['heart_rate_voltage']
             heart_rate_data_list.append(gg)
             # call ailments_stats method
-        result = self.ailments_stats(heart_rate_data_list)
+
+        result = self.ailments_stats(heart_rate_data_list[-1::-1])
         PPG_result_save.objects.create(final_result=result, user_id=user_id)
         return Response(result)
 
     def ailments_stats(self, ppg_list):
-        User_alert_url = 'http://164.52.214.242:9098/user-alerts'
 
         strike = 0
         strike_tachy = 0
         # strike_afib = 0
-        count = 20
+        count = 15
         count_afib = 10
         brady_in = False
         tachy_in = False
@@ -477,7 +477,7 @@ class HeartRateDetail(APIView):
                     data_valid = False
         if data_valid:
             final_pr, ppg_sig, ppg_bpf, t_diff_afib, hr_extracted, peaks_all2, non_uniform = ppg_plot_hr(
-                ppg_sig, time_val, fl=0.1, fh=7, o=6, n=4, diff_max=2, r=7)
+                ppg_sig, time_val, fl=0.4, fh=7, o=5, n=4, diff_max=4, r=5)
 
             for i in range(len(hr_extracted)):
                 if 60 > hr_extracted[i] >= 40:
@@ -485,43 +485,32 @@ class HeartRateDetail(APIView):
                 else:
                     strike = 0
 
-                if strike == count:
-
-                    brady_in = True
-
-                    # One API call for Bradycardia (type 1==True)
-                    Bradycardiaobj = {"userID": "605452ebe6794b000413a860", "alertType": "1"}
-                    headers = {
-                        "secret_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjYwNTJlNGRjNjA1ZjUwMDAwNGVmNmQzZiIsImVtYWlsIjoiZHM4ODk5N0BnbWFpbC5jb20iLCJwcm92aWRlciI6ImxvY2FsIn0sImlhdCI6MTYzMjMyMjIwMX0.Dgyv2GKLiIWOf2NRWpl7FNxLDyC-xNGPzH3eDBeoaLc"}
-                    x = requests.post(User_alert_url, data=Bradycardiaobj, headers=headers)
-                    print(x.text)
-                else:
-                    brady_in=False
-                    # return 'No Bradycardia'
-
                 if 100 < hr_extracted[i] <= 130:
                     strike_tachy += 1
                 else:
                     strike_tachy = 0
 
-                if strike_tachy == count:
+            if strike == count:
 
-                    tachy_in = True
+                brady_in = True
 
-                    # One API call for Tachycardia (type 2==True)
-                    Tachycardiaobj = {"userID": "605452ebe6794b000413a860", "alertType": "2"}
-                    headers = {
-                        "secret_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjYwNTJlNGRjNjA1ZjUwMDAwNGVmNmQzZiIsImVtYWlsIjoiZHM4ODk5N0BnbWFpbC5jb20iLCJwcm92aWRlciI6ImxvY2FsIn0sImlhdCI6MTYzMjMyMjIwMX0.Dgyv2GKLiIWOf2NRWpl7FNxLDyC-xNGPzH3eDBeoaLc"}
-                    x = requests.post(User_alert_url, data=Tachycardiaobj, headers=headers)
-                    print(x.text)
-                else:
-                    # return 'No Tachycardia'
-                    tachy_in=False
+                # One API call for Bradycardia (type 1==True)
+            else:
+                brady_in = False
+                # return 'No Bradycardia'
+            if strike_tachy == count:
+
+                tachy_in = True
+
+                # One API call for Tachycardia (type 2==True)
+            else:
+                # return 'No Tachycardia'
+                tachy_in = False
 
             if non_uniform == count_afib:
                 afib_in = True
 
-            res = {'Time Interval':(time_val[-1],time_val[0]), 'Predicted HR': hr_extracted, 'RR peak intervals': t_diff_afib,
+            res = {'Time Interval':(time_val[0],time_val[1]), 'Predicted HR': hr_extracted, 'RR peak intervals': t_diff_afib,
                    'A Fib': afib_in, 'Tachycardia': tachy_in, 'Bradycardia': brady_in}
 
             return res
