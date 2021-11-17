@@ -300,6 +300,7 @@ class Accelerometer_new_V1_ViewSet(APIView):
             raise Http404
 
     def get(self, request, user_id, format=None):
+        User_alert_url = 'http://164.52.214.242:9098/user-alerts?alertsToken=M0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ'
         Accelerometer_data_list = []
         Accelerometer_obj = self.get_object(user_id)
         serializer = Accelerometer_get_new_Serializer(Accelerometer_obj, many=True)
@@ -312,8 +313,10 @@ class Accelerometer_new_V1_ViewSet(APIView):
             api_type= None
         else:
             #One API for Fall with type 3==True
-            api_type= 3
-
+            api_type = "3"
+            Accelerometerobj = {"userID": "605452ebe6794b000413a860", "alertType": api_type}
+            res = requests.post(User_alert_url, json=Accelerometerobj)
+            # print(res.text)
         dd = {
             "time": time_last,
             "activity": activity,
@@ -437,6 +440,7 @@ class HeartRateDetail(APIView):
         return Response(result)
 
     def ailments_stats(self, ppg_list):
+        User_alert_url = 'http://164.52.214.242:9098/user-alerts'
 
         strike = 0
         strike_tachy = 0
@@ -486,6 +490,11 @@ class HeartRateDetail(APIView):
                     brady_in = True
 
                     # One API call for Bradycardia (type 1==True)
+                    Bradycardiaobj = {"userID": "605452ebe6794b000413a860", "alertType": "1"}
+                    headers = {
+                        "secret_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjYwNTJlNGRjNjA1ZjUwMDAwNGVmNmQzZiIsImVtYWlsIjoiZHM4ODk5N0BnbWFpbC5jb20iLCJwcm92aWRlciI6ImxvY2FsIn0sImlhdCI6MTYzMjMyMjIwMX0.Dgyv2GKLiIWOf2NRWpl7FNxLDyC-xNGPzH3eDBeoaLc"}
+                    x = requests.post(User_alert_url, data=Bradycardiaobj, headers=headers)
+                    print(x.text)
                 else:
                     brady_in=False
                     # return 'No Bradycardia'
@@ -500,6 +509,11 @@ class HeartRateDetail(APIView):
                     tachy_in = True
 
                     # One API call for Tachycardia (type 2==True)
+                    Tachycardiaobj = {"userID": "605452ebe6794b000413a860", "alertType": "2"}
+                    headers = {
+                        "secret_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjYwNTJlNGRjNjA1ZjUwMDAwNGVmNmQzZiIsImVtYWlsIjoiZHM4ODk5N0BnbWFpbC5jb20iLCJwcm92aWRlciI6ImxvY2FsIn0sImlhdCI6MTYzMjMyMjIwMX0.Dgyv2GKLiIWOf2NRWpl7FNxLDyC-xNGPzH3eDBeoaLc"}
+                    x = requests.post(User_alert_url, data=Tachycardiaobj, headers=headers)
+                    print(x.text)
                 else:
                     # return 'No Tachycardia'
                     tachy_in=False
