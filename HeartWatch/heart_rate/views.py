@@ -308,13 +308,13 @@ class Accelerometer_new_V1_ViewSet(APIView):
         for i in Accelerometer_insta:
             gg = i['Accelerometer']
             Accelerometer_data_list.append(gg)
-        time_last, activity, fall = call_model(Accelerometer_data_list)
+        time_last, activity, fall = call_model(Accelerometer_data_list[-1::-1])
         if fall[0][0] == 'No Fall':
             api_type= None
         else:
             #One API for Fall with type 3==True
             api_type = "3"
-            Accelerometerobj = {"userID": "605452ebe6794b000413a860", "alertType": api_type}
+            Accelerometerobj = {"userID": user_id, "alertType": api_type}
             res = requests.post(User_alert_url, json=Accelerometerobj)
             # print(res.text)
         dd = {
@@ -437,6 +437,15 @@ class HeartRateDetail(APIView):
             # call ailments_stats method
 
         result = self.ailments_stats(heart_rate_data_list[-1::-1])
+        if len(result)>0:
+            User_alert_url = 'http://164.52.214.242:9098/user-alerts?alertsToken=M0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ'
+            if result['Tachycardia']:
+                api_type = "2"
+            elif result['Bradycardia']:
+                api_type = "1"
+            hr_obj = {"userID": user_id, "alertType": api_type}
+            res = requests.post(User_alert_url, json=hr_obj)
+            # print(res.text)
         PPG_result_save.objects.create(final_result=result, user_id=user_id)
         return Response(result)
 
@@ -447,8 +456,8 @@ class HeartRateDetail(APIView):
         # strike_afib = 0
         count = 15
         count_afib = 10
-        brady_in = False
-        tachy_in = False
+        brady_in = True
+        # tachy_in = False
         afib_in = False
         data_valid = True
         ppg_bytes = []
@@ -495,8 +504,7 @@ class HeartRateDetail(APIView):
                 brady_in = True
 
                 # One API call for Bradycardia (type 1==True)
-            else:
-                brady_in = False
+
                 # return 'No Bradycardia'
             if strike_tachy == count:
 
