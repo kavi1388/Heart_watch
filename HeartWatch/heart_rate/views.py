@@ -70,7 +70,7 @@ class proccess_heart_rate_data(viewsets.ModelViewSet):
         count = 20
         count_afib = 10
         brady_in = False
-        tachy_in = True
+        tachy_in = False
         afib_in = False
         data_valid = True
         ppg_bytes = []
@@ -456,8 +456,8 @@ class HeartRateDetail(APIView):
         # strike_afib = 0
         count = 15
         count_afib = 10
-        brady_in = True
-        # tachy_in = False
+        brady_in = False
+        tachy_in = False
         afib_in = False
         data_valid = True
         ppg_bytes = []
@@ -511,14 +511,10 @@ class HeartRateDetail(APIView):
                 tachy_in = True
 
                 # One API call for Tachycardia (type 2==True)
-            else:
-                # return 'No Tachycardia'
-                tachy_in = False
-
             if non_uniform == count_afib:
                 afib_in = True
 
-            res = {'Time Interval':(time_val[0],time_val[1]), 'Predicted HR': hr_extracted, 'RR peak intervals': t_diff_afib,
+            res = {'Time Interval':(time_val[0],time_val[-1]), 'Predicted HR': hr_extracted, 'RR peak intervals': t_diff_afib,
                    'A Fib': afib_in, 'Tachycardia': tachy_in, 'Bradycardia': brady_in}
 
             return res
