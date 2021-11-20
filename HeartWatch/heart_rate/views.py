@@ -441,10 +441,12 @@ class HeartRateDetail(APIView):
             User_alert_url = 'http://164.52.214.242:9098/user-alerts?alertsToken=M0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ'
             if result['Tachycardia']:
                 api_type = "2"
+                hr_obj = {"userID": user_id, "alertType": api_type}
+                res = requests.post(User_alert_url, json=hr_obj)
             elif result['Bradycardia']:
                 api_type = "1"
-            hr_obj = {"userID": user_id, "alertType": api_type}
-            res = requests.post(User_alert_url, json=hr_obj)
+                hr_obj = {"userID": user_id, "alertType": api_type}
+                res = requests.post(User_alert_url, json=hr_obj)
             # print(res.text)
         PPG_result_save.objects.create(final_result=result, user_id=user_id)
         return Response(result)
