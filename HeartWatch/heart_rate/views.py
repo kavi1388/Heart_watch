@@ -451,7 +451,6 @@ class HeartRateDetail(APIView):
 
     def ailments_stats(self, ppg_list):
 
-
         strike = 0
         strike_tachy = 0
         # strike_afib = 0
