@@ -437,7 +437,8 @@ class HeartRateDetail(APIView):
             # call ailments_stats method
 
         result = self.ailments_stats(heart_rate_data_list[-1::-1])
-        if len(result)>0:
+
+        if type(result) is not str:
             User_alert_url = 'http://164.52.214.242:9098/user-alerts?alertsToken=M0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ'
             if result['Tachycardia']:
                 api_type = "2"
