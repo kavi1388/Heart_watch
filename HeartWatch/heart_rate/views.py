@@ -494,24 +494,21 @@ class HeartRateDetail(APIView):
             for i in range(len(hr_extracted)):
                 if 60 > hr_extracted[i] >= 40:
                     strike += 1
+                    if strike == count:
+                        brady_in = True
                 else:
                     strike = 0
 
                 if 100 < hr_extracted[i] <= 130:
                     strike_tachy += 1
+                    if strike_tachy == count:
+                        tachy_in = True
                 else:
                     strike_tachy = 0
-
-            if strike == count:
-
-                brady_in = True
-
                 # One API call for Bradycardia (type 1==True)
 
                 # return 'No Bradycardia'
-            if strike_tachy == count:
 
-                tachy_in = True
 
                 # One API call for Tachycardia (type 2==True)
             if non_uniform == count_afib:
