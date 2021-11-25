@@ -308,7 +308,7 @@ class Accelerometer_new_V1_ViewSet(APIView):
         for i in Accelerometer_insta:
             gg = i['Accelerometer']
             Accelerometer_data_list.append(gg)
-        time_last, activity, fall = call_model(Accelerometer_data_list[-1::-1])
+        time_start, time_last, activity, fall = call_model(Accelerometer_data_list[-1::-1])
         if fall[0][0] == 'No Fall':
             api_type= None
         else:
@@ -318,7 +318,8 @@ class Accelerometer_new_V1_ViewSet(APIView):
             res = requests.post(User_alert_url, json=Accelerometerobj)
             # print(res.text)
         dd = {
-            "time": time_last,
+            "start time": time_start,
+            "end time":time_last,
             "activity": activity,
             "fall": fall
         }
@@ -342,9 +343,11 @@ class Accelerometer_new_V1_ViewSet(APIView):
                                                seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
                                                                                                       minutes=y.tm_min,
                                                                                                       seconds=y.tm_sec).total_seconds()
-                if abs(time_diff) > 30:
+                if abs(time_diff) > 60:
                     Accelerometer_data = {
-                        "final_result": 'No activity detected'
+                        "final_result": 'No activity detected',
+                        "start time": time_start,
+                        "end time": time_last
                     }
                 else:
                     activity = d['activity'][0]
@@ -387,7 +390,7 @@ class AccelerometerNotify(APIView):
                                                seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
                                                                                                       minutes=y.tm_min,
                                                                                                       seconds=y.tm_sec).total_seconds()
-                if abs(time_diff) > 30:
+                if abs(time_diff) > 60:
                     Accelerometer_data = {
                       "final_result": 'No activity detected'
                     }
