@@ -344,11 +344,13 @@ class Accelerometer_new_V1_ViewSet(APIView):
                                                                                                       seconds=y.tm_sec).total_seconds()
                 if abs(time_diff) > 30:
                     Accelerometer_data = {
+                        "time":last_time,
                         "final_result": 'No activity detected'
                     }
                 else:
                     activity = d['activity'][0]
                     Accelerometer_data = {
+                        'time': last_time,
                         'activity': activity
                     }
             return Response(Accelerometer_data)
