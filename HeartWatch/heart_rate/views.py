@@ -177,7 +177,7 @@ class proccess_Accelerometer_data(viewsets.ModelViewSet):
         # print("Accelerometer_list ::", Accelerometer_list)
 
         # call ailments_stats method
-        activity, fall = call_model(Accelerometer_list)
+        time_start, time_last, activity, fall = call_model(Accelerometer_list)
 
         dd = {
             "activity": activity,
@@ -219,7 +219,7 @@ class AccelerometerDetail(APIView):
         for i in Accelerometer_insta:
             gg = i['Accelerometer']
             Accelerometer_data_list.append(gg)
-        time_last, activity, fall = call_model(Accelerometer_data_list)
+        time_start, time_last, activity, fall = call_model(Accelerometer_data_list)
         if fall[0][0] == 'No Fall':
             api_type=None
         else:
@@ -254,7 +254,7 @@ class AccelerometerDetail_new(APIView):
             for i in Accelerometer_insta:
                 gg = i['Accelerometer']
                 Accelerometer_data_list.append(gg)
-            time_last, activity, fall = call_model(Accelerometer_data_list[-1::-1])
+            time_start, time_last, activity, fall = call_model(Accelerometer_data_list[-1::-1])
             if fall[0][0] == 'No Fall':
                 api_type=None
             else:
@@ -308,7 +308,7 @@ class Accelerometer_new_V1_ViewSet(APIView):
         for i in Accelerometer_insta:
             gg = i['Accelerometer']
             Accelerometer_data_list.append(gg)
-        time_start, time_last, activity, fall = call_model(Accelerometer_data_list[-1::-1])
+        time_start, time_last,  activity, fall = call_model(Accelerometer_data_list[-1::-1])
         if fall[0][0] == 'No Fall':
             api_type= None
         else:
