@@ -60,6 +60,6 @@ def call_model(data):
                     window_df = window_df.dropna()
                     # print(window_df)
 
-    return time_reading[0], time_reading[-1], predict_activity, fall_timestamps
+    return time_reading[-1], predict_activity, fall_timestamps
 
 
