@@ -246,7 +246,7 @@ class AccelerometerDetail_new(APIView):
             acc_obj = serializer1.data
             user_id = acc_obj['user_id']
             # user_id = "6052e4dc605f500004ef6d3f"
-            first_ten = Accelerometer_data_new.objects.filter(user_id=user_id).order_by('-id')[:10]
+            first_ten = Accelerometer_data_new.objects.filter(user_id=user_id).order_by('-id')[:30]
             # print(first_ten)
             serializer = Accelerometer_get_new_Serializer(first_ten, many=True)
             Accelerometer_insta = serializer.data
@@ -345,9 +345,7 @@ class Accelerometer_new_V1_ViewSet(APIView):
                                                                                                       seconds=y.tm_sec).total_seconds()
                 if abs(time_diff) > 60:
                     Accelerometer_data = {
-                        "final_result": 'No activity detected',
-                        "start time": time_start,
-                        "end time": time_last
+                        "final_result": 'No activity detected'
                     }
                 else:
                     activity = d['activity'][0]
