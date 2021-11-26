@@ -471,7 +471,7 @@ class HeartRateDetail(APIView):
                     hr_obj = {"userID": user_id, "alertType": api_type}
                     res = requests.post(User_alert_url, json=hr_obj)
             # print(res.text)
-        PPG_result_save.objects.create(final_result=result, api_type=api_type, user_id=user_id)
+        PPG_result_save.objects.create(final_result=result, user_id=user_id)
         return Response(result)
 
     def ailments_stats(self, ppg_list):
@@ -487,6 +487,7 @@ class HeartRateDetail(APIView):
         data_valid = True
         ppg_bytes = []
         time_val = []
+        api_type=None
         # reading of the input file starts here
         for ind in range(len(ppg_list)):
             a = ppg_list[ind]
@@ -518,6 +519,7 @@ class HeartRateDetail(APIView):
                     strike += 1
                     if strike == count:
                         brady_in = True
+                        api_type=1
                 else:
                     strike = 0
                     brady_in=False
@@ -526,6 +528,7 @@ class HeartRateDetail(APIView):
                     strike_tachy += 1
                     if strike_tachy == count:
                         tachy_in = True
+                        api_type=2
                 else:
                     strike_tachy = 0
                     tachy_in=False
@@ -540,7 +543,7 @@ class HeartRateDetail(APIView):
 
             res = {'Time Interval':(time_val[0],time_val[-1]), 'Predicted HR': hr_extracted,
                    'RR peak intervals': t_diff_afib, 'A Fib': afib_in, 'Tachycardia': tachy_in, 'Bradycardia': brady_in,
-                   'All Methods': final_pr}
+                   'All Methods': final_pr, 'api_type': api_type}
 
             return res
         else:
