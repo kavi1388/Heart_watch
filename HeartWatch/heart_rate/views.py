@@ -441,19 +441,37 @@ class HeartRateDetail(APIView):
             # call ailments_stats method
 
         result = self.ailments_stats(heart_rate_data_list[-1::-1])
-
+        api_type=None
         if type(result) is not str:
             User_alert_url = 'http://164.52.214.242:9098/user-alerts?alertsToken=M0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ'
             if result['Tachycardia']:
-                api_type = "2"
-                hr_obj = {"userID": user_id, "alertType": api_type}
-                res = requests.post(User_alert_url, json=hr_obj)
+                record_time=result['Time Interval'][1]
+                current_time = time.strftime('%H:%M:%S', time.localtime())
+                x = time.strptime(current_time, '%H:%M:%S')
+                y = time.strptime(record_time, '%H:%M:%S')
+                time_diff = datetime.timedelta(hours=x.tm_hour, minutes=x.tm_min,
+                                               seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
+                                                                                                      minutes=y.tm_min,
+                                                                                                      seconds=y.tm_sec).total_seconds()
+                if time_diff == 0:
+                    api_type = "2"
+                    hr_obj = {"userID": user_id, "alertType": api_type}
+                    res = requests.post(User_alert_url, json=hr_obj)
             elif result['Bradycardia']:
-                api_type = "1"
-                hr_obj = {"userID": user_id, "alertType": api_type}
-                res = requests.post(User_alert_url, json=hr_obj)
+                record_time = result['Time Interval'][1]
+                current_time = time.strftime('%H:%M:%S', time.localtime())
+                x = time.strptime(current_time, '%H:%M:%S')
+                y = time.strptime(record_time, '%H:%M:%S')
+                time_diff = datetime.timedelta(hours=x.tm_hour, minutes=x.tm_min,
+                                               seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
+                                                                                                      minutes=y.tm_min,
+                                                                                                      seconds=y.tm_sec).total_seconds()
+                if time_diff == 0:
+                    api_type = "1"
+                    hr_obj = {"userID": user_id, "alertType": api_type}
+                    res = requests.post(User_alert_url, json=hr_obj)
             # print(res.text)
-        PPG_result_save.objects.create(final_result=result, user_id=user_id)
+        PPG_result_save.objects.create(final_result=result, api_type=api_type, user_id=user_id)
         return Response(result)
 
     def ailments_stats(self, ppg_list):
@@ -502,6 +520,7 @@ class HeartRateDetail(APIView):
                         brady_in = True
                 else:
                     strike = 0
+                    brady_in=False
 
                 if 100 < hr_extracted[i] <= 130:
                     strike_tachy += 1
@@ -509,6 +528,7 @@ class HeartRateDetail(APIView):
                         tachy_in = True
                 else:
                     strike_tachy = 0
+                    tachy_in=False
                 # One API call for Bradycardia (type 1==True)
 
                 # return 'No Bradycardia'
