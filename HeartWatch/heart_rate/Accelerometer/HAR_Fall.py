@@ -39,7 +39,7 @@ def call_model(data):
     acc_data_df['Gap'] = abs((acc_data_df['app_date'].shift(-1) - acc_data_df['app_date']).dt.total_seconds())
     # print(acc_data_df)
     if (acc_data_df['Gap'] >= two_minutes).any():
-        return ('There is a time gap more than 2 minutes ...'), ('Drop...')  # None, None
+        return  ('There is a time gap more than 2 minutes ...'), ('Drop...'), ('Drop...')  # None, None
 
     else:
         for index, row in acc_data_df.iterrows():
