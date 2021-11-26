@@ -426,7 +426,7 @@ class HeartRateDetail(APIView):
         # Returns an object instance that should
         # be used for detail views.
         try:
-            return PPG_data_new.objects.filter(user_id=user_id).order_by('-id')[20:65]
+            return PPG_data_new.objects.filter(user_id=user_id).order_by('-id')[:60]
         except PPG_data_new.DoesNotExist:
             raise Http404
 
