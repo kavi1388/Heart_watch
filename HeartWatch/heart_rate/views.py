@@ -461,7 +461,7 @@ class HeartRateDetail(APIView):
         strike = 0
         strike_tachy = 0
         # strike_afib = 0
-        count = 20
+        count = 30
         count_afib = 10
         brady_in = False
         tachy_in = False
