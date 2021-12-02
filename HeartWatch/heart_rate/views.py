@@ -426,7 +426,7 @@ class HeartRateDetail(APIView):
         # Returns an object instance that should
         # be used for detail views.
         try:
-            return PPG_data_new.objects.filter(user_id=user_id).order_by('-id')[:55]
+            return PPG_data_new.objects.filter(user_id=user_id).order_by('-id')[20:65]
         except PPG_data_new.DoesNotExist:
             raise Http404
 
@@ -453,7 +453,7 @@ class HeartRateDetail(APIView):
                                                seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
                                                                                                       minutes=y.tm_min,
                                                                                                       seconds=y.tm_sec).total_seconds()
-                if time_diff == 0:
+                if time_diff < 30:
                     api_type = "2"
                     hr_obj = {"userID": user_id, "alertType": api_type}
                     res = requests.post(User_alert_url, json=hr_obj)
@@ -466,7 +466,7 @@ class HeartRateDetail(APIView):
                                                seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
                                                                                                       minutes=y.tm_min,
                                                                                                       seconds=y.tm_sec).total_seconds()
-                if time_diff == 0:
+                if time_diff < 30:
                     api_type = "1"
                     hr_obj = {"userID": user_id, "alertType": api_type}
                     res = requests.post(User_alert_url, json=hr_obj)
