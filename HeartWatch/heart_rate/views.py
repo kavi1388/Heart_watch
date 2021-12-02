@@ -295,7 +295,7 @@ class Accelerometer_new_V1_ViewSet(APIView):
         # Returns an object instance that should
         # be used for detail views.
         try:
-            return Accelerometer_data_new.objects.filter(user_id=user_id).order_by('-id')[:30]
+            return Accelerometer_data_new.objects.filter(user_id=user_id).order_by('-id')[:10]
         except Accelerometer_data_new.DoesNotExist:
             raise Http404
 
