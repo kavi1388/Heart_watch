@@ -207,7 +207,7 @@ class AccelerometerDetail(APIView):
         # Returns an object instance that should
         # be used for detail views.
         try:
-            return Accelerometer_data_new.objects.filter(user_id=user_id).order_by('-id')[:30]
+            return Accelerometer_data_new.objects.filter(user_id=user_id).order_by('-id')[:10]
         except Accelerometer_data_new.DoesNotExist:
             raise Http404
 
@@ -221,10 +221,10 @@ class AccelerometerDetail(APIView):
             Accelerometer_data_list.append(gg)
         time_last, activity, fall = call_model(Accelerometer_data_list)
         if fall[0][0] == 'No Fall':
-            api_type=None
+            api_type = None
         else:
             #One API for Fall with type 3==True
-            api_type=3
+            api_type = 3
 
         dd = {
             "time": time_last,
@@ -295,7 +295,7 @@ class Accelerometer_new_V1_ViewSet(APIView):
         # Returns an object instance that should
         # be used for detail views.
         try:
-            return Accelerometer_data_new.objects.filter(user_id=user_id).order_by('-id')[:10]
+            return Accelerometer_data_new.objects.filter(user_id=user_id).order_by('-id')[:30]
         except Accelerometer_data_new.DoesNotExist:
             raise Http404
 
