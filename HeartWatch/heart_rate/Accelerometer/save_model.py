@@ -327,7 +327,7 @@ def main(window_df , model):
             threshold_y = 0.5
             threshold_z = 0.5
 
-            X , Y , Z  = to_decimal(window_df_step)
+           # X , Y , Z  = to_decimal(window_df_step)
             #step_count_value , peaks_height_sum  , stride = sc.step_count(X,Y,Z)
 
 
