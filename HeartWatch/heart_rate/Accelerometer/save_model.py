@@ -345,7 +345,6 @@ def main(window_df , model):
     if fall_event_time == 0:
         fall_event_time = 'No Fall'
     else:
-    if fall_event_time != 0:
             fall_event_time = str(datetime.timedelta(seconds=fall_event_time))
         
     
