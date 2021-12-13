@@ -1,21 +1,12 @@
-from numpy.linalg.linalg import norm
-import pandas as pd
-from scipy.ndimage.measurements import label
-pd.__version__
-import matplotlib as mpl
+
 import numpy as np
-mpl.rc('font', size=20)
-mpl.rc('figure', figsize=(20, 10))
 import warnings
 warnings.filterwarnings("ignore")
 from bitstring import BitStream, BitArray
 from scipy.signal import butter, lfilter
 import scipy.signal as signal
 import math
-from detecta import detect_peaks
-import matplotlib.pyplot as plt
-
-
+from scipy.signal import find_peaks
 
 
 def DecimalToBinary(num):
@@ -69,82 +60,77 @@ def high_pass_IIR(data,fh,samp_f,order):
 fs=20
 n=30*20
 
-def to_decimal(acc):
 
 
-  acc_Xind=[]
-  for j in range(acc.shape[0]):
-      for i in range(1,121,6):    
-          acc_Xind.append(DecimalToBinary(acc.iloc[j,i+1].item())[-1::-1]+DecimalToBinary(acc.iloc[j,i].item())[-1::-1])
+def to_decimal (acc):
 
-  acc_X=[]
-  for i in range(len(acc_Xind)):
-      acc_X.append(as_signed_big(acc_Xind[i]))
-  acc_X=np.asarray(acc_X)
 
-  acc_Yind=[]
-  for j in range(acc.shape[0]):
-      for i in range(3,121,6):    
-          acc_Yind.append(DecimalToBinary(acc.iloc[j,i+1].item())[-1::-1]+DecimalToBinary(acc.iloc[j,i].item())[-1::-1])
+    acc_Xind=[]
+    for j in range(acc.shape[0]):
+        for i in range(1,121,6):    
+            acc_Xind.append(DecimalToBinary(acc.iloc[j,i+1].item())[-1::-1]+DecimalToBinary(acc.iloc[j,i].item())[-1::-1])
 
-  acc_Y=[]
-  for i in range(len(acc_Yind)):
-      acc_Y.append(as_signed_big(acc_Yind[i]))
-  acc_Y=np.asarray(acc_Y)
+    acc_X=[]
+    for i in range(len(acc_Xind)):
+        acc_X.append(as_signed_big(acc_Xind[i]))
+    acc_X=np.asarray(acc_X)
 
-  acc_Zind=[]
-  for j in range(acc.shape[0]):
-      for i in range(5,121,6):    
-          acc_Zind.append(DecimalToBinary(acc.iloc[j,i+1].item())[-1::-1]+DecimalToBinary(acc.iloc[j,i].item())[-1::-1])
+    acc_Yind=[]
+    for j in range(acc.shape[0]):
+        for i in range(3,121,6):    
+            acc_Yind.append(DecimalToBinary(acc.iloc[j,i+1].item())[-1::-1]+DecimalToBinary(acc.iloc[j,i].item())[-1::-1])
 
-  acc_Z=[]
-  for i in range(len(acc_Zind)):
-      acc_Z.append(as_signed_big(acc_Zind[i]))
-  acc_Z=np.asarray(acc_Z)
+    acc_Y=[]
+    for i in range(len(acc_Yind)):
+        acc_Y.append(as_signed_big(acc_Yind[i]))
+    acc_Y=np.asarray(acc_Y)
 
-  return acc_X , acc_Y , acc_Z
+    acc_Zind=[]
+    for j in range(acc.shape[0]):
+        for i in range(5,121,6):    
+            acc_Zind.append(DecimalToBinary(acc.iloc[j,i+1].item())[-1::-1]+DecimalToBinary(acc.iloc[j,i].item())[-1::-1])
+
+    acc_Z=[]
+    for i in range(len(acc_Zind)):
+        acc_Z.append(as_signed_big(acc_Zind[i]))
+    acc_Z=np.asarray(acc_Z)
+    
+    
+    for index_z in range(19 , len(acc_Z) , 20) :       
+        acc_Z[index_z] = np.mean(acc_Z[index_z - 19 : index_z -1])
+
+    return acc_X , acc_Y , acc_Z
+
 
 
 def step_count(acc_X , acc_Y, acc_Z ): 
-    steps_1_4win=[]
-    time_stamp=[]
-    peaks_all=[]
+
     a_x = acc_X*18.3/128.0/1000.0+0.06
-    a_gx=low_pass_IIR(a_x,0.19,fs,3)
-    a_ux=a_x-a_gx
     a_y = acc_Y*18.3/128.0/1000.0+0.06
-    a_gy=low_pass_IIR(a_y,0.19,fs,3)
-    a_uy=a_y-a_gy
     a_z = acc_Z*18.3/128.0/1000.0+0.06
-    a_gz=low_pass_IIR(a_z,0.19,fs,3)
-    a_uz=a_z-a_gz
 
-    a=(a_ux*a_gx)+(a_uy*a_gy)+(a_uz*a_gz)
-    a_lp=low_pass_IIR(a,5,fs,3)
-    a_lp_hp=high_pass_IIR(a_lp,1,fs,3)
-    a_lp_hp=normalize(a_lp_hp)
-    a_lp_hp=a_lp_hp-np.mean(a_lp_hp)
+    x_abs = abs(a_x)
+    y_abs = abs(a_y)
+    z_abs = abs(a_z)
+    svm = []
+   
+    for i in range(0, len(a_y)):
+        svm.append(math.sqrt(x_abs[i]**2 + y_abs[i]*2 + z_abs[i]**2))
+ 
+    peaks , properties = find_peaks(svm , height = 2, prominence=1)
+    peaks_heights = properties['peak_heights']
+    step = len(peaks)
 
-    peaks = detect_peaks(a_lp_hp,mph=0.2,mpd=8)
-    valleys = detect_peaks(-a_lp_hp,mph=0.2,mpd=8)
-    range_step = min(len(peaks) , len(valleys))
-    step_length = []
-    distance = 0
-    for l in range(0, range_step):    
-      length  = ((abs(peaks[l] - valleys[l]))**(1/float(4)))/2
-      step_length.append(length)
-    # print(step_length)  
-    
-    # plt.plot(a_lp_hp)
-    # plt.scatter(peaks , a_lp_hp[peaks])
-    # plt.scatter(valleys , a_lp_hp[valleys])
+    peaks_heights_4root = [(l*(float(1/4)))/2 for l in peaks_heights]
+    peaks_height_sum = np.sum(peaks_heights_4root)
 
-    # plt.show()
-    steps_1_4win.append(len(np.unique(np.asarray(peaks))))
-    # print(steps_1_4win)
-    distance = np.average(step_length) * steps_1_4win[0]
-    # print(distance)
-    return steps_1_4win , distance
+    stride =  float('%.2f'%((np.mean(peaks_heights_4root) - 0.1) * 2))
+    peaks_height_sum = float('%.2f'%(peaks_height_sum))
+
+    if len(peaks) == 0  or len(peaks_heights) == 0:
+        step  , peaks_height_sum , stride = 0 , 0 , 0
+
+    return step  , peaks_height_sum  , stride
 
     
 
