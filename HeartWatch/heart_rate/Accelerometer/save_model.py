@@ -299,7 +299,4 @@ def main(window_df, model):
     return activity, fall_event_time
 
 
-if __name__ == '__main__':
-    main(window_df, model)
-
 
