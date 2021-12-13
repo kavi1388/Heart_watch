@@ -342,15 +342,14 @@ def main(window_df , model):
    
     fall_event_time = fall_detect(window_df_decimal_fall , threshold_x , threshold_y , threshold_z)
 
-    if fall_event_time[0] == 0:
-        fall_event_time[0] = 'No Fall'
+    if fall_event_time == 0:
+        fall_event_time = 'No Fall'
     else:
+    if fall_event_time != 0:
             fall_event_time = str(datetime.timedelta(seconds=fall_event_time))
         
     
     return activity , fall_event_time # , step_count_value , peaks_height_sum , stride
 
-if __name__ == '__main__':
-    main(window_df , model)
 
 

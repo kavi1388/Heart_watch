@@ -312,16 +312,15 @@ class Accelerometer_new_V1_ViewSet(APIView):
             Accelerometer_data_list.append(gg)
         time_last, activity, fall = call_model(Accelerometer_data_list[-1::-1])
 
-        User_activity_url = 'http://164.52.214.242:9098/user-activity'
         activityObj = {"userID": user_id, "activityType": activity[0], "timestamp": time.strftime('%d/%m/%Y'),
                        "duration": "10"}
         act_res = requests.post(User_activity_url, json=activityObj)
 
-        if fall[0][0] == 'No Fall':
+        if fall == 'No Fall':
             api_type= None
         else:
             #One API for Fall with type 3==True
-            record_time = result['Time Interval'][-1]
+            record_time = time_last
             current_time = time.strftime('%H:%M:%S', time.localtime())
             x = time.strptime(current_time, '%H:%M:%S')
             y = time.strptime(record_time, '%H:%M:%S')
