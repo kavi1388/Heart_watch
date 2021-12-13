@@ -520,8 +520,9 @@ class HeartRateDetail(APIView):
         ppg_bytes = []
 
         # reading of the input file starts here
-        for d in ppg_list:
-            ppg_data = d
+        for ind in range(len(ppg_list)):
+            a = ppg_list[ind]
+            ppg_data = json.loads(a)
             ppg_sec = ppg_data['data']
             time_val.append(ppg_data['app_date'].split()[1])
             for j in range(2, len(ppg_sec), 3):
