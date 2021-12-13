@@ -1,11 +1,12 @@
 import pandas as pd
 import numpy as np
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 from scipy import signal
 import statistics as sts
 from scipy.stats import kurtosis, skew
-#%matplotlib inline
-# plt.style.use('ggplot')
+
+# %matplotlib inline
+plt.style.use('ggplot')
 from scipy.stats import iqr
 from scipy.signal import butter, lfilter
 import math
@@ -63,16 +64,21 @@ def low_pass_IIR(data, fl, samp_f, order):
 def filter(acc):
     fs = 20
     a_x = acc['ACC_X (in g)']
-    a_gx = low_pass_IIR(a_x, 0.19, fs, 3)
-    a_ux = a_x - a_gx
-    a_y = acc['ACC_Y (in g)']
-    a_gy = low_pass_IIR(a_y, 0.19, fs, 3)
-    a_uy = a_y - a_gy
-    a_z = acc['ACC_Z (in g)']
-    a_gz = low_pass_IIR(a_z, 0.19, fs, 3)
-    a_uz = a_z - a_gz
+    a_gx = butter_bandpass_filter(a_x, 0.19, 5, fs, 3)
+    a_gx = normalize(a_gx)
+    a_gx = a_gx - np.mean(a_gx)
 
-    return a_ux, a_uy, a_uz
+    a_y = acc['ACC_Y (in g)']
+    a_gy = butter_bandpass_filter(a_y, 0.19, 5, fs, 3)
+    a_gy = normalize(a_gy)
+    a_gy = a_gy - np.mean(a_gy)
+
+    a_z = acc['ACC_Z (in g)']
+    a_gz = butter_bandpass_filter(a_z, 0.19, 5, fs, 3)
+    a_gz = normalize(a_gz)
+    a_gz = a_gz - np.mean(a_gz)
+
+    return a_gx, a_gy, a_gz
 
 
 def svm(x, y, z):
@@ -152,4 +158,5 @@ def extract_features(data, window_size=20):
         # print(extractFeature_df)
 
     return extractFeature_df
+
 

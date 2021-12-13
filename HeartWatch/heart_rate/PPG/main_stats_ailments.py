@@ -1,33 +1,28 @@
-import matplotlib.pyplot as plt
-
 from ppg_hr import *
 from custom_modules import *
 import datetime
 import time
-import json
 import pandas as pd
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
 
 
-
-def ailments_stats(ppg_list):
-
+def ailments_stats(self, ppg_list):
     strike = 0
     strike_tachy = 0
-    strike_afib = 0
     count = 15
-    count_afib = 10
-    brady_in= False
+    count_afib = 15
+    brady_in = False
     tachy_in = False
     afib_in = False
     data_valid = True
-    ppg_bytes = []
+    api_type = None
     time_val = []
+    ppg_bytes = []
+
     # reading of the input file starts here
-    for ind in range(len(ppg_list)):
-        a = ppg_list[ind]
-        ppg_data = json.loads(a)
+    for d in ppg_list:
+        ppg_data = d
         ppg_sec = ppg_data['data']
         time_val.append(ppg_data['app_date'].split()[1])
         for j in range(2, len(ppg_sec), 3):
@@ -47,46 +42,42 @@ def ailments_stats(ppg_list):
             if time_step_v[-2] - time_step_v[-1] > 120:
                 data_valid = False
     if data_valid:
-        final_pr, ppg_21, ppg_sig, ppg_bpf, t_diff_afib, hr_extracted, peaks_all2,non_uniform = ppg_plot_hr(ppg_sig, time_val, fl=0.4, fh=7, o=5, n=4, diff_max=4, r=5)
+        final_pr, ppg_sig, ppg_bpf, t_diff_afib, hr_extracted, non_uniform, spo2_pred = ppg_plot_hr(
+            ppg_sig, time_val, fl=1, fh=5, o=4, n=5, diff_max=10, r=5)
+        resp_rate = rr_calulation(ppg_sig)
 
         for i in range(len(hr_extracted)):
             if 60 > hr_extracted[i] >= 40:
                 strike += 1
+                if strike == count:
+                    brady_in = True
+                    api_type = 1
             else:
                 strike = 0
+                brady_in = False
 
-            if strike == count:
-                # print('Patient has Sinus Bradycardia')
-                brady_in = True
-
-                # One API call for Bradycardia
-
-            if 100 < hr_extracted[i] <= 130:
+            if hr_extracted[i] > 100:
                 strike_tachy += 1
+                if strike_tachy == count:
+                    tachy_in = True
+                    api_type = 2
             else:
                 strike_tachy = 0
+                tachy_in = False
+            # One API call for Bradycardia (type 1==True)
 
-            if strike_tachy == count:
-                # print('Patient has Sinus Tachycardia')
-                tachy_in = True
+            # return 'No Bradycardia'
 
-                # One API call for Tachycardia
-
-        # for i in range(len(t_diff_afib) - 1):
-        #     if t_diff_afib[i + 1] - t_diff_afib[i] > 10:
-        #         strike_afib += 1
-        #     else:
-        #         strike_afib = 0
+            # One API call for Tachycardia (type 2==True)
         if non_uniform == count_afib:
-                # print('Patient has Atrial Fibrillation')
             afib_in = True
+            api_type = 5
 
-        # One API call for Atrial Fibrillation
+        res = {'time_interval': (time_val[0], time_val[-1]), 'predicted_HR': hr_extracted, 'predicted_SPO2': spo2_pred,
+               'resp_rate': resp_rate, 'rr_peak_intervals': t_diff_afib, 'a_Fib': afib_in, 'tachycardia': tachy_in,
+               'bradycardia': brady_in, 'dataFrame': final_pr, 'api_type': api_type}
 
-        res = {'Predicted HR': final_pr, 'RR peak intervals': t_diff_afib,
-               'A Fib': afib_in, 'Tachycardia': tachy_in, 'Bradycardia': brady_in}
-        # return ppg_sig, hr_extracted, final_pr, afib_in, tachy_in, brady_in, data_valid
-        return res, ppg_bpf, t_diff_afib,peaks_all2,final_pr
+        return res
     else:
         statement = 'Data missing for over 2 minutes , PPG analysis not done'
         return statement
@@ -97,72 +88,24 @@ def ailments_stats(ppg_list):
 data = pd.read_csv(r'C:\Users\Yuvraj\Desktop\Live Testing\PPG_data_new-2021-10-29.csv')
 hr_orig=pd.read_csv(r'C:\Users\Yuvraj\Desktop\Live Testing\hr_device_29th.csv')
 
-result,ppg_bpf,rr_int, peaks_all2 ,final_pr= ailments_stats(data.iloc[:60,2].to_list())
-print(result)
-hr_orig=hr_orig.rename(columns={'heart_data_timestamp_array':'timestamps'})
-# print(hr_orig)
-# print(rr_int)
-# print(final_pr)
-# plt.title('rr intervals: {}'.format(rr_int*1000))
-plt.plot(ppg_bpf)
-plt.text(0.5,0.9,rr_int,fontsize=10)
-plt.scatter(peaks_all2,ppg_bpf[peaks_all2])
-plt.show()
-result['Predicted HR']=result['Predicted HR'].merge(hr_orig,on = 'timestamps',how = 'inner')
-hr_pr=result['Predicted HR'].dropna()
+hr_orig = hr_orig.rename(columns={'ISTTime': 'timestamps'})
+hr_orig = hr_orig.rename(columns={'heart_data_timestamp_array': 'timestamps'})
 
-hr_pr.plot()
+result = ailments_stats(data.iloc[:60,2].to_list())
 
-plt.figure()
-plt.plot(hr_pr['heart predicted by acf'],label='ACF')
-plt.plot(hr_pr['heart_data_array'],label='Actual HR')
-plt.plot(hr_pr['heart predicted by peak detection'],label='Peak detection')
-plt.plot(hr_pr['heart predicted by peak time diff'],label='peak time diff')
-plt.plot(hr_pr['heart predicted by maxim code'],label='maxim code')
-plt.plot(hr_pr['heart predicted by maxim code ver2'],label='maxim code ver2')
-plt.legend()
-plt.show()
+hr_all_df = result['dataFrame']
 
-plt.figure()
-plt.title('Error Plot')
-plt.plot(hr_pr['heart predicted by acf']-hr_pr['heart_data_array'],label='ACF')
-plt.plot(hr_pr['heart predicted by peak detection']-hr_pr['heart_data_array'],label='Peak detection')
-plt.plot(hr_pr['heart predicted by peak time diff']-hr_pr['heart_data_array'],label='peak time diff')
-plt.plot(hr_pr['heart predicted by maxim code']-hr_pr['heart_data_array'],label='maxim code')
-plt.plot(hr_pr['heart predicted by maxim code ver2']-hr_pr['heart_data_array'],label='maxim code ver2')
-plt.legend()
-plt.show()
+# plt.figure()
+# plt.title('Actual Vs Predicted HR')
+# plt.plot(hr_all_df['heart_data_array'], label='Actual HR')
+# plt.plot(hr_all_df['heart predicted by peak time diff'],label='Predicted HR')
+# plt.legend()
+# plt.show()
+#
+# plt.figure()
+# plt.title('Error Plot')
+# plt.plot(np.abs(hr_all_df['heart predicted by peak time diff']-hr_all_df['heart_data_array']),label='Error in Prediction')
+# plt.legend()
+# plt.show()
 
-plt.figure()
-plt.plot(hr_pr['heart predicted by acf'],label='ACF')
-plt.plot(hr_pr['heart predicted avg of 5 ways'],label='avg')
-plt.plot(hr_pr['heart_data_array'],label='Actual HR')
-plt.legend()
-plt.show()
 
-plt.figure()
-plt.plot(hr_pr['heart predicted by peak time diff'],label='peak time diff')
-plt.plot(hr_pr['heart_data_array'],label='Actual HR')
-plt.legend()
-plt.show()
-
-plt.figure()
-plt.plot(hr_pr['heart predicted by peak detection'],label='peak')
-plt.plot(hr_pr['heart_data_array'],label='Actual HR')
-plt.legend()
-plt.show()
-
-plt.figure()
-plt.plot(hr_pr['heart predicted avg of 5 ways'],label='avg')
-plt.plot(hr_pr['heart predicted avg of acf and maxim'],label='avg of 2')
-plt.plot(hr_pr['heart predicted avg of acf,maxim and maxim2'],label='avg of 3')
-plt.plot(hr_pr['heart_data_array'],label='Actual HR')
-plt.legend()
-plt.show()
-
-plt.figure()
-plt.plot(hr_pr['heart predicted by maxim code'],label='maxim code')
-plt.plot(hr_pr['heart predicted by maxim code ver2'],label='maxim code ver2')
-plt.plot(hr_pr['heart_data_array'],label='Actual HR')
-plt.legend()
-plt.show()

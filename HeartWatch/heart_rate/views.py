@@ -12,6 +12,7 @@ import datetime
 import time
 import json
 from .PPG.custom_modules import decimal_to_binary
+from .PPG.rr_from_ppg import rr_calulation
 from .Accelerometer.HAR_Fall import call_model
 from rest_framework.views import APIView
 from django.http import Http404
@@ -276,7 +277,7 @@ class AccelerometerDetail_new(APIView):
                                            seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
                                                                                                   minutes=y.tm_min,
                                                                                                   seconds=y.tm_sec).total_seconds()
-            if abs(time_diff) > 30:
+            if abs(time_diff) > 120:
                 Accelerometer_data = {
                     "final_result": 'No activity detected'
                 }
@@ -301,6 +302,7 @@ class Accelerometer_new_V1_ViewSet(APIView):
 
     def get(self, request, user_id, format=None):
         User_alert_url = 'http://164.52.214.242:9098/user-alerts?alertsToken=M0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ'
+        User_activity_url = 'http://164.52.214.242:9098/user-activity'
         Accelerometer_data_list = []
         Accelerometer_obj = self.get_object(user_id)
         serializer = Accelerometer_get_new_Serializer(Accelerometer_obj, many=True)
@@ -309,13 +311,29 @@ class Accelerometer_new_V1_ViewSet(APIView):
             gg = i['Accelerometer']
             Accelerometer_data_list.append(gg)
         time_last, activity, fall = call_model(Accelerometer_data_list[-1::-1])
+
+        User_activity_url = 'http://164.52.214.242:9098/user-activity'
+        activityObj = {"userID": user_id, "activityType": activity[0], "timestamp": time.strftime('%d/%m/%Y'),
+                       "duration": "10"}
+        act_res = requests.post(User_activity_url, json=activityObj)
+
         if fall[0][0] == 'No Fall':
             api_type= None
         else:
             #One API for Fall with type 3==True
-            api_type = "3"
-            Accelerometerobj = {"userID": user_id, "alertType": api_type}
-            res = requests.post(User_alert_url, json=Accelerometerobj)
+            record_time = result['Time Interval'][-1]
+            current_time = time.strftime('%H:%M:%S', time.localtime())
+            x = time.strptime(current_time, '%H:%M:%S')
+            y = time.strptime(record_time, '%H:%M:%S')
+            time_diff = datetime.timedelta(hours=x.tm_hour, minutes=x.tm_min,
+                                           seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
+                                                                                                  minutes=y.tm_min,
+                                                                                                  seconds=y.tm_sec).total_seconds()
+            if time_diff < 30:
+                api_type = "3"
+                accelerometer_obj = {"userID": user_id, "alertType": api_type}
+                res = requests.post(User_alert_url, json=accelerometer_obj)
+
             # print(res.text)
         dd = {
             "time": time_last,
@@ -342,7 +360,7 @@ class Accelerometer_new_V1_ViewSet(APIView):
                                                seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
                                                                                                       minutes=y.tm_min,
                                                                                                       seconds=y.tm_sec).total_seconds()
-                if abs(time_diff) > 30:
+                if abs(time_diff) > 120:
                     Accelerometer_data = {
                         "time":last_time,
                         "current time": current_time,
@@ -373,10 +391,8 @@ class AccelerometerNotify(APIView):
     def get(self, request, user_id, format=None):
         Accelerometer_data = ""
         Accelerometer_obj = self.get_object(user_id)
-        # print("Accelerometer_obj ::", Accelerometer_obj)
         serializer = Accelerometer_notify_Serializer(Accelerometer_obj, many=True)
         Accelerometer_insta = serializer.data
-        # print(Accelerometer_insta)
         try:
             for i in Accelerometer_insta:
                 final_result = i['final_result']
@@ -391,7 +407,7 @@ class AccelerometerNotify(APIView):
                                                seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
                                                                                                       minutes=y.tm_min,
                                                                                                       seconds=y.tm_sec).total_seconds()
-                if abs(time_diff) > 30:
+                if abs(time_diff) > 120:
                     Accelerometer_data = {
                       "final_result": 'No activity detected'
                     }
@@ -444,8 +460,8 @@ class HeartRateDetail(APIView):
         api_type=None
         if type(result) is not str:
             User_alert_url = 'http://164.52.214.242:9098/user-alerts?alertsToken=M0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ'
-            if result['Tachycardia']:
-                record_time=result['Time Interval'][1]
+            if result['tachycardia']:
+                record_time=result['Time Interval'][-1]
                 current_time = time.strftime('%H:%M:%S', time.localtime())
                 x = time.strptime(current_time, '%H:%M:%S')
                 y = time.strptime(record_time, '%H:%M:%S')
@@ -457,8 +473,8 @@ class HeartRateDetail(APIView):
                     api_type = "2"
                     hr_obj = {"userID": user_id, "alertType": api_type}
                     res = requests.post(User_alert_url, json=hr_obj)
-            elif result['Bradycardia']:
-                record_time = result['Time Interval'][1]
+            elif result['bradycardia']:
+                record_time = result['Time Interval'][-1]
                 current_time = time.strftime('%H:%M:%S', time.localtime())
                 x = time.strptime(current_time, '%H:%M:%S')
                 y = time.strptime(record_time, '%H:%M:%S')
@@ -470,28 +486,42 @@ class HeartRateDetail(APIView):
                     api_type = "1"
                     hr_obj = {"userID": user_id, "alertType": api_type}
                     res = requests.post(User_alert_url, json=hr_obj)
+
+        if result['a_Fib']:
+            record_time = result['Time Interval'][-1]
+            current_time = time.strftime('%H:%M:%S', time.localtime())
+            x = time.strptime(current_time, '%H:%M:%S')
+            y = time.strptime(record_time, '%H:%M:%S')
+            time_diff = datetime.timedelta(hours=x.tm_hour, minutes=x.tm_min,
+                                           seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
+                                                                                                  minutes=y.tm_min,
+                                                                                                  seconds=y.tm_sec).total_seconds()
+            if time_diff < 30:
+                api_type = "5"
+                hr_obj = {"userID": user_id, "alertType": api_type}
+                res = requests.post(User_alert_url, json=hr_obj)
+
+
             # print(res.text)
         PPG_result_save.objects.create(final_result=result, user_id=user_id)
         return Response(result)
 
     def ailments_stats(self, ppg_list):
-
         strike = 0
         strike_tachy = 0
-        # strike_afib = 0
-        count = 30
-        count_afib = 10
+        count = 15
+        count_afib = 15
         brady_in = False
         tachy_in = False
         afib_in = False
         data_valid = True
-        ppg_bytes = []
+        api_type = None
         time_val = []
-        api_type=None
+        ppg_bytes = []
+
         # reading of the input file starts here
-        for ind in range(len(ppg_list)):
-            a = ppg_list[ind]
-            ppg_data = json.loads(a)
+        for d in ppg_list:
+            ppg_data = d
             ppg_sec = ppg_data['data']
             time_val.append(ppg_data['app_date'].split()[1])
             for j in range(2, len(ppg_sec), 3):
@@ -511,39 +541,42 @@ class HeartRateDetail(APIView):
                 if time_step_v[-2] - time_step_v[-1] > 120:
                     data_valid = False
         if data_valid:
-            final_pr, ppg_sig, ppg_bpf, t_diff_afib, hr_extracted, peaks_all2, non_uniform = ppg_plot_hr(
-                ppg_sig, time_val, fl=0.4, fh=7, o=5, n=4, diff_max=4, r=5)
+            final_pr, ppg_sig, ppg_bpf, t_diff_afib, hr_extracted, non_uniform, spo2_pred = ppg_plot_hr(
+                ppg_sig, time_val,  fl=1, fh=5, o=4, n=5, diff_max=10, r=5)
+            resp_rate = rr_calulation(ppg_sig)
 
             for i in range(len(hr_extracted)):
                 if 60 > hr_extracted[i] >= 40:
                     strike += 1
                     if strike == count:
                         brady_in = True
-                        api_type=1
+                        api_type = 1
                 else:
                     strike = 0
-                    brady_in=False
+                    brady_in = False
 
-                if 100 < hr_extracted[i] <= 130:
+                if hr_extracted[i] > 100:
                     strike_tachy += 1
                     if strike_tachy == count:
                         tachy_in = True
-                        api_type=2
+                        api_type = 2
                 else:
                     strike_tachy = 0
-                    tachy_in=False
+                    tachy_in = False
                 # One API call for Bradycardia (type 1==True)
 
                 # return 'No Bradycardia'
 
-
                 # One API call for Tachycardia (type 2==True)
             if non_uniform == count_afib:
                 afib_in = True
+                api_type = 5
 
-            res = {'Time Interval':(time_val[0],time_val[-1]), 'Predicted HR': hr_extracted,
-                   'RR peak intervals': t_diff_afib, 'A Fib': afib_in, 'Tachycardia': tachy_in, 'Bradycardia': brady_in,
-                   'All Methods': final_pr, 'api_type': api_type}
+
+
+            res = {'time_interval': (time_val[0], time_val[-1]), 'predicted_HR': hr_extracted, 'predicted_SPO2':spo2_pred,
+                   'resp_rate':resp_rate,'rr_peak_intervals': t_diff_afib, 'a_Fib': afib_in, 'tachycardia': tachy_in,
+                   'bradycardia': brady_in, 'dataFrame': final_pr, 'api_type': api_type}
 
             return res
         else:
