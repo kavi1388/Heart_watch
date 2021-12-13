@@ -1,17 +1,10 @@
 import pandas as pd
-import numpy as np
-import math
+
 import datetime
 from ..Accelerometer.FeatureExtractionFunction import extract_features
-from detecta import detect_peaks
-from scipy.signal import butter, lfilter
-from scipy import signal
-import matplotlib.pyplot as plt
+
 from ..Accelerometer. steps_counter import *
-from statsmodels.graphics.tsaplots import plot_acf
-from scipy.signal import savgol_filter
-import pywt
-from detecta import detect_peaks
+
 
 
 def calc_xy_angles(x, y, z):
