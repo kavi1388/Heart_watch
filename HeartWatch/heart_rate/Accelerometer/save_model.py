@@ -7,7 +7,7 @@ from detecta import detect_peaks
 from scipy.signal import butter, lfilter
 from scipy import signal
 import matplotlib.pyplot as plt
-import steps_counter as sc
+from ..Accelerometer. steps_counter import *
 from statsmodels.graphics.tsaplots import plot_acf
 from scipy.signal import savgol_filter
 import pywt
@@ -316,8 +316,8 @@ def main(window_df, model):
         threshold_y = 0.5
         threshold_z = 0.5
 
-        X, Y, Z = sc.to_decimal(window_df_step)
-        step_count_value, peaks_height_sum, stride = sc.step_count(X, Y, Z)
+        X, Y, Z = to_decimal(window_df_step)
+        step_count_value, peaks_height_sum, stride = step_count(X, Y, Z)
 
     if result_index == 2:
         activity = 'Sleep'
