@@ -301,6 +301,7 @@ class Accelerometer_new_V1_ViewSet(APIView):
 
     def get(self, request, user_id, format=None):
         User_alert_url = 'http://164.52.214.242:9098/user-alerts?alertsToken=M0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ'
+        User_activity_url = 'http://164.52.214.242:9098/user-activity'
         Accelerometer_data_list = []
         Accelerometer_obj = self.get_object(user_id)
         serializer = Accelerometer_get_new_Serializer(Accelerometer_obj, many=True)
@@ -309,6 +310,10 @@ class Accelerometer_new_V1_ViewSet(APIView):
             gg = i['Accelerometer']
             Accelerometer_data_list.append(gg)
         time_last, activity, fall = call_model(Accelerometer_data_list[-1::-1])
+        Accelerometerobj = {"userID": user_id, "alertType": api_type}
+        Activityobj={"userID":user_id, "activityType":activity, "timestamp":time.strftime('%d/%m/%Y'), "duration":"10"}
+        act_res=requests.post(User_activity_url, json=Activityobj)
+        res = requests.post(User_alert_url, json=Accelerometerobj)
         if fall[0][0] == 'No Fall':
             api_type= None
         else:
