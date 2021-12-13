@@ -310,8 +310,9 @@ class Accelerometer_new_V1_ViewSet(APIView):
             gg = i['Accelerometer']
             Accelerometer_data_list.append(gg)
         time_last, activity, fall = call_model(Accelerometer_data_list[-1::-1])
-        Activityobj = {"userID": user_id, "activityType": activity, "timestamp": time.strftime('%d/%m/%Y'),
-                       "duration": "10"}
+        print(activity[0])
+        User_activity_url = 'http://164.52.214.242:9098/user-activity'
+        Activityobj = {"userID": user_id, "activityType": activity[0], "timestamp": time.strftime('%d/%m/%Y'),"duration": "10"}
         act_res = requests.post(User_activity_url, json=Activityobj)
         print(act_res.text)
         if fall[0][0] == 'No Fall':
