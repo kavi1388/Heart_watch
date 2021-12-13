@@ -342,7 +342,9 @@ def main(window_df , model):
    
     fall_event_time = fall_detect(window_df_decimal_fall , threshold_x , threshold_y , threshold_z)
 
-    if fall_event_time != 0:
+    if fall_event_time[0] == 0:
+        fall_event_time[0] = 'No Fall'
+    else:
             fall_event_time = str(datetime.timedelta(seconds=fall_event_time))
         
     
