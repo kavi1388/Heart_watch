@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import math
 import datetime
-from FeatureExtractionFunction import extract_features
+from ..Accelerometer.FeatureExtractionFunction import extract_features
 from detecta import detect_peaks
 from scipy.signal import butter, lfilter
 from scipy import signal
