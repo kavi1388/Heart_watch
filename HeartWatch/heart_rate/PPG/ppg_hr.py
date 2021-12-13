@@ -87,8 +87,7 @@ def ppg_plot_hr(ppg_sig, time_val, fl=1, fh=5, o=4, n=5, diff_max=4, r=1):
     hr_extracted = final_pr['Heart Rate Predicted'].to_numpy()
     for hr in hr_extracted:
         spo2_pred.append(spo2(hr))
-    print(spo2_pred)
-    final_pr['SPO2 Predicted'] = pd.Series(spo2_pred)
+
 
     return final_pr, ppg_sig, ppg_bpf, rr_interval, hr_extracted,  non_uniform, spo2_pred
 
