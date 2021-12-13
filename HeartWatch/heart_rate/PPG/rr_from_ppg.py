@@ -2,6 +2,17 @@ from ..PPG.custom_modules import *
 import numpy as np
 from scipy.signal import find_peaks
 
+def bessel_bandpass(lowcut=0.13, highcut=0.48, fs=25, order=4):
+    nyq = 0.5 * fs
+    low = lowcut / nyq
+    high = highcut / nyq
+    b, a = bessel(order, [low, high], btype='band')
+    return b, a
+
+def bessel_bandpass_filter(data, lowcut, highcut, fs, order=5):
+    b, a = bessel_bandpass(lowcut, highcut, fs, order=order)
+    y = lfilter(b, a, data)
+    return y
 
 def rr_calulation(ppg_sig,fl=0.17,fh=0.35,o=5):
 
