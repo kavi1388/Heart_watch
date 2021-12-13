@@ -573,9 +573,7 @@ class HeartRateDetail(APIView):
                 afib_in = True
                 api_type = 5
 
-
-
-            res = {'time_interval': (time_val[0], time_val[-1]), 'predicted_HR': hr_extracted, 'predicted_SPO2':spo2_pred,
+            res = {'time_interval': (time_val[0], time_val[-1]), 'predicted_SPO2':spo2_pred,
                    'resp_rate':resp_rate,'rr_peak_intervals': t_diff_afib, 'a_Fib': afib_in, 'tachycardia': tachy_in,
                    'bradycardia': brady_in, 'dataFrame': final_pr, 'api_type': api_type}
 
