@@ -310,10 +310,10 @@ class Accelerometer_new_V1_ViewSet(APIView):
             gg = i['Accelerometer']
             Accelerometer_data_list.append(gg)
         time_last, activity, fall = call_model(Accelerometer_data_list[-1::-1])
-        Accelerometerobj = {"userID": user_id, "alertType": api_type}
-        Activityobj={"userID":user_id, "activityType":activity, "timestamp":time.strftime('%d/%m/%Y'), "duration":"10"}
-        act_res=requests.post(User_activity_url, json=Activityobj)
-        res = requests.post(User_alert_url, json=Accelerometerobj)
+        Activityobj = {"userID": user_id, "activityType": activity, "timestamp": time.strftime('%d/%m/%Y'),
+                       "duration": "10"}
+        act_res = requests.post(User_activity_url, json=Activityobj)
+        print(act_res.text)
         if fall[0][0] == 'No Fall':
             api_type= None
         else:
@@ -347,7 +347,7 @@ class Accelerometer_new_V1_ViewSet(APIView):
                                                seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
                                                                                                       minutes=y.tm_min,
                                                                                                       seconds=y.tm_sec).total_seconds()
-                if abs(time_diff) > 30:
+                if abs(time_diff) > 120:
                     Accelerometer_data = {
                         "time":last_time,
                         "current time": current_time,
