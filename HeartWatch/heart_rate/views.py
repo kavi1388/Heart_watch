@@ -328,7 +328,7 @@ class Accelerometer_new_V1_ViewSet(APIView):
                                            seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
                                                                                                   minutes=y.tm_min,
                                                                                                   seconds=y.tm_sec).total_seconds()
-            if time_diff < 30:
+            if time_diff < 60:
                 api_type = "3"
                 accelerometer_obj = {"userID": user_id, "alertType": api_type}
                 res = requests.post(User_alert_url, json=accelerometer_obj)
@@ -364,13 +364,15 @@ class Accelerometer_new_V1_ViewSet(APIView):
                         "time":last_time,
                         "current time": current_time,
                         "time diff": time_diff,
-                        "final_result": 'No activity detected'
+                        "final_result": 'No activity detected',
+                        "fall": fall
                     }
                 else:
                     activity = d['activity'][0]
                     Accelerometer_data = {
-                        'time': last_time,
-                        'activity': activity
+                        "time": last_time,
+                        "activity": activity,
+                        "fall": fall
                     }
             return Response(Accelerometer_data)
         except:
@@ -411,7 +413,7 @@ class AccelerometerNotify(APIView):
                       "final_result": 'No activity detected'
                     }
                 else:
-                    activity = d['activity'][0]
+                    activity = d['activity']
                     Accelerometer_data = {
                         'activity': activity
                     }
@@ -468,7 +470,7 @@ class HeartRateDetail(APIView):
                                                seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
                                                                                                       minutes=y.tm_min,
                                                                                                       seconds=y.tm_sec).total_seconds()
-                if time_diff < 30:
+                if abs(time_diff) < 60:
                     api_type = "2"
                     hr_obj = {"userID": user_id, "alertType": api_type}
                     res = requests.post(User_alert_url, json=hr_obj)
@@ -481,7 +483,7 @@ class HeartRateDetail(APIView):
                                                seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
                                                                                                       minutes=y.tm_min,
                                                                                                       seconds=y.tm_sec).total_seconds()
-                if time_diff < 30:
+                if abs(time_diff) < 60:
                     api_type = "1"
                     hr_obj = {"userID": user_id, "alertType": api_type}
                     res = requests.post(User_alert_url, json=hr_obj)
@@ -495,7 +497,7 @@ class HeartRateDetail(APIView):
                                            seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
                                                                                                   minutes=y.tm_min,
                                                                                                   seconds=y.tm_sec).total_seconds()
-            if time_diff < 30:
+            if abs(time_diff) < 60:
                 api_type = "5"
                 hr_obj = {"userID": user_id, "alertType": api_type}
                 res = requests.post(User_alert_url, json=hr_obj)
