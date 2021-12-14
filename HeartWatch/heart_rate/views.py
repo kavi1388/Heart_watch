@@ -312,7 +312,7 @@ class Accelerometer_new_V1_ViewSet(APIView):
             Accelerometer_data_list.append(gg)
         time_last, activity, fall = call_model(Accelerometer_data_list[-1::-1])
 
-        activityObj = {"userID": user_id, "activityType": activity[0], "timestamp": time.strftime('%d/%m/%Y'),
+        activityObj = {"userID": user_id, "activityType": activity, "timestamp": time.strftime('%d/%m/%Y'),
                        "duration": "10"}
         act_res = requests.post(User_activity_url, json=activityObj)
 
