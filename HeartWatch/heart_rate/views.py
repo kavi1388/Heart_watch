@@ -178,7 +178,7 @@ class proccess_Accelerometer_data(viewsets.ModelViewSet):
         # print("Accelerometer_list ::", Accelerometer_list)
 
         # call ailments_stats method
-        activity, fall = call_model(Accelerometer_list)
+        time_last,activity, fall = call_model(Accelerometer_list)
 
         dd = {
             "activity": activity,
