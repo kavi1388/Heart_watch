@@ -165,7 +165,7 @@ class proccess_Accelerometer_data(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         Accelerometer_list = []
-        Accelerometer_instance = Accelerometer_data.objects.all().order_by('-id')[:30]
+        Accelerometer_instance = Accelerometer_data.objects.all().order_by('-id')[:10]
 
         serializer = Accelerometer_Serializer(Accelerometer_instance, many=True)
         Accelerometer_insta = serializer.data
@@ -247,7 +247,7 @@ class AccelerometerDetail_new(APIView):
             acc_obj = serializer1.data
             user_id = acc_obj['user_id']
             # user_id = "6052e4dc605f500004ef6d3f"
-            first_ten = Accelerometer_data_new.objects.filter(user_id=user_id).order_by('-id')[:30]
+            first_ten = Accelerometer_data_new.objects.filter(user_id=user_id).order_by('-id')[:10]
             # print(first_ten)
             serializer = Accelerometer_get_new_Serializer(first_ten, many=True)
             Accelerometer_insta = serializer.data
@@ -282,7 +282,7 @@ class AccelerometerDetail_new(APIView):
                     "final_result": 'No activity detected'
                 }
             else:
-                activity = dd['activity'][0]
+                activity = dd['activity']
                 Accelerometer_data = {
                     'activity': activity
                 }
@@ -296,7 +296,7 @@ class Accelerometer_new_V1_ViewSet(APIView):
         # Returns an object instance that should
         # be used for detail views.
         try:
-            return Accelerometer_data_new.objects.filter(user_id=user_id).order_by('-id')[:30]
+            return Accelerometer_data_new.objects.filter(user_id=user_id).order_by('-id')[:10]
         except Accelerometer_data_new.DoesNotExist:
             raise Http404
 
@@ -368,7 +368,7 @@ class Accelerometer_new_V1_ViewSet(APIView):
                         "fall": fall
                     }
                 else:
-                    activity = d['activity'][0]
+                    activity = d['activity']
                     Accelerometer_data = {
                         "time": last_time,
                         "activity": activity,
@@ -443,7 +443,7 @@ class HeartRateDetail(APIView):
         # Returns an object instance that should
         # be used for detail views.
         try:
-            return PPG_data_new.objects.filter(user_id=user_id).order_by('-id')[20:65]
+            return PPG_data_new.objects.filter(user_id=user_id).order_by('-id')[:60]
         except PPG_data_new.DoesNotExist:
             raise Http404
 
