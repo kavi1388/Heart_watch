@@ -36,7 +36,7 @@ def call_model (data):
     acc_data_df['Gap'] = abs((acc_data_df['app_date'].shift(-1) - acc_data_df['app_date']).dt.total_seconds())
     # print(acc_data_df)
     if (acc_data_df['Gap'] >= two_minutes).any():
-        return None, None  # , None , None , None
+        return None, None, None  # , None , None , None
 
     else:
         for index, row in acc_data_df.iterrows():
