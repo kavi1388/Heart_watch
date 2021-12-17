@@ -21,7 +21,7 @@ from .ppg_ailments import *
 from rest_framework.decorators import action
 
 # Create your views here.
-class ppg_for_android_ViewSet(viewsets.ModelViewSet):
+class ppg_for_android_ViewSet(APIView):
     queryset = PPG_data_from_Android.objects.all()
     serializer_class = ppg_data_android_Serializer
 
