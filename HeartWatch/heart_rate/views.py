@@ -67,6 +67,23 @@ class acc_for_android_ViewSet(viewsets.ModelViewSet):
                 return Response(res,status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def get_serializer_class(self):
+        return Accelerometer_data_android_Serializer
+
+    def list(self, request, *args, **kwargs):
+        acc_list = []
+        acc_instance = Accelerometer_data_from_Android.objects.all()[:1]
+        serializer = Accelerometer_data_android_Serializer(acc_instance, many=True)
+        acc_insta = serializer.data
+        # print(heart_rate_insta)
+        for i in acc_insta:
+            gg = i['Accelerometer']
+            acc_list.append(gg)
+
+        result = call_model_(acc_insta[0])
+        return Response(result)
+
+
 class heart_rate_ViewSet(viewsets.ModelViewSet):
     queryset = PPG_data.objects.all()
     serializer_class = heart_rate_Serializer
