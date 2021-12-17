@@ -5,6 +5,13 @@ from import_export.admin import ExportActionMixin
 
 # Register your models here.
 
+class PPG_data_from_AndroidAdmin(ExportActionMixin, admin.ModelAdmin):
+    list_display = ('id', 'heart_rate_voltage')
+
+
+class acc_for_android_ViewSet(ExportActionMixin, admin.ModelAdmin):
+    list_display = ('id', 'heart_rate_voltage')
+
 
 # Register your models here.
 class PPG_DataAdmin(ExportActionMixin, admin.ModelAdmin):
