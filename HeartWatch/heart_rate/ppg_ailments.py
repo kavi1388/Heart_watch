@@ -211,6 +211,8 @@ def ailments_stats_2(ppg_json_array):
         print('ppg data')
         print(ppg_data)
         for item in ppg_data:
+            print('item')
+            print(item)
             ppg_sec = item['data']
         # print(ppg_sec)
             time_val.append(ppg_data['app_date'].split()[1])
