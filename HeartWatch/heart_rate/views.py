@@ -16,8 +16,8 @@ from .PPG.rr_from_ppg import rr_calulation
 from .Accelerometer.HAR_Fall import call_model
 from rest_framework.views import APIView
 from django.http import Http404
-from Activity_Android import *
-from ppg_ailments import *
+from .Activity_Android import *
+from .ppg_ailments import *
 
 
 # Create your views here.
