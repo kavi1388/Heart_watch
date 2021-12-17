@@ -571,7 +571,7 @@ def main(window_df , model):
 
 
     
-def call_model_(data):
+def call_model_(data2):
     window_df = pd.DataFrame(columns=range(0,121))
     acc_data_df = pd.DataFrame(columns=['data' , '_id' , 'app_date' ,'Gap'])
     CNN_model = load_model('/home/heartwatch/rajnishh/Heart_watch/HeartWatch/heart_rate/Accelerometer/CNN_walk_sit_feature20_10second_originalZ.h5')
@@ -580,9 +580,12 @@ def call_model_(data):
     predict_activity = ''
     fall_timestamps = 0
 
-    data = json.loads(data)
+    data = json.loads(data2)
+    print('data')
+    print(data)
     for index , dt in enumerate(data):
-        
+        print('index ',index)
+        print('dt ' ,dt)
         acc_data_df.loc[index , 'data'] = dt['data']
         acc_data_df.loc[index , '_id'] =  dt['_id']
         acc_data_df.loc[index , 'app_date'] = dt['app_date']
