@@ -79,7 +79,7 @@ class acc_for_android_ViewSet(viewsets.ModelViewSet):
             gg = i['Accelerometer']
             acc_list.append(gg)
 
-        result = call_model_(acc_insta[0])
+        result = call_model_(acc_list[0])
         return Response(result)
 
 
