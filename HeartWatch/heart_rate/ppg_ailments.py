@@ -192,7 +192,7 @@ def spo2(heartRate):
 
 
 def ailments_stats_2(ppg_json_array):
-    # print(ppg_json_array)
+    print(ppg_json_array)
     strike = 0
     strike_tachy = 0
     count = 15
@@ -205,20 +205,17 @@ def ailments_stats_2(ppg_json_array):
     ppg_bytes = []
 
     # reading of the input file starts here
-    # d = json.loads(ppg_json_array)
-    for ppg_json in ppg_json_array:
-        ppg_data=json.loads(ppg_json)
-        print('ppg data')
-        print(ppg_data)
-        for item in ppg_data:
-            print('item')
-            print(item)
-            ppg_sec = item['data']
-        # print(ppg_sec)
-            time_val.append(ppg_data['app_date'].split()[1])
+    loaded_json = json.loads(ppg_json_array)
+    print('loaded')
+    print(loaded_json)
+    for d in loaded_json:
+        ppg_data=json.loads(d)
+        ppg_sec = ppg_data['data']
+        print(ppg_sec)
+        time_val.append(ppg_data['app_date'].split()[1])
 
-            for j in range(2, len(ppg_sec), 3):
-                ppg_bytes.append(decimal_to_binary(ppg_sec[j + 1]) + decimal_to_binary(ppg_sec[j]))
+        for j in range(2, len(ppg_sec), 3):
+            ppg_bytes.append(decimal_to_binary(ppg_sec[j + 1]) + decimal_to_binary(ppg_sec[j]))
     ppg_sig = []
     for i in range(len(ppg_bytes)):
         ppg_sig.append(as_signed_big(ppg_bytes[i]))
