@@ -208,8 +208,7 @@ def ailments_stats_2(ppg_json_array):
     loaded_json = json.loads(ppg_json_array)
     print('loaded')
     print(loaded_json)
-    for d in loaded_json:
-        ppg_data=json.loads(d)
+    for ppg_data in loaded_json:
         ppg_sec = ppg_data['data']
         print(ppg_sec)
         time_val.append(ppg_data['app_date'].split()[1])
