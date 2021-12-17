@@ -192,7 +192,7 @@ def spo2(heartRate):
 
 
 def ailments_stats_2(ppg_json_array):
-    print(ppg_json_array)
+    # print(ppg_json_array)
     strike = 0
     strike_tachy = 0
     count = 15
