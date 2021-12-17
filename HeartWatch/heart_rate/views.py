@@ -29,9 +29,9 @@ class ppg_for_android_ViewSet(viewsets.ModelViewSet):
             serializer = ppg_data_android_Serializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                loaded = json.loads(serializer.data['heart_rate_voltage'])
+                # loaded = json.loads(serializer.data['heart_rate_voltage'])
                 # print(loaded)
-                res = ailments_stats(loaded)
+                res = ailments_stats_2(serializer.data)
 
                 return Response(res,status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

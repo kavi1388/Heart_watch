@@ -191,7 +191,7 @@ def spo2(heartRate):
     return spo2h
 
 
-def ailments_stats(ppg_json_array):
+def ailments_stats_2(ppg_json_array):
     strike = 0
     strike_tachy = 0
     count = 15
@@ -204,7 +204,7 @@ def ailments_stats(ppg_json_array):
     ppg_bytes = []
 
     # reading of the input file starts here
-    loaded_json = json.loads(ppg_json_array)
+    loaded_json = json.loads(ppg_json_array['heart_rate+voltage'])
     for ppg_data in loaded_json:
 
         ppg_sec = ppg_data['data']
