@@ -31,9 +31,9 @@ class ppg_for_android_ViewSet(viewsets.ModelViewSet):
                 serializer.save()
                 # loaded = json.loads(serializer.data['heart_rate_voltage'])
                 # print(loaded)
-                res = ailments_stats_2(serializer.data)
+                # res = ailments_stats_2(serializer.data)
 
-                return Response(res,status=status.HTTP_200_OK)
+                return Response(serializer.data,status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get_serializer_class(self):
@@ -61,10 +61,9 @@ class acc_for_android_ViewSet(viewsets.ModelViewSet):
     def post(self, request, format=None):
             serializer = self.Accelerometer_data_android_Serializer(data=request.data)
             if serializer.is_valid():
-                # print(serializer.data["Accelerometer"])
-                res=call_model_(json.loads(serializer.data)["Accelerometer"])
+                serializer.save()
 
-                return Response(res,status=status.HTTP_200_OK)
+                return Response(serializer.data,status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get_serializer_class(self):
@@ -95,6 +94,7 @@ class heart_rate_ViewSet(viewsets.ModelViewSet):
             return Response(serializer.data,
                             status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class proccess_heart_rate_data(viewsets.ModelViewSet):
