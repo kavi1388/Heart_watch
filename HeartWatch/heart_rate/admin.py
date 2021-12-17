@@ -9,8 +9,8 @@ class PPG_data_from_AndroidAdmin(ExportActionMixin, admin.ModelAdmin):
     list_display = ('id', 'heart_rate_voltage')
 
 
-class acc_for_android_ViewSet(ExportActionMixin, admin.ModelAdmin):
-    list_display = ('id', 'heart_rate_voltage')
+class Accelerometer_data_from_AndroidAdmin(ExportActionMixin, admin.ModelAdmin):
+    list_display = ('id', 'Accelerometer')
 
 
 # Register your models here.
@@ -36,3 +36,7 @@ admin.site.register(PPG_data, PPG_DataAdmin)
 admin.site.register(PPG_data_new, PPG_data_newAdmin)
 admin.site.register(Accelerometer_data, Accelerometer_dataAdmin)
 admin.site.register(Accelerometer_data_new, Accelerometer_data_newAdmin)
+
+
+admin.site.register(PPG_data_from_Android, PPG_data_from_AndroidAdmin)
+admin.site.register(Accelerometer_data_from_Android, Accelerometer_data_from_AndroidAdmin)
