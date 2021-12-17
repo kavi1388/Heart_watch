@@ -203,19 +203,19 @@ def ailments_stats_2(ppg_json_array):
     data_valid = True
     time_val = []
     ppg_bytes = []
-    print('ppg_json_array')
-    print(ppg_json_array)
+    # print('ppg_json_array')
+    # print(ppg_json_array)
     # reading of the input file starts here
     loaded_json = json.loads(ppg_json_array)
-    print('loaded')
-    print(loaded_json)
-    print(type(loaded_json))
+    # print('loaded')
+    # print(loaded_json)
+    # print(type(loaded_json))
     # print(type(ppg_json_array))
     for ppg_data in loaded_json:
-        print('ppg')
-        print(ppg_data)
+        # print('ppg')
+        # print(ppg_data)
         ppg_sec = ppg_data['data']
-        print(ppg_sec)
+        # print(ppg_sec)
         time_val.append(ppg_data['app_date'].split()[1])
 
         for j in range(2, len(ppg_sec), 3):
@@ -252,7 +252,7 @@ def ailments_stats_2(ppg_json_array):
     res = {"time_interval": (time_val[0], time_val[-1]), "predicted_SPO2": spo2_pred,
            "resp_rate": resp_rate, "rr_peak_intervals": t_diff_afib, 'a_Fib': afib_in, "tachycardia": tachy_in,
            "bradycardia": brady_in, "hr_extracted": hr_extracted.astype(int).tolist()}
-    print(res)
+    # print(res)
     return res
 
 # data='[{"_id":"6052e4dc605f500004ef6d3f","app_date":"11/12/2021 18:42:12","data":[-7,0,20,-111,1,40,-111,2,51,-111,3,64,-111,4,80,-111,5,96,-111,6,113,-111,7,125,-111,8,-115,-111,9,-103,-111,10,-88,-111,11,-69,-111,12,-47,-111,13,-21,-111,14,9,-110,15,35,-110,16,75,-110,17,106,-110,18,-121,-110,19,-90,-110,20,-66,-110,21,-48,-110,22,-22,-110,23,1,-109,24,16,-15],"id":0},' \
