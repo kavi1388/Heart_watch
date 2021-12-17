@@ -31,9 +31,18 @@ class ppg_for_android_ViewSet(viewsets.ModelViewSet):
                 serializer.save()
                 # loaded = json.loads(serializer.data['heart_rate_voltage'])
                 # print(loaded)
-                res = ailments_stats_2(serializer.data)
+                heart_rate_data_list = []
+                ppg_instance = PPG_data_from_Android.objects.all()[:1]
+                serializer = ppg_data_android_Serializer(ppg_instance, many=True)
+                heart_rate_insta = serializer.data
+                # print(heart_rate_insta)
+                for i in heart_rate_insta:
+                    gg = i['heart_rate_voltage']
+                    heart_rate_data_list.append(gg)
 
-                return Response(res,status=status.HTTP_200_OK)
+                # call ailments_stats method
+                result = ailments_stats_2(heart_rate_data_list)
+                return Response(result,status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get_serializer_class(self):
@@ -44,12 +53,13 @@ class ppg_for_android_ViewSet(viewsets.ModelViewSet):
         ppg_instance = PPG_data_from_Android.objects.all()[:1]
         serializer = ppg_data_android_Serializer(ppg_instance, many=True)
         heart_rate_insta = serializer.data
-        print(heart_rate_insta)
-        gg = heart_rate_insta['heart_rate_voltage']
-            # heart_rate_data_list.append(gg)
+        # print(heart_rate_insta)
+        for i in heart_rate_insta:
+            gg = i['heart_rate_voltage']
+            heart_rate_data_list.append(gg)
 
         # call ailments_stats method
-        result = ailments_stats_2(gg)
+        result = ailments_stats_2(heart_rate_data_list)
         return Response(result)
 
 
