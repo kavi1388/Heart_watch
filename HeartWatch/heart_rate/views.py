@@ -18,7 +18,7 @@ from rest_framework.views import APIView
 from django.http import Http404
 from .Activity_Android import *
 from .ppg_ailments import *
-
+from rest_framework.decorators import action
 
 # Create your views here.
 class ppg_for_android_ViewSet(viewsets.ModelViewSet):
@@ -28,69 +28,16 @@ class ppg_for_android_ViewSet(viewsets.ModelViewSet):
     def post(self, request, format=None):
             serializer = ppg_data_android_Serializer(data=request.data)
             if serializer.is_valid():
-                loaded = json.loads(serializer.data["heart_rate_voltage"])
+                serializer.save()
+                loaded = json.loads(serializer.data['heart_rate_voltage'])
                 # print(loaded)
-                res = self.ailments_stats(loaded)
-                # res.save()
+                res = ailments_stats(loaded)
+
                 return Response(res,status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def ailments_stats(self,ppg_json_array):
-        strike = 0
-        strike_tachy = 0
-        count = 15
-        count_afib = 15
-        brady_in = False
-        tachy_in = False
-        afib_in = False
-        data_valid = True
-        time_val = []
-        ppg_bytes = []
 
-        # reading of the input file starts here
-        loaded_json = json.loads(ppg_json_array)
-        for ppg_data in loaded_json:
 
-            ppg_sec = ppg_data['data']
-            print(ppg_sec)
-            time_val.append(ppg_data['app_date'].split()[1])
-
-            for j in range(2, len(ppg_sec), 3):
-                ppg_bytes.append(decimal_to_binary(ppg_sec[j + 1]) + decimal_to_binary(ppg_sec[j]))
-        ppg_sig = []
-        for i in range(len(ppg_bytes)):
-            ppg_sig.append(as_signed_big(ppg_bytes[i]))
-        ppg_sig = np.asarray(ppg_sig)
-
-        final_pr, ppg_sig, ppg_bpf, t_diff_afib, hr_extracted, non_uniform, spo2_pred = ppg_plot_hr(
-            ppg_sig, time_val, fl=1, fh=5, o=4, n=5, diff_max=10, r=5)
-        resp_rate = rr_calulation(ppg_sig)
-
-        for i in range(len(hr_extracted)):
-            if 60 > hr_extracted[i] >= 40:
-                strike += 1
-                if strike == count:
-                    brady_in = True
-            else:
-                strike = 0
-                brady_in = False
-
-            if hr_extracted[i] > 100:
-                strike_tachy += 1
-                if strike_tachy == count:
-                    tachy_in = True
-            else:
-                strike_tachy = 0
-                tachy_in = False
-
-        if non_uniform == count_afib:
-            afib_in = True
-
-        res = {"time_interval": (time_val[0], time_val[-1]), "predicted_SPO2": spo2_pred,
-               "resp_rate": resp_rate, "rr_peak_intervals": t_diff_afib, 'a_Fib': afib_in, "tachycardia": tachy_in,
-               "bradycardia": brady_in, "hr_extracted": hr_extracted.astype(int).tolist()}
-        print(res)
-        return res
 
 class acc_for_android_ViewSet(viewsets.ModelViewSet):
     queryset = Accelerometer_data_from_Android.objects.all()
