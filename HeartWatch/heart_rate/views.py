@@ -41,7 +41,7 @@ class ppg_for_android_ViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         heart_rate_data_list = []
-        ppg_instance = PPG_data_from_Android.objects.all()[-1]
+        ppg_instance = PPG_data_from_Android.objects.all()[:1]
         serializer = ppg_data_android_Serializer(ppg_instance, many=True)
         heart_rate_insta = serializer.data
         print(heart_rate_insta)
