@@ -29,6 +29,23 @@ class PPG_data_new(models.Model):
     def __str__(self):
         return str(self.id)
 
+####################  android api ################################
+
+class PPG_data_from_Android(models.Model):
+    id = models.AutoField(primary_key=True)
+    heart_rate_voltage = jsonfield.JSONField()
+
+    def __str__(self):
+        return str(self.id)
+
+
+class Accelerometer_data_from_Android(models.Model):
+    id = models.AutoField(primary_key=True)
+    Accelerometer = jsonfield.JSONField()
+
+    def __str__(self):
+        return str(self.id)
+#################################################################
 
 class Accelerometer_data(models.Model):
     id = models.AutoField(primary_key=True)

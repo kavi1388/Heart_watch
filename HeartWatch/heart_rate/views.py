@@ -3,9 +3,9 @@ from rest_framework import viewsets, status
 from .serializers import heart_rate_Serializer, heart_rate_get_Serializer, Accelerometer_Serializer, \
     Accelerometer_get_Serializer, heart_rate_new_Serializer, heart_rate_get_new_Serializer, \
     Accelerometer_new_Serializer, Accelerometer_get_new_Serializer, Accelerometer_notify_Serializer, \
-    HeartRate_notify_Serializer
+    HeartRate_notify_Serializer,ppg_data_android_Serializer,Accelerometer_data_android_Serializer
 from .models import PPG_data, Accelerometer_data, PPG_data_new, Accelerometer_data_new, PPG_result_save, \
-    Accelerometer_result_save
+    Accelerometer_result_save,PPG_data_from_Android,Accelerometer_data_from_Android
 from rest_framework.response import Response
 from .PPG.ppg_hr import *
 import datetime
@@ -16,10 +16,36 @@ from .PPG.rr_from_ppg import rr_calulation
 from .Accelerometer.HAR_Fall import call_model
 from rest_framework.views import APIView
 from django.http import Http404
+from Activity_Android import *
+from ppg_ailments import *
 
 
 # Create your views here.
+class ppg_for_android_ViewSet(viewsets.ModelViewSet):
+    queryset = PPG_data_from_Android.objects.all()
+    serializer_class = ppg_data_android_Serializer
 
+    def post(self, request, format=None):
+            serializer = ppg_data_android_Serializer(data=request.data)
+            if serializer.is_valid():
+                print(serializer.data["heart_rate_voltage"])
+                res=ailments_stats(serializer.data["heart_rate_voltage"])
+                # res.save()
+                return Response(res,status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class acc_for_android_ViewSet(viewsets.ModelViewSet):
+    queryset = Accelerometer_data_from_Android.objects.all()
+    serializer_class = Accelerometer_data_android_Serializer
+
+    def post(self, request, format=None):
+            serializer = Accelerometer_data_android_Serializer(data=request.data)
+            if serializer.is_valid():
+                # print(serializer.data["Accelerometer"])
+                res=call_model(serializer.data["Accelerometer"])
+
+                return Response(res,status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class heart_rate_ViewSet(viewsets.ModelViewSet):
     queryset = PPG_data.objects.all()
