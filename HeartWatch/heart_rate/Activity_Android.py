@@ -580,12 +580,12 @@ def call_model_(data2):
     predict_activity = ''
     fall_timestamps = 0
 
-    data = json.loads(data2)
-    print('data')
-    print(data)
-    for index , dt in enumerate(data):
-        print('index ',index)
-        print('dt ' ,dt)
+    data_ = json.loads(data2)
+    # print('data_')
+    # print(data_)
+    for index , dt in enumerate(data_):
+        # print('index ',index)
+        # print('dt ' ,dt)
         acc_data_df.loc[index , 'data'] = dt['data']
         acc_data_df.loc[index , '_id'] =  dt['_id']
         acc_data_df.loc[index , 'app_date'] = dt['app_date']
