@@ -21,7 +21,7 @@ from .ppg_ailments import *
 from rest_framework.decorators import action
 
 # Create your views here.
-class ppg_for_android_ViewSet(APIView):
+class ppg_for_android_ViewSet(viewsets.ModelViewSet):
     queryset = PPG_data_from_Android.objects.all()
     serializer_class = ppg_data_android_Serializer
 
@@ -36,6 +36,21 @@ class ppg_for_android_ViewSet(APIView):
                 return Response(res,status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def get_serializer_class(self):
+        return ppg_data_android_Serializer
+
+    def list(self, request, *args, **kwargs):
+        heart_rate_data_list = []
+        ppg_instance = PPG_data_from_Android.objects.all()[:1]
+        serializer = ppg_data_android_Serializer(ppg_instance, many=True)
+        heart_rate_insta = serializer.data
+        for i in heart_rate_insta:
+            gg = i['heart_rate_voltage']
+            heart_rate_data_list.append(gg)
+
+        # call ailments_stats method
+        result = ailments_stats_2(heart_rate_data_list)
+        return Response(result)
 
 
 
