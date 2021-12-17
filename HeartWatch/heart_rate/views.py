@@ -28,7 +28,7 @@ class ppg_for_android_ViewSet(viewsets.ModelViewSet):
     def post(self, request, format=None):
             serializer = ppg_data_android_Serializer(data=request.data)
             if serializer.is_valid():
-                print(serializer.data["heart_rate_voltage"])
+                # print(serializer.data["heart_rate_voltage"])
                 res=ailments_stats(serializer.data["heart_rate_voltage"])
                 # res.save()
                 return Response(res,status=status.HTTP_200_OK)
