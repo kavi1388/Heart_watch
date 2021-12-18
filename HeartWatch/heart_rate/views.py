@@ -383,18 +383,18 @@ class Accelerometer_new_V1_ViewSet(APIView):
             api_type= None
         else:
             #One API for Fall with type 3==True
-            record_time = time_last
-            current_time = time.strftime('%H:%M:%S', time.localtime())
-            x = time.strptime(current_time, '%H:%M:%S')
-            y = time.strptime(record_time, '%H:%M:%S')
-            time_diff = datetime.timedelta(hours=x.tm_hour, minutes=x.tm_min,
-                                           seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
-                                                                                                  minutes=y.tm_min,
-                                                                                                  seconds=y.tm_sec).total_seconds()
-            if time_diff < 60:
-                api_type = "3"
-                accelerometer_obj = {"userID": user_id, "alertType": api_type}
-                res = requests.post(User_alert_url, json=accelerometer_obj)
+            # record_time = time_last
+            # current_time = time.strftime('%H:%M:%S', time.localtime())
+            # x = time.strptime(current_time, '%H:%M:%S')
+            # y = time.strptime(record_time, '%H:%M:%S')
+            # time_diff = datetime.timedelta(hours=x.tm_hour, minutes=x.tm_min,
+            #                                seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
+            #                                                                                       minutes=y.tm_min,
+            #                                                                                       seconds=y.tm_sec).total_seconds()
+            # if time_diff < 60:
+            api_type = "3"
+            accelerometer_obj = {"userID": user_id, "alertType": api_type}
+            res = requests.post(User_alert_url, json=accelerometer_obj)
 
             # print(res.text)
         dd = {
@@ -422,21 +422,21 @@ class Accelerometer_new_V1_ViewSet(APIView):
                                                seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
                                                                                                       minutes=y.tm_min,
                                                                                                       seconds=y.tm_sec).total_seconds()
-                if abs(time_diff) > 120:
-                    Accelerometer_data = {
-                        "time":last_time,
-                        "current time": current_time,
-                        "time diff": time_diff,
-                        "final_result": 'No activity detected',
-                        "fall": fall
-                    }
-                else:
-                    activity = d['activity']
-                    Accelerometer_data = {
+                # if abs(time_diff) > 120:
+                #     Accelerometer_data = {
+                #         "time":last_time,
+                #         "current time": current_time,
+                #         "time diff": time_diff,
+                #         "final_result": 'No activity detected',
+                #         "fall": fall
+                #     }
+                # else:
+                activity = d['activity']
+                Accelerometer_data = {
                         "time": last_time,
                         "activity": activity,
                         "fall": fall
-                    }
+                }
             return Response(Accelerometer_data)
         except:
             return Http404
@@ -525,45 +525,45 @@ class HeartRateDetail(APIView):
         if type(result) is not str:
             User_alert_url = 'http://164.52.214.242:9098/user-alerts?alertsToken=M0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ'
             if result['tachycardia']:
-                record_time=result['Time Interval'][-1]
-                current_time = time.strftime('%H:%M:%S', time.localtime())
-                x = time.strptime(current_time, '%H:%M:%S')
-                y = time.strptime(record_time, '%H:%M:%S')
-                time_diff = datetime.timedelta(hours=x.tm_hour, minutes=x.tm_min,
-                                               seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
-                                                                                                      minutes=y.tm_min,
-                                                                                                      seconds=y.tm_sec).total_seconds()
-                if abs(time_diff) < 60:
-                    api_type = "2"
-                    hr_obj = {"userID": user_id, "alertType": api_type}
-                    res = requests.post(User_alert_url, json=hr_obj)
-            elif result['bradycardia']:
-                record_time = result['Time Interval'][-1]
-                current_time = time.strftime('%H:%M:%S', time.localtime())
-                x = time.strptime(current_time, '%H:%M:%S')
-                y = time.strptime(record_time, '%H:%M:%S')
-                time_diff = datetime.timedelta(hours=x.tm_hour, minutes=x.tm_min,
-                                               seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
-                                                                                                      minutes=y.tm_min,
-                                                                                                      seconds=y.tm_sec).total_seconds()
-                if abs(time_diff) < 60:
-                    api_type = "1"
-                    hr_obj = {"userID": user_id, "alertType": api_type}
-                    res = requests.post(User_alert_url, json=hr_obj)
-
-        if result['a_Fib']:
-            record_time = result['Time Interval'][-1]
-            current_time = time.strftime('%H:%M:%S', time.localtime())
-            x = time.strptime(current_time, '%H:%M:%S')
-            y = time.strptime(record_time, '%H:%M:%S')
-            time_diff = datetime.timedelta(hours=x.tm_hour, minutes=x.tm_min,
-                                           seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
-                                                                                                  minutes=y.tm_min,
-                                                                                                  seconds=y.tm_sec).total_seconds()
-            if abs(time_diff) < 60:
-                api_type = "5"
+                # record_time=result['Time Interval'][-1]
+                # current_time = time.strftime('%H:%M:%S', time.localtime())
+                # x = time.strptime(current_time, '%H:%M:%S')
+                # y = time.strptime(record_time, '%H:%M:%S')
+                # time_diff = datetime.timedelta(hours=x.tm_hour, minutes=x.tm_min,
+                #                                seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
+                #                                                                                       minutes=y.tm_min,
+                #                                                                                       seconds=y.tm_sec).total_seconds()
+                # if abs(time_diff) < 60:
+                api_type = "2"
                 hr_obj = {"userID": user_id, "alertType": api_type}
                 res = requests.post(User_alert_url, json=hr_obj)
+            elif result['bradycardia']:
+                # record_time = result['Time Interval'][-1]
+                # current_time = time.strftime('%H:%M:%S', time.localtime())
+                # x = time.strptime(current_time, '%H:%M:%S')
+                # y = time.strptime(record_time, '%H:%M:%S')
+                # time_diff = datetime.timedelta(hours=x.tm_hour, minutes=x.tm_min,
+                #                                seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
+                #                                                                                       minutes=y.tm_min,
+                #                                                                                       seconds=y.tm_sec).total_seconds()
+                # if abs(time_diff) < 60:
+                api_type = "1"
+                hr_obj = {"userID": user_id, "alertType": api_type}
+                res = requests.post(User_alert_url, json=hr_obj)
+
+        if result['a_Fib']:
+            # record_time = result['Time Interval'][-1]
+            # current_time = time.strftime('%H:%M:%S', time.localtime())
+            # x = time.strptime(current_time, '%H:%M:%S')
+            # y = time.strptime(record_time, '%H:%M:%S')
+            # time_diff = datetime.timedelta(hours=x.tm_hour, minutes=x.tm_min,
+            #                                seconds=x.tm_sec).total_seconds() - datetime.timedelta(hours=y.tm_hour,
+            #                                                                                       minutes=y.tm_min,
+            #                                                                                       seconds=y.tm_sec).total_seconds()
+            # if abs(time_diff) < 60:
+            api_type = "5"
+            hr_obj = {"userID": user_id, "alertType": api_type}
+            res = requests.post(User_alert_url, json=hr_obj)
 
 
             # print(res.text)
@@ -574,7 +574,7 @@ class HeartRateDetail(APIView):
         strike = 0
         strike_tachy = 0
         count = 15
-        count_afib = 15
+        count_afib = 30
         brady_in = False
         tachy_in = False
         afib_in = False

@@ -152,7 +152,9 @@ def ppg_plot_hr(ppg_sig, time_val, fl=1, fh=5, o=4, n=5, diff_max=4, r=1):
                     ppg_bpf.append(ppg_11[s])
 
     ppg_bpf = np.asarray(ppg_bpf)
-
+    for i in range(len(rr_interval) - 1):
+        if np.abs(rr_interval[i] - rr_interval[i + 1]) > 200:
+            non_uniform += 1
     hr_pr_df = pd.DataFrame()
     hr_pr_df['timestamps'] = time_stamp
     hr_pr_df['Heart Rate Predicted'] = pd.Series(hr_diff).rolling(r).mean()
@@ -226,7 +228,7 @@ def ailments_stats_2(ppg_json_array):
         ppg_sig.append(as_signed_big(ppg_bytes[i]))
     ppg_sig = np.asarray(ppg_sig)
 
-    final_pr, ppg_sig, ppg_bpf, t_diff_afib, hr_extracted, non_uniform, spo2_pred = ppg_plot_hr(
+    final_pr, ppg_sig, ppg_bpf, rr_interval, hr_extracted, non_uniform, spo2_pred = ppg_plot_hr(
         ppg_sig, time_val, fl=1, fh=5, o=4, n=5, diff_max=10, r=5)
     resp_rate = rr_calulation(ppg_sig)
 
@@ -251,7 +253,7 @@ def ailments_stats_2(ppg_json_array):
         afib_in = True
 
     res = {"time_interval": (time_val[0], time_val[-1]), "predicted_SPO2": spo2_pred,
-           "resp_rate": resp_rate, "rr_peak_intervals": t_diff_afib, 'a_Fib': afib_in, "tachycardia": tachy_in,
+           "resp_rate": resp_rate, "rr_peak_intervals": rr_interval, 'a_Fib': afib_in, "tachycardia": tachy_in,
            "bradycardia": brady_in, "hr_extracted": hr_extracted.astype(int).tolist()}
     # print(res)
     return res
