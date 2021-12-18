@@ -25,32 +25,24 @@ class ppg_for_android_ViewSet(viewsets.ModelViewSet):
     queryset = PPG_data_from_Android.objects.all()
     serializer_class = ppg_data_android_Serializer
 
-    def post(self, request, format=None):
+    @action(detail=True, methods=['post'])
+    def ppg_process(self, request, format=None):
             serializer = ppg_data_android_Serializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                # loaded = json.loads(serializer.data['heart_rate_voltage'])
-                # print(loaded)
-                # res = ailments_stats_2(serializer.data)
+                heart_rate_data_list = []
+                # ppg_instance = PPG_data_from_Android.objects.all()[:1]
+                # serializer = ppg_data_android_Serializer(ppg_instance, many=True)
+                heart_rate_insta = serializer.data
+                # print(heart_rate_insta)
+                for i in heart_rate_insta:
+                    gg = i['heart_rate_voltage']
+                    heart_rate_data_list.append(gg)
 
-                return Response(serializer.data,status=status.HTTP_200_OK)
+                result = ailments_stats_2(heart_rate_data_list[0])
+                return Response(result)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get_serializer_class(self):
-        return ppg_data_android_Serializer
-
-    def list(self, request, *args, **kwargs):
-        heart_rate_data_list = []
-        ppg_instance = PPG_data_from_Android.objects.all()[:1]
-        serializer = ppg_data_android_Serializer(ppg_instance, many=True)
-        heart_rate_insta = serializer.data
-        # print(heart_rate_insta)
-        for i in heart_rate_insta:
-            gg = i['heart_rate_voltage']
-            heart_rate_data_list.append(gg)
-
-        result = ailments_stats_2(heart_rate_data_list[0])
-        return Response(result)
 
 
 
@@ -255,6 +247,7 @@ class proccess_Accelerometer_data(viewsets.ModelViewSet):
 class Accelerometer_new_ViewSet(viewsets.ModelViewSet):
     queryset = Accelerometer_data_new.objects.all()
     serializer_class = Accelerometer_new_Serializer
+
 
     def post(self, request, format=None):
         serializer = Accelerometer_new_Serializer(data=request.data)
