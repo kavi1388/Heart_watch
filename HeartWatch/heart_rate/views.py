@@ -26,10 +26,9 @@ class ppg_for_android_ViewSet(viewsets.ModelViewSet):
     serializer_class = ppg_data_android_Serializer
 
     def post(self, request, format=None):
-            serializer = ppg_data_android_Serializer(data=request.data)
+            serializer = ppg_data_android_Serializer(data=request.query_params)
             if serializer.is_valid():
                 serializer.save()
-                print(request.POST)
                 # loaded = json.loads(serializer.data['heart_rate_voltage'])
                 # print(loaded)
                 # res = ailments_stats_2(serializer.data)
@@ -60,7 +59,7 @@ class acc_for_android_ViewSet(viewsets.ModelViewSet):
     serializer_class = Accelerometer_data_android_Serializer
 
     def post(self, request, format=None):
-            serializer = self.Accelerometer_data_android_Serializer(data=request.data)
+            serializer = self.Accelerometer_data_android_Serializer(data=request.query_params)
             if serializer.is_valid():
                 serializer.save()
 
