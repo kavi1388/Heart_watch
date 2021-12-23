@@ -26,6 +26,6 @@ urlpatterns = [
     path('HeartRate_notify/<str:user_id>/', HeartRateNotify.as_view()),
     path('Accelerometer_add_V1/<str:user_id>/', Accelerometer_new_V1_ViewSet.as_view()),
     path('AccelerometerDetail_new/', AccelerometerDetail_new.as_view()),
-    path('ppg_for_android',ppg_for_android_APIView.as_view())
+    path('ppg_for_android',ppg_for_android_APIView.as_view()),
     path('acc_for_android', acc_for_android_APIView.as_view())
 ]
