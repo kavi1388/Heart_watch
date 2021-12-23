@@ -580,16 +580,16 @@ def call_model_(data2):
     predict_activity = ''
     fall_timestamps = 0
 
-    data_ = json.loads(data2)
+    # data_ = json.loads(data2)
     # print('data_')
     # print(data_)
-    for data_ in data2:
-        for index , dt in enumerate(data_):
+    # for data_ in data2:
+    for index , dt in enumerate(data_):
         # print('index ',index)
         # print('dt ' ,dt)
-            acc_data_df.loc[index , 'data'] = dt['data']
-            acc_data_df.loc[index , '_id'] =  dt['_id']
-            acc_data_df.loc[index , 'app_date'] = dt['app_date']
+        acc_data_df.loc[index , 'data'] = dt['data']
+        acc_data_df.loc[index , '_id'] =  dt['_id']
+        acc_data_df.loc[index , 'app_date'] = dt['app_date']
 
     acc_data_df['app_date'] = pd.to_datetime(acc_data_df['app_date'], format='%d/%m/%Y %H:%M:%S')
     for index, row in acc_data_df.iterrows():
