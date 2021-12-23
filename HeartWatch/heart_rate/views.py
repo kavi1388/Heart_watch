@@ -640,7 +640,7 @@ class HeartRateDetail(APIView):
             res = {'time_interval': (time_val[0], time_val[-1]), 'predicted_SPO2':spo2_pred,
                    'resp_rate':resp_rate,'rr_peak_intervals': t_diff_afib, 'a_Fib': afib_in, 'tachycardia': tachy_in,
                    'bradycardia': brady_in, 'dataFrame': final_pr, 'api_type': api_type}
-
+            print(api_type)
             return res
         else:
             statement = 'Data missing for over 2 minutes , PPG analysis not done'

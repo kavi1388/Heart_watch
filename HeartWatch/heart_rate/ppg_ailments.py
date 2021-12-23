@@ -118,7 +118,7 @@ def ppg_plot_hr(ppg_sig, time_val, fl=1, fh=5, o=4, n=5, diff_max=4, r=1):
                 rr_interval.append((peaks_all2[a + 1] - peaks_all2[a]) * 1000 / fs)
             elif len(rr_interval) > 0:
                 rr_interval.append(rr_interval[-1])
-                non_uniform += 1
+                # non_uniform += 1
             else:
                 rr_interval.append((peaks_all2[a + 1] - peaks_all2[a]) * 1000 / fs)
         time_stamp.append(time_val[i // fs])
