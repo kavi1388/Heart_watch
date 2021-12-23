@@ -2,12 +2,12 @@ from django.urls import include, path
 from rest_framework import routers
 from .views import heart_rate_ViewSet, heart_rate_new_ViewSet, proccess_heart_rate_data, Accelerometer_ViewSet, \
     proccess_Accelerometer_data, HeartRateDetail, Accelerometer_new_ViewSet, AccelerometerDetail, AccelerometerNotify, \
-    HeartRateNotify, Accelerometer_new_V1_ViewSet, AccelerometerDetail_new,acc_for_android_APIView,ppg_for_android_APIView
+    HeartRateNotify, Accelerometer_new_V1_ViewSet, AccelerometerDetail_new,acc_for_android_ViewSet,ppg_for_android_ViewSet,NewViewPpg,NewViewAcc
 
 router = routers.DefaultRouter()
 
-# router.register(r'ppg_for_android', ppg_for_android_APIView)
-# router.register(r'acc_for_android', acc_for_android_APIView)
+router.register(r'ppg_for_android', ppg_for_android_ViewSet)
+router.register(r'acc_for_android', acc_for_android_ViewSet)
 router.register(r'heart_rate_voltage', heart_rate_ViewSet)
 router.register(r'heart_rate_voltage_new', heart_rate_new_ViewSet)
 router.register(r'heart_rate_voltage_get', proccess_heart_rate_data)
@@ -26,6 +26,6 @@ urlpatterns = [
     path('HeartRate_notify/<str:user_id>/', HeartRateNotify.as_view()),
     path('Accelerometer_add_V1/<str:user_id>/', Accelerometer_new_V1_ViewSet.as_view()),
     path('AccelerometerDetail_new/', AccelerometerDetail_new.as_view()),
-    path('ppg_for_android',ppg_for_android_APIView.as_view()),
-    path('acc_for_android', acc_for_android_APIView.as_view())
+    path('NewViewPpg/',NewViewPpg.as_view()),
+    path('NewViewAcc/',NewViewAcc.as_view())
 ]
