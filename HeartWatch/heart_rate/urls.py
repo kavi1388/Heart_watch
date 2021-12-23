@@ -3,7 +3,7 @@ from rest_framework import routers
 from .views import heart_rate_ViewSet, heart_rate_new_ViewSet, proccess_heart_rate_data, Accelerometer_ViewSet, \
     proccess_Accelerometer_data, HeartRateDetail, Accelerometer_new_ViewSet, AccelerometerDetail, AccelerometerNotify, \
     HeartRateNotify, Accelerometer_new_V1_ViewSet, AccelerometerDetail_new,acc_for_android_ViewSet,\
-    ppg_for_android_ViewSet, Test
+    ppg_for_android_ViewSet
 
 router = routers.DefaultRouter()
 
