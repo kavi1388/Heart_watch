@@ -395,6 +395,7 @@ class Accelerometer_new_V1_ViewSet(APIView):
             api_type = "3"
             accelerometer_obj = {"userID": user_id, "alertType": api_type}
             res = requests.post(User_alert_url, json=accelerometer_obj)
+            print('fall')
 
             # print(res.text)
         dd = {
@@ -521,7 +522,7 @@ class HeartRateDetail(APIView):
             # call ailments_stats method
 
         result = self.ailments_stats(heart_rate_data_list[-1::-1])
-        api_type=None
+        # api_type=None
         if type(result) is not str:
             User_alert_url = 'http://164.52.214.242:9098/user-alerts?alertsToken=M0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ'
             if result['tachycardia']:
@@ -579,7 +580,7 @@ class HeartRateDetail(APIView):
         tachy_in = False
         afib_in = False
         data_valid = True
-        api_type = None
+        api_type = 0
         time_val = []
         ppg_bytes = []
 
@@ -640,7 +641,14 @@ class HeartRateDetail(APIView):
             res = {'time_interval': (time_val[0], time_val[-1]), 'predicted_SPO2':spo2_pred,
                    'resp_rate':resp_rate,'rr_peak_intervals': t_diff_afib, 'a_Fib': afib_in, 'tachycardia': tachy_in,
                    'bradycardia': brady_in, 'dataFrame': final_pr, 'api_type': api_type}
-            print(api_type)
+            if tachy_in:
+                print('tachy')
+            if brady_in:
+                print('brady')
+            if afib_in:
+                print('afib')
+            if api_type is not None:
+                print(api_type)
             return res
         else:
             statement = 'Data missing for over 2 minutes , PPG analysis not done'
