@@ -41,8 +41,8 @@ class ShareView(APIView):
     permission_classes = []
 
     def post(self, request, *args, **kwargs):
-        email = request.DATA.get('a', None)
-        url = request.DATA.get('b', None)
+        email = request.data['a']
+        url = request.data['b']
         if email and url:
             trial(email, url)
             return Response({"success": True})
