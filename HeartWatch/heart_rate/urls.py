@@ -6,8 +6,8 @@ from .views import heart_rate_ViewSet, heart_rate_new_ViewSet, proccess_heart_ra
 
 router = routers.DefaultRouter()
 
-router.register(r'ppg_for_android', ppg_for_android_APIView)
-router.register(r'acc_for_android', acc_for_android_APIView)
+# router.register(r'ppg_for_android', ppg_for_android_APIView)
+# router.register(r'acc_for_android', acc_for_android_APIView)
 router.register(r'heart_rate_voltage', heart_rate_ViewSet)
 router.register(r'heart_rate_voltage_new', heart_rate_new_ViewSet)
 router.register(r'heart_rate_voltage_get', proccess_heart_rate_data)
@@ -27,4 +27,5 @@ urlpatterns = [
     path('Accelerometer_add_V1/<str:user_id>/', Accelerometer_new_V1_ViewSet.as_view()),
     path('AccelerometerDetail_new/', AccelerometerDetail_new.as_view()),
     path('ppg_for_android',ppg_for_android_APIView.as_view())
+    path('acc_for_android', acc_for_android_APIView.as_view())
 ]
