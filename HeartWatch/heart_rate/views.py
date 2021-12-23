@@ -15,39 +15,40 @@ from .PPG.custom_modules import decimal_to_binary
 from .PPG.rr_from_ppg import rr_calulation
 from .Accelerometer.HAR_Fall import call_model
 from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
 from django.http import Http404
 from .Activity_Android import *
 from .ppg_ailments import *
-from rest_framework.decorators import api_view
-from rest_framework.views import APIView
-
-# class Test(APIView):
-#     def post(self, request):
-#         email = request.data['Number']
-#         c=email
-#         return Response(c,status=status.HTTP_200_OK)
+from rest_framework.decorators import api
 
 # Create your views here.
+
+class PpgPostAPIView(GenericAPIView):
+    serializer_class = Ppg_New_Serializer
+    # permission_classes = ()
+
+    def post(self, request, *args, **kwargs):
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        data = {"status": True}
+
+        return Response(data)
+
 class ppg_for_android_ViewSet(viewsets.ModelViewSet):
     queryset = PPG_data_from_Android.objects.all()
     serializer_class = ppg_data_android_Serializer
 
     def post(self, request, format=None):
-            # serializer = ppg_data_android_Serializer(data=request.query_params)
-            serializer_class = self.get_serializer_class()
-            serializer = serializer_class(data=request.data, context={'request': request})
-            serializer.is_valid(raise_exception=True)
-            data = {"status": True}
+            serializer = ppg_data_android_Serializer(data=request.query_params)
+            if serializer.is_valid():
+                serializer.save()
+                # loaded = json.loads(serializer.data['heart_rate_voltage'])
+                # print(loaded)
+                # res = ailments_stats_2(serializer.data)
 
-            return Response(data)
-            # if serializer.is_valid():
-            #     serializer.save()
-            #     # loaded = json.loads(serializer.data['heart_rate_voltage'])
-            #     # print(loaded)
-            #     # res = ailments_stats_2(serializer.data)
-            #
-            #     return Response(serializer.data,status=status.HTTP_200_OK)
-            # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return Response(serializer.data,status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get_serializer_class(self):
         return ppg_data_android_Serializer
