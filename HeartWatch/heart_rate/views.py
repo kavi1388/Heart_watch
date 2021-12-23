@@ -39,7 +39,7 @@ class ShareView(APIView):
     permission_classes = []
 
     def post(self, request, *args, **kwargs):
-        ppg_list = request.data['heart_rate_voltage']
+        ppg_list = request.data['heartRateVoltage']
         print(ppg_list)
         if ppg_list:
             result = ailments_stats_2(ppg_list[0])
