@@ -40,7 +40,7 @@ class NewViewPpg(APIView):
 
     def post(self, request, *args, **kwargs):
         ppg_list = request.data['heartRateVoltage']
-        print(ppg_list)
+        # print(ppg_list)
         if ppg_list:
             result = ailments_stats_2(ppg_list[-1::-1])
             return Response(result)
@@ -52,7 +52,7 @@ class NewViewAcc(APIView):
 
     def post(self, request, *args, **kwargs):
         acc_list = request.data['Accelerometer']
-        print(acc_list)
+        # print(acc_list)
         if acc_list:
             result = call_model_(acc_list[-1::-1])
             return Response(result)
