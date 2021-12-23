@@ -647,8 +647,8 @@ class HeartRateDetail(APIView):
                 print('brady')
             if afib_in:
                 print('afib')
-            if api_type is not None:
-                print(api_type)
+            # if api_type is not None:
+            #     print(api_type)
             return res
         else:
             statement = 'Data missing for over 2 minutes , PPG analysis not done'
