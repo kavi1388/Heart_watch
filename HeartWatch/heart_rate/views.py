@@ -21,26 +21,32 @@ from .ppg_ailments import *
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 
-class Test(APIView):
-    def post(self, request):
-        email = request.data['Number']
-        c=email
-        return Response(c,status=status.HTTP_200_OK)
+# class Test(APIView):
+#     def post(self, request):
+#         email = request.data['Number']
+#         c=email
+#         return Response(c,status=status.HTTP_200_OK)
 
 # Create your views here.
 class ppg_for_android_ViewSet(viewsets.ModelViewSet):
     # queryset = PPG_data_from_Android.objects.all()
-    # serializer_class = ppg_data_android_Serializer
+    serializer_class = ppg_data_android_Serializer
 
     def post(self, request, format=None):
-            serializer = ppg_data_android_Serializer(data=request.query_params)
-            if serializer.is_valid():
-                serializer.save()
-                # loaded = json.loads(serializer.data['heart_rate_voltage'])
-                # print(loaded)
-                # res = ailments_stats_2(serializer.data)
+            # serializer = ppg_data_android_Serializer(data=request.query_params)
+            serializer_class = self.get_serializer_class()
+            serializer = serializer_class(data=request.data, context={'request': request})
+            serializer.is_valid(raise_exception=True)
+            data = {"status": True}
 
-                return Response(serializer.data,status=status.HTTP_200_OK)
+            # return Response(data)
+            # if serializer.is_valid():
+            #     serializer.save()
+            #     # loaded = json.loads(serializer.data['heart_rate_voltage'])
+            #     # print(loaded)
+            #     # res = ailments_stats_2(serializer.data)
+            #
+            #     return Response(serializer.data,status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get_serializer_class(self):
