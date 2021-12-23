@@ -29,7 +29,7 @@ from rest_framework.views import APIView
 
 # Create your views here.
 class ppg_for_android_ViewSet(viewsets.ModelViewSet):
-    # queryset = PPG_data_from_Android.objects.all()
+    queryset = PPG_data_from_Android.objects.all()
     serializer_class = ppg_data_android_Serializer
 
     def post(self, request, format=None):
