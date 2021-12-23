@@ -23,17 +23,31 @@ from rest_framework.decorators import api
 
 # Create your views here.
 
-class PpgPostAPIView(GenericAPIView):
-    serializer_class = Ppg_New_Serializer
-    # permission_classes = ()
+# class PpgPostAPIView(GenericAPIView):
+#     serializer_class = Ppg_New_Serializer
+#     # permission_classes = ()
+#
+#     def post(self, request, *args, **kwargs):
+#         serializer_class = self.get_serializer_class()
+#         serializer = serializer_class(data=request.data, context={'request': request})
+#         serializer.is_valid(raise_exception=True)
+#         data = {"status": True}
+#
+#         return Response(data)
+
+def trial(a,b):
+    return 5
+class ShareView(APIView):
+    permission_classes = []
 
     def post(self, request, *args, **kwargs):
-        serializer_class = self.get_serializer_class()
-        serializer = serializer_class(data=request.data, context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        data = {"status": True}
-
-        return Response(data)
+        email = request.DATA.get('a', None)
+        url = request.DATA.get('b', None)
+        if email and url:
+            trial(email, url)
+            return Response({"success": True})
+        else:
+            return Response({"success": False})
 
 class ppg_for_android_ViewSet(viewsets.ModelViewSet):
     queryset = PPG_data_from_Android.objects.all()

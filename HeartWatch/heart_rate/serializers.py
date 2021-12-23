@@ -16,11 +16,11 @@ class Accelerometer_data_android_Serializer(serializers.ModelSerializer):
         model = Accelerometer_data_from_Android
         fields = '__all__'
 
-class Ppg_New_Serializer(serializers.Serializer):
-    text = serializers.CharField()
-    def calculate(self,attrs):
-        result = 'hello'
-        return result
+# class Ppg_New_Serializer(serializers.Serializer):
+#     text = serializers.CharField()
+#     def calculate(self,instance):
+#         result = 'hello'
+#         return result
 
 ###############################################################
 class heart_rate_Serializer(serializers.ModelSerializer):
