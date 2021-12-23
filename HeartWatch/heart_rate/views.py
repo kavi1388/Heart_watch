@@ -41,7 +41,7 @@ class ppg_for_android_ViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         heart_rate_data_list = []
-        ppg_instance = PPG_data_from_Android.objects.all().values().last()
+        ppg_instance = PPG_data_from_Android.objects.all().order_by('-id')[0]
         serializer = ppg_data_android_Serializer(ppg_instance, many=True)
         heart_rate_insta = serializer.data
         # print(heart_rate_insta)
@@ -71,7 +71,7 @@ class acc_for_android_ViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         acc_list = []
-        acc_instance = Accelerometer_data_from_Android.objects.all().values().last()
+        acc_instance = Accelerometer_data_from_Android.objects.all().order_by('-id')[0]
         serializer = Accelerometer_data_android_Serializer(acc_instance, many=True)
         acc_insta = serializer.data
         # print(heart_rate_insta)
