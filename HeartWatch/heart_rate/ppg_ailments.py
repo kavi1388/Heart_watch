@@ -209,12 +209,12 @@ def ailments_stats_2(ppg_json_array):
     print('ppg_json_array')
     print(ppg_json_array)
     # reading of the input file starts here
-    loaded_json = json.loads(ppg_json_array)
+    # loaded_json = json.loads(ppg_json_array)
     # print('loaded')
     # print(loaded_json)
     # print(type(loaded_json))
     # print(type(ppg_json_array))
-    for ppg_data in loaded_json:
+    for ppg_data in ppg_json_array:
         # print('ppg')
         # print(ppg_data)
         ppg_sec = ppg_data['data']
