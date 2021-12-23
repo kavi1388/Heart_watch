@@ -2,7 +2,8 @@ from django.urls import include, path
 from rest_framework import routers
 from .views import heart_rate_ViewSet, heart_rate_new_ViewSet, proccess_heart_rate_data, Accelerometer_ViewSet, \
     proccess_Accelerometer_data, HeartRateDetail, Accelerometer_new_ViewSet, AccelerometerDetail, AccelerometerNotify, \
-    HeartRateNotify, Accelerometer_new_V1_ViewSet, AccelerometerDetail_new,acc_for_android_ViewSet,ppg_for_android_ViewSet
+    HeartRateNotify, Accelerometer_new_V1_ViewSet, AccelerometerDetail_new,acc_for_android_ViewSet,\
+    ppg_for_android_ViewSet, Test
 
 router = routers.DefaultRouter()
 
@@ -14,6 +15,7 @@ router.register(r'heart_rate_voltage_get', proccess_heart_rate_data)
 router.register(r'Accelerometer_create', Accelerometer_ViewSet)
 router.register(r'Accelerometer_add', Accelerometer_new_ViewSet)
 router.register(r'Accelerometer_data_get', proccess_Accelerometer_data)
+router.register(r'trial',Test)
 # router.register(r'Accelerometer_add_V1', Accelerometer_new_V1_ViewSet)
 
 urlpatterns = [
@@ -26,4 +28,5 @@ urlpatterns = [
     path('HeartRate_notify/<str:user_id>/', HeartRateNotify.as_view()),
     path('Accelerometer_add_V1/<str:user_id>/', Accelerometer_new_V1_ViewSet.as_view()),
     path('AccelerometerDetail_new/', AccelerometerDetail_new.as_view()),
+    path('trial/',Test.as_view()),
 ]

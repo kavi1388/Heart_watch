@@ -18,12 +18,19 @@ from rest_framework.views import APIView
 from django.http import Http404
 from .Activity_Android import *
 from .ppg_ailments import *
-from rest_framework.decorators import action
+from rest_framework.decorators import api_view
+from rest_framework.views import APIView
+
+class Test(APIView):
+    def post(self, request):
+        email = request.data['Number']
+        c=email
+        return Response(c,status=status.HTTP_200_OK)
 
 # Create your views here.
 class ppg_for_android_ViewSet(viewsets.ModelViewSet):
-    queryset = PPG_data_from_Android.objects.all()
-    serializer_class = ppg_data_android_Serializer
+    # queryset = PPG_data_from_Android.objects.all()
+    # serializer_class = ppg_data_android_Serializer
 
     def post(self, request, format=None):
             serializer = ppg_data_android_Serializer(data=request.query_params)
