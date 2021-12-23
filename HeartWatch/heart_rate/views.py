@@ -19,7 +19,7 @@ from rest_framework.generics import GenericAPIView
 from django.http import Http404
 from .Activity_Android import *
 from .ppg_ailments import *
-from rest_framework.decorators import api
+# from rest_framework.decorators import api
 
 # Create your views here.
 
