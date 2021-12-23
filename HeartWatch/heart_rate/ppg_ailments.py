@@ -195,7 +195,7 @@ def spo2(heartRate):
 
 
 def ailments_stats_2(ppg_json_array):
-    # print(ppg_json_array)
+
     strike = 0
     strike_tachy = 0
     count = 15
@@ -206,14 +206,14 @@ def ailments_stats_2(ppg_json_array):
     data_valid = True
     time_val = []
     ppg_bytes = []
-    # print('ppg_json_array')
-    # print(ppg_json_array)
+    print('ppg_json_array')
+    print(ppg_json_array)
     # reading of the input file starts here
     loaded_json = json.loads(ppg_json_array)
-    # print('loaded')
-    # print(loaded_json)
-    # print(type(loaded_json))
-    # print(type(ppg_json_array))
+    print('loaded')
+    print(loaded_json)
+    print(type(loaded_json))
+    print(type(ppg_json_array))
     for ppg_data in loaded_json:
         # print('ppg')
         # print(ppg_data)

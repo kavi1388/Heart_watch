@@ -40,7 +40,7 @@ class ShareView(APIView):
 
     def post(self, request, *args, **kwargs):
         ppg_list = request.data['heart_rate_voltage']
-
+        print('ppg_list')
         if ppg_list:
             result = ailments_stats_2(ppg_list)
             return Response(result)
