@@ -42,7 +42,7 @@ class ShareView(APIView):
         ppg_list = request.data['heart_rate_voltage']
         print(ppg_list)
         if ppg_list:
-            result = ailments_stats_2(ppg_list)
+            result = ailments_stats_2(ppg_list[0])
             return Response(result)
         else:
             return Response({"success": False})
