@@ -35,17 +35,15 @@ from .ppg_ailments import *
 #
 #         return Response(data)
 
-def trial(a,b):
-    return 5
 class ShareView(APIView):
     permission_classes = []
 
     def post(self, request, *args, **kwargs):
-        email = request.data['a']
-        url = request.data['b']
-        if email and url:
-            trial(email, url)
-            return Response({"success": True})
+        ppg_list = request.data['heart_rate_voltage']
+
+        if ppg_list:
+            result = ailments_stats_2(ppg_list)
+            return Response(result)
         else:
             return Response({"success": False})
 
