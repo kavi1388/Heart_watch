@@ -584,7 +584,7 @@ def call_model_(data2):
     # print('data_')
     # print(data_)
     # for data_ in data2:
-    for index , dt in enumerate(data_):
+    for index , dt in enumerate(data2):
         # print('index ',index)
         # print('dt ' ,dt)
         acc_data_df.loc[index , 'data'] = dt['data']
