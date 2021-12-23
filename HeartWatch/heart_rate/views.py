@@ -39,13 +39,11 @@ class ShareView(APIView):
     permission_classes = []
 
     def post(self, request, *args, **kwargs):
-        ppg_list = request.data['heartRateVoltage']
+        ppg_list = request.data
         print(ppg_list)
-        if ppg_list:
-            # result = ailments_stats_2(ppg_list)
-            return Response(ppg_list)
-        else:
-            return Response({"success": False})
+        return Response(ppg_list)
+        # else:
+        #     return Response({"success": False})
 
 class ppg_for_android_ViewSet(viewsets.ModelViewSet):
     queryset = PPG_data_from_Android.objects.all()
