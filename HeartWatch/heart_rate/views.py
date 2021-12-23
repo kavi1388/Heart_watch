@@ -22,7 +22,7 @@ from rest_framework.decorators import action
 
 # Create your views here.
 class ppg_for_android_ViewSet(viewsets.ModelViewSet):
-    queryset = PPG_data_from_Android.objects.all()
+    queryset = PPG_data_from_Android.objects.last()
     serializer_class = ppg_data_android_Serializer
 
     def post(self, request, format=None):
@@ -41,7 +41,7 @@ class ppg_for_android_ViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         heart_rate_data_list = []
-        ppg_instance = PPG_data_from_Android.objects.all()
+        ppg_instance = PPG_data_from_Android.objects.last()
         serializer = ppg_data_android_Serializer(ppg_instance, many=True)
         heart_rate_insta = serializer.data
         # print(heart_rate_insta)
@@ -55,7 +55,7 @@ class ppg_for_android_ViewSet(viewsets.ModelViewSet):
 
 
 class acc_for_android_ViewSet(viewsets.ModelViewSet):
-    queryset = Accelerometer_data_from_Android.objects.all()
+    queryset = Accelerometer_data_from_Android.objects.last()
     serializer_class = Accelerometer_data_android_Serializer
 
     def post(self, request, format=None):
@@ -71,7 +71,7 @@ class acc_for_android_ViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         acc_list = []
-        acc_instance = Accelerometer_data_from_Android.objects.all()
+        acc_instance = Accelerometer_data_from_Android.objects.last()
         serializer = Accelerometer_data_android_Serializer(acc_instance, many=True)
         acc_insta = serializer.data
         # print(heart_rate_insta)
