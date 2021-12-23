@@ -47,7 +47,7 @@ class ppg_for_android_APIView(viewsets.ModelViewSet):
         else:
             return Response({"success": False})
 
-class acc_for_android_APIViewSet(APIView):
+class acc_for_android_APIView(APIView):
     permission_classes = []
 
     def post(self, request, *args, **kwargs):
