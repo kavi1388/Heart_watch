@@ -17,7 +17,7 @@ class Accelerometer_data_android_Serializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class Ppg_New_Serializer(serializers.Serializer):
-    text = serializers.TextField()
+    text = serializers.CharField()
     def calculate(self,attrs):
         result = 'hello'
         return result
