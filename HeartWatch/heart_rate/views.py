@@ -39,9 +39,9 @@ class NewViewPpg(APIView):
     # permission_classes = []
 
     def post(self, request, *args, **kwargs):
+        ppg_list = request.data['heartRateVoltage']
+        if ppg_list:
 
-        if request=='POST':
-            ppg_list = request.data['heartRateVoltage']
             result = ailments_stats_2(ppg_list[-1::-1])
             return Response(result)
         else:
