@@ -568,8 +568,8 @@ def call_model_(data2):
     # for data_ in data2:
     print(type(data2))
     for index, dt in enumerate(data2):
-        # print('index ',index)
-        # print('dt ' ,dt)
+        print('index ',index)
+        print('dt ' ,dt)
         acc_data_df.loc[index, 'data'] = dt['data']
         acc_data_df.loc[index, '_id'] = dt['_id']
         acc_data_df.loc[index, 'app_date'] = dt['app_date']
