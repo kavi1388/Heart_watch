@@ -567,13 +567,23 @@ def call_model_(data2):
     # print('data_')
     # print(data_)
     # for data_ in data2:
-    print(type(data2))
-    for index, dt in enumerate(data2):
-        print('index ',index)
-        print('dt ' ,dt)
-        acc_data_df.loc[index, 'data'] = dt['data']
-        acc_data_df.loc[index, '_id'] = dt['_id']
-        acc_data_df.loc[index, 'app_date'] = dt['app_date']
+    row=0
+    for acc_data in data2:
+        # print('ppg')
+        # print(ppg_data)
+        acc_data_df.loc[row,'data'] = acc_data['data']
+
+        acc_data_df.loc[row, '_id'] = acc_data['_id']
+        acc_data_df.loc[row, 'app_date'] = acc_data['app_date']
+        row+=1
+    #
+    # print(type(data2))
+    # for index, dt in enumerate(data2):
+    #     print('index ',index)
+    #     print('dt ' ,dt)
+    #     acc_data_df.loc[index, 'data'] = dt['data']
+    #     acc_data_df.loc[index, '_id'] = dt['_id']
+    #     acc_data_df.loc[index, 'app_date'] = dt['app_date']
 
     acc_data_df['app_date'] = pd.to_datetime(acc_data_df['app_date'], format='%d/%m/%Y %H:%M:%S')
     for index, row in acc_data_df.iterrows():
