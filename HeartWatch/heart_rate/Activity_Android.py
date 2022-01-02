@@ -427,7 +427,8 @@ def fall_detect(window_to_decimal, threshold_x, threshold_y, threshold_z):
     df_z_angle = df_z_angle.drop_duplicates(subset=['distance', 'theta'], keep='last').reset_index(drop=True)
 
     if len(df_x_angle) == 0 or len(df_y_angle) == 0 or len(df_z_angle) == 0:
-        return len(df_x_angle)  # fall_event_time
+        # return len(df_x_angle)  # fall_event_time
+        fall_event_time=len(df_x_angle)
 
     else:
         max_height_x_index = -1
@@ -445,7 +446,8 @@ def fall_detect(window_to_decimal, threshold_x, threshold_y, threshold_z):
             min_angle_x_index = df_x_angle['theta'].argmin()
 
             if min_angle_x < -90:
-                return fall_event_time
+                # return fall_event_time
+                fall_event_time=fall_event_time
 
         if not (df_y_angle.empty):
             max_height_y = np.max(df_y_angle['distance'])
@@ -454,7 +456,8 @@ def fall_detect(window_to_decimal, threshold_x, threshold_y, threshold_z):
             min_angle_y_index = df_y_angle['theta'].argmin()
 
             if min_angle_y < -90:
-                return fall_event_time
+                # return fall_event_time
+                fall_event_time=fall_event_time
 
         if not (df_z_angle.empty):
 
@@ -464,7 +467,8 @@ def fall_detect(window_to_decimal, threshold_x, threshold_y, threshold_z):
             min_angle_z_index = df_z_angle['theta'].argmin()
 
             if min_angle_z < -90:
-                return fall_event_time
+                # return fall_event_time
+                fall_event_time=fall_event_time
 
         if (max_height_x_index == min_angle_x_index) and (max_height_y_index == min_angle_y_index) \
                 and (max_height_z_index == min_angle_z_index) and (
