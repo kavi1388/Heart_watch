@@ -483,6 +483,7 @@ def fall_detect(window_to_decimal, threshold_x, threshold_y, threshold_z):
 
 
 def main2(window_df, model):
+    print('')
     threshold_x = 0
     threshold_y = 0
     threshold_z = 0
@@ -565,6 +566,7 @@ def call_model_(data2):
     # print('data_')
     # print(data_)
     # for data_ in data2:
+    print(type(data2))
     for index, dt in enumerate(data2):
         # print('index ',index)
         # print('dt ' ,dt)
