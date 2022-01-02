@@ -559,7 +559,7 @@ def call_model_(data2):
     window_df = pd.DataFrame(columns=range(0, 121))
     acc_data_df = pd.DataFrame(columns=['data', '_id', 'app_date', 'Gap'])
     CNN_model = load_model(
-        'D:\HeartWatch_Post_APIs-master\HeartWatch_Post_APIs-master\HeartWatch\heart_rate\Accelerometer/CNN_walk_sit_feature20_10second_originalZ.h5')
+        '/home/heartwatch/rajnishh/Heart_watch/HeartWatch/heart_rate/Accelerometer/CNN_walk_sit_feature20_10second_originalZ.h5')
     window_size = 10
     two_minutes = 120
     predict_activity = ''
