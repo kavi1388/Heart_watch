@@ -7,7 +7,7 @@ from scipy.stats import kurtosis, skew
 from scipy.stats import iqr
 from scipy.signal import butter, lfilter
 import math
-# from keras.models import load_model
+from keras.models import load_model
 import json
 import datetime
 from bitstring import BitArray
@@ -18,142 +18,149 @@ from scipy.signal import find_peaks
 ########### Feature Extraction ########
 
 
-# def sma (x) :
-#     sma_val = 0
-#     for i in x :
-#         sma_val += abs(i)
-#     return sma_val
-
-# def windows(data, size):
-#     start = 0
-#     while start < data.count():
-#         yield int(start), int(start + size)
-#         start += (size)
-
-# def peak_to_peak (s):
-#     max_val = max(s)
-#     min_val = min(s)
-#     return max_val - min_val
-
-# def butter_bandpass(lowcut, highcut, fs, order=5):
-#     nyq = 0.5 * fs
-#     low = lowcut / nyq
-#     high = highcut / nyq
-#     b, a = butter(order, [low, high], btype='band')
-#     return b, a
+def sma(x):
+    sma_val = 0
+    for i in x:
+        sma_val += abs(i)
+    return sma_val
 
 
-# def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
-#     b, a = butter_bandpass(lowcut, highcut, fs, order=order)
-#     y = lfilter(b, a, data)
-
-#     return y
-# def normalize(x):
-#     return x/np.max(np.abs(x))
-# def scale(X):
-#     return (X-np.mean(X))/np.std(X)
-
-# def low_pass_IIR(data,fl,samp_f,order):
-#     b, a = signal.butter(order, fl/(samp_f/2), btype='low', output='ba')
-#     low_data = signal.lfilter(b, a, data)
-#     return low_data
+def windows(data, size):
+    start = 0
+    while start < data.count():
+        yield int(start), int(start + size)
+        start += (size)
 
 
-# def filter (acc):
-
-#     fs = 20
-#     a_x = acc['ACC_X (in g)']
-#     a_gx=butter_bandpass_filter(a_x,0.19,5,fs,3)
-#     a_gx = normalize(a_gx)
-#     a_gx =  a_gx - np.mean(a_gx)
-
-#     a_y = acc['ACC_Y (in g)']
-#     a_gy=butter_bandpass_filter(a_y,0.19,5,fs,3)
-#     a_gy = normalize(a_gy)
-#     a_gy =  a_gy - np.mean(a_gy)
-
-#     a_z = acc['ACC_Z (in g)']
-#     a_gz=butter_bandpass_filter(a_z,0.19,5,fs,3)
-#     a_gz = normalize(a_gz)
-#     a_gz =  a_gz - np.mean(a_gz)
+def peak_to_peak(s):
+    max_val = max(s)
+    min_val = min(s)
+    return max_val - min_val
 
 
-#     return a_gx , a_gy , a_gz
-
-# def svm (x,y,z):
-#     svm_val = 0
-#     x = x.tolist()
-#     y = y.tolist()
-#     z = z.tolist()
-#     for i in range(0 ,len(x)):
-#         svm_val += math.sqrt(abs(x[i])**2 + abs(y[i])**2 + abs(z[i])*2)
-#     return svm_val
-
-# def corr (a,b ,c):
-#     non_corr_count = 0
-#     corr1 = np.corrcoef(a, b)
-#     corr2 = np.corrcoef(a, c)
-#     corr3 = np.corrcoef(b, c)
-#     if math.isnan(corr1[0 ,1]):
-#         non_corr_count +=1
-#     if math.isnan(corr2[0 ,1]):
-#         non_corr_count +=1
-#     if math.isnan(corr3[0 ,1]):
-#         non_corr_count +=1
-
-#     return non_corr_count
+def butter_bandpass(lowcut, highcut, fs, order=5):
+    nyq = 0.5 * fs
+    low = lowcut / nyq
+    high = highcut / nyq
+    b, a = butter(order, [low, high], btype='band')
+    return b, a
 
 
-# def extract_features(data,window_size = 20):
+def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
+    b, a = butter_bandpass(lowcut, highcut, fs, order=order)
+    y = lfilter(b, a, data)
 
-#     col_names = ['max_x' , 'min_x' , 'mean_x' , 'std_x' , 'median_x' , 'skew_x' , 'kurtosis_x' , 'iqr_x' , 'sma_x' , 'p2p_x', \
-#             'max_ux' , 'min_ux' , 'mean_ux' , 'std_ux' , 'median_ux', \
-#             'max_y' , 'min_y' , 'mean_y' , 'std_y' , 'median_y' , 'skew_y' , 'kurtosis_y' ,  'iqr_y' , 'sma_y' , 'p2p_y' ,\
-#             'max_uy' , 'min_uy' , 'mean_uy' , 'std_uy' , 'median_uy',
-#             'max_z' , 'min_z' , 'mean_z' , 'std_z' , 'median_z' ,'skew_z' , 'kurtosis_z' ,  'iqr_z' , 'sma_z' ,  'p2p_z' , \
-#             'max_uz' , 'min_uz' , 'mean_uz' , 'std_uz' , 'median_uz', 'svm' , 'nan_corr_count' ]
-#     extractFeature_df = pd.DataFrame(columns = col_names)
-
-#     for (start, end) in windows(data['timestep'], window_size):
-#         extract_list = []
-#         labels = np.empty((0))
-#         a_ux , a_uy , a_uz  = filter(data[start:end])
-
-#         x = data["ACC_X (in g)"][start:end]
-#         max_x , min_x , mean_x , std_x , median_x = max(x) , min(x) , np.mean(x) , np.std(x) , sts.median(x)
-#         skew_x , kurtosis_x , iqr_x  = skew(x) , kurtosis(x) ,  iqr(x)
-#         sma_x = sma(x)
-#         p2p_x = peak_to_peak(x)
-
-#         max_ux , min_ux , mean_ux , std_ux , median_ux = max(a_ux) , min(a_ux) , np.mean(a_ux) , np.std(a_ux) , sts.median(a_ux)
-#         extract_list.extend((max_x , min_x , mean_x , std_x , median_x , skew_x , kurtosis_x , iqr_x , sma_x , p2p_x ,max_ux , min_ux , mean_ux , std_ux , median_ux))
+    return y
 
 
-#         y = data["ACC_Y (in g)"][start:end]
-#         max_y , min_y , mean_y , std_y , median_y = max(y) , min(y) , np.mean(y) , np.std(y) , sts.median(y)
-#         skew_y , kurtosis_y  , iqr_y  = skew(y) , kurtosis(y) , iqr(y)
-#         sma_y = sma(y)
-#         p2p_y = peak_to_peak(y)
-#         max_uy , min_uy , mean_uy , std_uy , median_uy = max(a_uy) , min(a_uy) , np.mean(a_uy) , np.std(a_uy) , sts.median(a_uy)
-#         extract_list.extend((max_y , min_y , mean_y , std_y , median_y , skew_y , kurtosis_y ,  iqr_y , sma_y , p2p_y , max_uy , min_uy , mean_uy , std_uy , median_uy ))
-
-#         z = data["ACC_Z (in g)"][start:end]
-#         max_z , min_z , mean_z , std_z , median_z = max(z) , min(z) , np.mean(z) , np.std(z) , sts.median(z)
-#         skew_z , kurtosis_z ,  iqr_z  = skew(z) , kurtosis(z) , iqr(z)
-#         sma_z = sma(z)
-#         p2p_z = peak_to_peak(z)
-#         max_uz , min_uz , mean_uz , std_uz , median_uz = max(a_uz) , min(a_uz) , np.mean(a_uz) , np.std(a_uz) , sts.median(a_uz)
-#         extract_list.extend((max_z , min_z , mean_z , std_z , median_z ,skew_z , kurtosis_z ,  iqr_z , sma_z , p2p_z ,max_uz , min_uz , mean_uz , std_uz , median_uz))
-#         svm_val = svm(x,y,z)
-#         nan_corr_count = corr(x,y,z)
-#         extract_list.extend((svm_val ,nan_corr_count))
+def normalize(x):
+    return x / np.max(np.abs(x))
 
 
-#         df_length = len(extractFeature_df)
-#         extractFeature_df.loc[df_length] = extract_list
+def scale(X):
+    return (X - np.mean(X)) / np.std(X)
 
 
-#     return extractFeature_df
+def low_pass_IIR(data, fl, samp_f, order):
+    b, a = signal.butter(order, fl / (samp_f / 2), btype='low', output='ba')
+    low_data = signal.lfilter(b, a, data)
+    return low_data
+
+
+def filter(acc):
+    fs = 20
+    a_x = acc['ACC_X (in g)']
+    a_gx = butter_bandpass_filter(a_x, 0.19, 5, fs, 3)
+    a_gx = normalize(a_gx)
+    a_gx = a_gx - np.mean(a_gx)
+
+    a_y = acc['ACC_Y (in g)']
+    a_gy = butter_bandpass_filter(a_y, 0.19, 5, fs, 3)
+    a_gy = normalize(a_gy)
+    a_gy = a_gy - np.mean(a_gy)
+
+    a_z = acc['ACC_Z (in g)']
+    a_gz = butter_bandpass_filter(a_z, 0.19, 5, fs, 3)
+    a_gz = normalize(a_gz)
+    a_gz = a_gz - np.mean(a_gz)
+
+    return a_gx, a_gy, a_gz
+
+
+def svm(x, y, z):
+    svm_val = 0
+    x = x.tolist()
+    y = y.tolist()
+    z = z.tolist()
+    for i in range(0, len(x)):
+        svm_val += math.sqrt(abs(x[i]) ** 2 + abs(y[i]) ** 2 + abs(z[i]) * 2)
+    return svm_val
+
+
+def corr(a, b, c):
+    non_corr_count = 0
+    corr1 = np.corrcoef(a, b)
+    corr2 = np.corrcoef(a, c)
+    corr3 = np.corrcoef(b, c)
+    if math.isnan(corr1[0, 1]):
+        non_corr_count += 1
+    if math.isnan(corr2[0, 1]):
+        non_corr_count += 1
+    if math.isnan(corr3[0, 1]):
+        non_corr_count += 1
+
+    return non_corr_count
+
+
+def extract_features(data, window_size=20):
+    col_names = ['max_x', 'min_x', 'mean_x', 'std_x', 'median_x', 'skew_x', 'kurtosis_x', 'iqr_x', 'sma_x', 'p2p_x', \
+                 'max_ux', 'min_ux', 'mean_ux', 'std_ux', 'median_ux', \
+                 'max_y', 'min_y', 'mean_y', 'std_y', 'median_y', 'skew_y', 'kurtosis_y', 'iqr_y', 'sma_y', 'p2p_y', \
+                 'max_uy', 'min_uy', 'mean_uy', 'std_uy', 'median_uy',
+                 'max_z', 'min_z', 'mean_z', 'std_z', 'median_z', 'skew_z', 'kurtosis_z', 'iqr_z', 'sma_z', 'p2p_z', \
+                 'max_uz', 'min_uz', 'mean_uz', 'std_uz', 'median_uz', 'svm', 'nan_corr_count']
+    extractFeature_df = pd.DataFrame(columns=col_names)
+
+    for (start, end) in windows(data['timestep'], window_size):
+        extract_list = []
+        labels = np.empty((0))
+        a_ux, a_uy, a_uz = filter(data[start:end])
+
+        x = data["ACC_X (in g)"][start:end]
+        max_x, min_x, mean_x, std_x, median_x = max(x), min(x), np.mean(x), np.std(x), sts.median(x)
+        skew_x, kurtosis_x, iqr_x = skew(x), kurtosis(x), iqr(x)
+        sma_x = sma(x)
+        p2p_x = peak_to_peak(x)
+
+        max_ux, min_ux, mean_ux, std_ux, median_ux = max(a_ux), min(a_ux), np.mean(a_ux), np.std(a_ux), sts.median(a_ux)
+        extract_list.extend((max_x, min_x, mean_x, std_x, median_x, skew_x, kurtosis_x, iqr_x, sma_x, p2p_x, max_ux,
+                             min_ux, mean_ux, std_ux, median_ux))
+
+        y = data["ACC_Y (in g)"][start:end]
+        max_y, min_y, mean_y, std_y, median_y = max(y), min(y), np.mean(y), np.std(y), sts.median(y)
+        skew_y, kurtosis_y, iqr_y = skew(y), kurtosis(y), iqr(y)
+        sma_y = sma(y)
+        p2p_y = peak_to_peak(y)
+        max_uy, min_uy, mean_uy, std_uy, median_uy = max(a_uy), min(a_uy), np.mean(a_uy), np.std(a_uy), sts.median(a_uy)
+        extract_list.extend((max_y, min_y, mean_y, std_y, median_y, skew_y, kurtosis_y, iqr_y, sma_y, p2p_y, max_uy,
+                             min_uy, mean_uy, std_uy, median_uy))
+
+        z = data["ACC_Z (in g)"][start:end]
+        max_z, min_z, mean_z, std_z, median_z = max(z), min(z), np.mean(z), np.std(z), sts.median(z)
+        skew_z, kurtosis_z, iqr_z = skew(z), kurtosis(z), iqr(z)
+        sma_z = sma(z)
+        p2p_z = peak_to_peak(z)
+        max_uz, min_uz, mean_uz, std_uz, median_uz = max(a_uz), min(a_uz), np.mean(a_uz), np.std(a_uz), sts.median(a_uz)
+        extract_list.extend((max_z, min_z, mean_z, std_z, median_z, skew_z, kurtosis_z, iqr_z, sma_z, p2p_z, max_uz,
+                             min_uz, mean_uz, std_uz, median_uz))
+        svm_val = svm(x, y, z)
+        nan_corr_count = corr(x, y, z)
+        extract_list.extend((svm_val, nan_corr_count))
+
+        df_length = len(extractFeature_df)
+        extractFeature_df.loc[df_length] = extract_list
+
+    return extractFeature_df
 
 
 # ####### Step Counter #####
@@ -253,118 +260,115 @@ from scipy.signal import find_peaks
 # ############## Activity and fall ##############
 
 
-# def calc_xy_angles(x,y,z):
+def calc_xy_angles(x, y, z):
+    x_val = x
+    y_val = y
+    z_val = z
+
+    x2 = x_val * x_val
+    y2 = y_val * y_val
+    z2 = z_val * z_val
+
+    result = np.sqrt(y2 + z2)
+    result = x_val / result
+    accel_angle_x = np.arctan(result)
+
+    result = np.sqrt(x2 + z2)
+    result = y_val / result
+    accel_angle_y = np.arctan(result)
+
+    return accel_angle_x, accel_angle_y
 
 
-#    x_val = x
-#    y_val = y
-#    z_val = z
+def convert_to_decimal(acc):
+    fs = 20
+    acc['timestep'] = [d.time() for d in acc['timestep']]
+    acc['timestep'] = acc['timestep'].astype(str)
+    time_val = acc['timestep'].to_numpy()
 
-#    x2 = x_val*x_val
-#    y2 = y_val*y_val
-#    z2 = z_val*z_val
+    time_step_v = []
+    for time in time_val:
+        time_step_v.append(sum(x * int(t) for x, t in zip([3600, 60, 1], time.split(":"))))
 
+    time_step = np.linspace(time_step_v[0], time_step_v[-1], len(time_step_v) * fs)
 
-#    result=np.sqrt(y2+z2)
-#    result=x_val/result
-#    accel_angle_x = np.arctan(result)
+    acc_Xind = []
+    for j in range(acc.shape[0]):
+        for i in range(1, 121, 6):
+            acc_Xind.append((int(hex(np.int64(acc.iloc[j, i + 1]).item()) +
+                                 hex(np.int64(acc.iloc[j, i]).item()).split('x')[-1], 16) >> 4) / 128.0)
+    acc_X = np.asarray(acc_Xind)
 
+    acc_Yind = []
+    for j in range(acc.shape[0]):
+        for i in range(3, 121, 6):
+            acc_Yind.append((int(hex(np.int64(acc.iloc[j, i + 1]).item()) +
+                                 hex(np.int64(acc.iloc[j, i]).item()).split('x')[-1], 16) >> 4) / 128.0)
+    acc_Y = np.asarray(acc_Yind)
 
-#    result=np.sqrt(x2+z2)
-#    result=y_val/result
-#    accel_angle_y = np.arctan(result)
+    acc_Zind = []
+    for j in range(acc.shape[0]):
+        for i in range(5, 121, 6):
+            acc_Zind.append((int(hex(np.int64(acc.iloc[j, i + 1]).item()) +
+                                 hex(np.int64(acc.iloc[j, i]).item()).split('x')[-1], 16) >> 4) / 128.0)
+    acc_Z = np.asarray(acc_Zind)
 
-#    return accel_angle_x , accel_angle_y
+    df2 = pd.DataFrame()
 
+    df2['ACC_X (in g)'] = pd.Series(acc_X)
+    df2['ACC_Y (in g)'] = pd.Series(acc_Y)
+    df2['ACC_Z (in g)'] = pd.Series(acc_Z)
+    df2['timestep'] = pd.Series(time_step)
 
-# def convert_to_decimal (acc):
-#     fs = 20
-#     acc['timestep'] = [d.time() for d in acc['timestep']]
-#     acc['timestep'] = acc['timestep'].astype(str)
-#     time_val=acc['timestep'].to_numpy()
-
-#     time_step_v=[]
-#     for time in time_val:
-#         time_step_v.append(sum(x * int(t) for x, t in zip([3600, 60, 1], time.split(":"))))
-
-
-#     time_step=np.linspace(time_step_v[0],time_step_v[-1],len(time_step_v)*fs)
-
-#     acc_Xind=[]
-#     for j in range(acc.shape[0]):
-#         for i in range(1,121,6):
-#             acc_Xind.append((int(hex(np.int64(acc.iloc[j,i+1]).item())+hex(np.int64(acc.iloc[j,i]).item()).split('x')[-1],16)>>4)/128.0)
-#     acc_X=np.asarray(acc_Xind)
-
-#     acc_Yind=[]
-#     for j in range(acc.shape[0]):
-#         for i in range(3,121,6):
-
-#             acc_Yind.append((int(hex(np.int64(acc.iloc[j,i+1]).item())+hex(np.int64(acc.iloc[j,i]).item()).split('x')[-1],16)>>4)/128.0)
-#     acc_Y=np.asarray(acc_Yind)
-
-#     acc_Zind=[]
-#     for j in range(acc.shape[0]):
-#         for i in range(5,121,6):
-#             acc_Zind.append((int(hex(np.int64(acc.iloc[j,i+1]).item())+hex(np.int64(acc.iloc[j,i]).item()).split('x')[-1],16)>>4)/128.0)
-#     acc_Z=np.asarray(acc_Zind)
-
-#     df2=pd.DataFrame()
-
-#     df2['ACC_X (in g)']=pd.Series(acc_X)
-#     df2['ACC_Y (in g)']=pd.Series(acc_Y)
-#     df2['ACC_Z (in g)']=pd.Series(acc_Z)
-#     df2['timestep']=pd.Series(time_step)
-
-#     return df2
-
-# def convert_to_decimal_Fall (acc):
-#     fs = 20
-#     acc['timestep'] = [d.time() for d in acc['timestep']]
-#     acc['timestep'] = acc['timestep'].astype(str)
-#     time_val=acc['timestep'].to_numpy()
-
-#     time_step_v=[]
-#     for time in time_val:
-#         time_step_v.append(sum(x * int(t) for x, t in zip([3600, 60, 1], time.split(":"))))
+    return df2
 
 
-#     time_step=np.linspace(time_step_v[0],time_step_v[-1],len(time_step_v)*fs)
+def convert_to_decimal_Fall(acc):
+    fs = 20
+    acc['timestep'] = [d.time() for d in acc['timestep']]
+    acc['timestep'] = acc['timestep'].astype(str)
+    time_val = acc['timestep'].to_numpy()
 
-#     acc_Xind=[]
-#     for j in range(acc.shape[0]):
-#         for i in range(1,121,6):
-#             acc_Xind.append((int(hex(np.int64(acc.iloc[j,i+1]).item())+hex(np.int64(acc.iloc[j,i]).item()).split('x')[-1],16)>>4)/128.0)
-#     acc_X=np.asarray(acc_Xind)
+    time_step_v = []
+    for time in time_val:
+        time_step_v.append(sum(x * int(t) for x, t in zip([3600, 60, 1], time.split(":"))))
 
-#     acc_Yind=[]
-#     for j in range(acc.shape[0]):
-#         for i in range(3,121,6):
+    time_step = np.linspace(time_step_v[0], time_step_v[-1], len(time_step_v) * fs)
 
-#             acc_Yind.append((int(hex(np.int64(acc.iloc[j,i+1]).item())+hex(np.int64(acc.iloc[j,i]).item()).split('x')[-1],16)>>4)/128.0)
-#     acc_Y=np.asarray(acc_Yind)
+    acc_Xind = []
+    for j in range(acc.shape[0]):
+        for i in range(1, 121, 6):
+            acc_Xind.append((int(hex(np.int64(acc.iloc[j, i + 1]).item()) +
+                                 hex(np.int64(acc.iloc[j, i]).item()).split('x')[-1], 16) >> 4) / 128.0)
+    acc_X = np.asarray(acc_Xind)
 
-#     acc_Zind=[]
-#     for j in range(acc.shape[0]):
-#         for i in range(5,121,6):
-#             acc_Zind.append((int(hex(np.int64(acc.iloc[j,i+1]).item())+hex(np.int64(acc.iloc[j,i]).item()).split('x')[-1],16)>>4)/128.0)
-#     acc_Z=np.asarray(acc_Zind)
+    acc_Yind = []
+    for j in range(acc.shape[0]):
+        for i in range(3, 121, 6):
+            acc_Yind.append((int(hex(np.int64(acc.iloc[j, i + 1]).item()) +
+                                 hex(np.int64(acc.iloc[j, i]).item()).split('x')[-1], 16) >> 4) / 128.0)
+    acc_Y = np.asarray(acc_Yind)
 
-#     df2=pd.DataFrame()
+    acc_Zind = []
+    for j in range(acc.shape[0]):
+        for i in range(5, 121, 6):
+            acc_Zind.append((int(hex(np.int64(acc.iloc[j, i + 1]).item()) +
+                                 hex(np.int64(acc.iloc[j, i]).item()).split('x')[-1], 16) >> 4) / 128.0)
+    acc_Z = np.asarray(acc_Zind)
 
-#     for index_z in range(19 , len(acc_Z) , 20) :
+    df2 = pd.DataFrame()
 
-#         acc_Z[index_z] = np.mean(acc_Z[index_z - 19 : index_z -1])
+    for index_z in range(19, len(acc_Z), 20):
+        acc_Z[index_z] = np.mean(acc_Z[index_z - 19: index_z - 1])
 
+    df2 = pd.DataFrame()
 
-#     df2=pd.DataFrame()
+    df2['ACC_X (in g)'] = pd.Series(acc_X)
+    df2['ACC_Y (in g)'] = pd.Series(acc_Y)
+    df2['ACC_Z (in g)'] = pd.Series(acc_Z)
+    df2['timestep'] = pd.Series(time_step)
 
-#     df2['ACC_X (in g)']=pd.Series(acc_X)
-#     df2['ACC_Y (in g)']=pd.Series(acc_Y)
-#     df2['ACC_Z (in g)']=pd.Series(acc_Z)
-#     df2['timestep']=pd.Series(time_step)
-
-#     return df2
+    return df2
 
 
 # def find_slop_distance (df , col_name):
@@ -480,131 +484,121 @@ from scipy.signal import find_peaks
 #         return fall_event_time
 
 
-# def main2(window_df , model):
+def main2(window_df, model):
+    threshold_x = 0
+    threshold_y = 0
+    threshold_z = 0
 
-#     threshold_x = 0
-#     threshold_y = 0
-#     threshold_z = 0
+    window_df_fall = window_df.copy()
+    # window_df_step = window_df.copy()
 
-#     window_df_fall = window_df.copy()
-#     window_df_step = window_df.copy()
+    predict_y = []
+    activity = ''
+    reshaped_segments = []
+    peaks_height_sum = 0
+    step_count_value = 0
+    stride = 0
 
-#     predict_y = []
-#     activity = ''
-#     reshaped_segments = []
-#     peaks_height_sum = 0
-#     step_count_value = 0
-#     stride = 0
+    window_df_decimal = convert_to_decimal(window_df)
 
-#     #window_df_decimal  = convert_to_decimal(window_df)
+    window_df_decimal_fall = convert_to_decimal_Fall(window_df_fall)
 
-#     window_df_decimal_fall = convert_to_decimal_Fall(window_df_fall)
+    window_feature = extract_features(window_df_decimal)
 
+    reshaped_segments = np.asarray(window_feature, dtype=np.float32).reshape(-1, 10, 47)
 
-#     #window_feature = extract_features(window_df_decimal)
+    predict_y = model.predict(reshaped_segments)
 
-#     #reshaped_segments = np.asarray(window_feature, dtype= np.float32).reshape(-1, 10, 47)
+    window_feature = window_feature.drop(window_feature.index[range(0, len(window_feature))])
+    window_feature = window_feature.dropna()
 
-#     #predict_y = model.predict(reshaped_segments)
+    x_groupby = window_df_decimal_fall.groupby(['ACC_X (in g)']).size().reset_index(name='counts')
+    y_groupby = window_df_decimal_fall.groupby(['ACC_Y (in g)']).size().reset_index(name='counts')
+    z_groupby = window_df_decimal_fall.groupby(['ACC_Z (in g)']).size().reset_index(name='counts')
 
-#     # window_feature = window_feature.drop(window_feature.index[range(0 ,len(window_feature))])
-#     # window_feature = window_feature.dropna()
-
-
-#     x_groupby = window_df_decimal_fall.groupby(['ACC_X (in g)']).size().reset_index(name='counts')
-#     y_groupby = window_df_decimal_fall.groupby(['ACC_Y (in g)']).size().reset_index(name='counts')
-#     z_groupby = window_df_decimal_fall.groupby(['ACC_Z (in g)']).size().reset_index(name='counts')
-
-
-#     if  (x_groupby['counts'] >= 180).any() and (y_groupby['counts'] >= 180).any() and (z_groupby['counts'] >= 180).any():
-#         result_index = 2   ### sleep activity
+    if (x_groupby['counts'] >= 180).any() and (y_groupby['counts'] >= 180).any() and (z_groupby['counts'] >= 180).any():
+        result_index = 2  ### sleep activity
 
 
-#     else:
-#         result_index = 0 #predict_y.argmax()
+    else:
+        result_index = predict_y.argmax()
 
-#     if result_index == 0 :
+    if result_index == 0:
+        activity = 'Sit'
+        threshold_x = 0.4
+        threshold_y = 0.4
+        threshold_z = 0.4
 
-#             activity = 'Sit'
-#             threshold_x = 0.4
-#             threshold_y = 0.4
-#             threshold_z = 0.4
+    if result_index == 1:
+        activity = 'Walk'
+        threshold_x = 0.5
+        threshold_y = 0.5
+        threshold_z = 0.5
 
+        # X , Y , Z  = to_decimal_step_counter(window_df_step)
+        # step_count_value , peaks_height_sum  , stride = step_count(X,Y,Z)
 
-#     if result_index == 1:
+    if result_index == 2:
+        activity = 'Sleep'
+        threshold_x = 0.4
+        threshold_y = 0.4
+        threshold_z = 0.4
 
-#             activity = 'Walk'
-#             threshold_x = 0.5
-#             threshold_y = 0.5
-#             threshold_z = 0.5
+    # fall_event_time= fall_detect(window_df_decimal_fall , threshold_x , threshold_y , threshold_z)
 
-#             X , Y , Z  = to_decimal_step_counter(window_df_step)
-#             step_count_value , peaks_height_sum  , stride = step_count(X,Y,Z)
+    # if fall_event_time != 0:
+    #         fall_event_time = str(datetime.timedelta(seconds=fall_event_time))
 
-
-#     if result_index == 2:
-
-#             activity = 'Sleep'
-#             threshold_x = 0.4
-#             threshold_y = 0.4
-#             threshold_z = 0.4
-
-
-#     fall_event_time= fall_detect(window_df_decimal_fall , threshold_x , threshold_y , threshold_z)
-
-#     # if fall_event_time != 0:
-#     #         fall_event_time = str(datetime.timedelta(seconds=fall_event_time))
-
-
-#     return activity , fall_event_time , step_count_value , peaks_height_sum , stride
+    return activity, 0  # , step_count_value , peaks_height_sum , stride
 
 
 ########### Read data #############
 
 
 def call_model_(data2):
-    # window_df = pd.DataFrame(columns=range(0,121))
-    # acc_data_df = pd.DataFrame(columns=['data' , '_id' , 'app_date' ,'Gap'])
-    # #CNN_model = load_model('/home/heartwatch/rajnishh/Heart_watch/HeartWatch/heart_rate/Accelerometer/CNN_walk_sit_feature20_10second_originalZ.h5')
-    # window_size = 10
-    # two_minutes = 120
-    # predict_activity = ''
-    # fall_timestamps = 0
+    window_df = pd.DataFrame(columns=range(0, 121))
+    acc_data_df = pd.DataFrame(columns=['data', '_id', 'app_date', 'Gap'])
+    CNN_model = load_model(
+        'D:\HeartWatch_Post_APIs-master\HeartWatch_Post_APIs-master\HeartWatch\heart_rate\Accelerometer/CNN_walk_sit_feature20_10second_originalZ.h5')
+    window_size = 10
+    two_minutes = 120
+    predict_activity = ''
+    fall_timestamps = 0
 
-    # # data_ = json.loads(data2)
-    # # print('data_')
-    # # print(data_)
-    # # for data_ in data2:
-    # for index , dt in enumerate(data2):
-    #     # print('index ',index)
-    #     # print('dt ' ,dt)
-    #     acc_data_df.loc[index , 'data'] = dt['data']
-    #     acc_data_df.loc[index , '_id'] =  dt['_id']
-    #     acc_data_df.loc[index , 'app_date'] = dt['app_date']
+    # data_ = json.loads(data2)
+    # print('data_')
+    # print(data_)
+    # for data_ in data2:
+    for index, dt in enumerate(data2):
+        # print('index ',index)
+        # print('dt ' ,dt)
+        acc_data_df.loc[index, 'data'] = dt['data']
+        acc_data_df.loc[index, '_id'] = dt['_id']
+        acc_data_df.loc[index, 'app_date'] = dt['app_date']
 
-    # acc_data_df['app_date'] = pd.to_datetime(acc_data_df['app_date'], format='%d/%m/%Y %H:%M:%S')
-    # for index, row in acc_data_df.iterrows():
+    acc_data_df['app_date'] = pd.to_datetime(acc_data_df['app_date'], format='%d/%m/%Y %H:%M:%S')
+    for index, row in acc_data_df.iterrows():
 
-    #     one_second = row['data']
-    #     if one_second[0] == 61 and len(one_second) == 121:
+        one_second = row['data']
+        if one_second[0] == 61 and len(one_second) == 121:
 
-    #         if len(window_df) < window_size:
-    #             window_df.loc[index, 0:121] = one_second
-    #             window_df.loc[index, 'timestep'] = row['app_date']
+            if len(window_df) < window_size:
+                window_df.loc[index, 0:121] = one_second
+                window_df.loc[index, 'timestep'] = row['app_date']
 
-    #         if len(window_df) == window_size:
-    #             activity, fall, step_count_value, peaks_height_sum, stride = main2(window_df, 0)
-    #             # print(fall)
-    #             predict_activity = activity
-    #             fall_timestamps = fall
-    #             window_df = window_df.drop(window_df.index[range(0, len(window_df))])
-    #             window_df = window_df.dropna()
+            if len(window_df) == window_size:
+                activity, fall = main2(window_df, CNN_model)  # , step_count_value, peaks_height_sum, stride
+                # print(fall)
+                predict_activity = activity
+                fall_timestamps = fall
+                window_df = window_df.drop(window_df.index[range(0, len(window_df))])
+                window_df = window_df.dropna()
 
-    # if fall != 0 and fall is not None:
-    #     fall_flag = True
-    # else:
-    #     fall_flag=False
-    res = {"activity": 'Sit', "fall_flag": False, "fall_time": 0, "steps": 0, "distance": 0, "stride": 0}
+    if fall != 0 and fall is not None:
+        fall_flag = True
+    else:
+        fall_flag = False
+    res = {"activity": predict_activity, "fall_flag": fall_flag, "fall_time": 0, "steps": 0, "distance": 0, "stride": 0}
     # print(X)
     return res
 
