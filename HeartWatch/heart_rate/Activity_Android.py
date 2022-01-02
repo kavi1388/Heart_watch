@@ -13,10 +13,11 @@ import datetime
 from bitstring import BitArray
 import scipy.signal as signal
 from scipy.signal import find_peaks
+import  os
 
 
 ########### Feature Extraction ########
-
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 def sma(x):
     sma_val = 0
