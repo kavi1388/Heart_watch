@@ -13,7 +13,9 @@ import datetime
 from bitstring import BitArray
 import scipy.signal as signal
 from scipy.signal import find_peaks
-import  os
+import os
+import warnings
+warnings.filterwarnings("ignore")
 
 
 ########### Feature Extraction ########
