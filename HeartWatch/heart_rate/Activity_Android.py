@@ -14,7 +14,8 @@ import scipy.signal as signal
 from scipy.signal import find_peaks
 import warnings
 warnings.filterwarnings("ignore")
-
+import gc
+gc.collect()
 
 ########### Feature Extraction ########
 
@@ -592,6 +593,10 @@ def call_model_(data2):
         fall_flag = False
     res = {"activity": predict_activity, "fall_flag": fall_flag, "fall_time": fall_timestamps,
            "steps": step_count_value, "distance": peaks_height_sum, "stride": stride}
+
+    del acc_data_df
+    del window_df
+    gc.collect()
 
     return res
 
