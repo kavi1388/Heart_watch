@@ -1,4 +1,3 @@
-from re import X
 import pandas as pd
 import numpy as np
 from scipy import signal
@@ -7,19 +6,18 @@ from scipy.stats import kurtosis, skew
 from scipy.stats import iqr
 from scipy.signal import butter, lfilter
 import math
-# from keras.models import load_model
+from keras.models import load_model
 import json
 import datetime
 from bitstring import BitArray
 import scipy.signal as signal
 from scipy.signal import find_peaks
-import os
 import warnings
 warnings.filterwarnings("ignore")
 
 
 ########### Feature Extraction ########
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+
 
 def sma(x):
     sma_val = 0
@@ -166,101 +164,98 @@ def extract_features(data, window_size=20):
     return extractFeature_df
 
 
-# ####### Step Counter #####
+####### Step Counter #####
 
-# def DecimalToBinary(num):
+def DecimalToBinary(num):
+    if num >= 0:
+        dec = bin(num).lstrip('0b')
 
-#   if num >= 0:
-#     dec=bin(num).lstrip('0b')
+    if num < 0:
+        dec = num.to_bytes(1, 'big', signed=True)
+        dec = BitArray(bytes=dec).bin
+    if len(dec) < 8:
+        diff = 8 - len(dec)
+        for i in range(diff):
+            dec = '0' + dec
 
-#   if num<0:
-#     dec=num.to_bytes(1,'big',signed=True)
-#     dec=BitArray(bytes=dec).bin
-#   if len(dec)<8:
-#     diff=8-len(dec)
-#     for i in range(diff):
-#       dec='0'+dec
-
-#   return dec
-# def as_signed_big(binary_str):
-#     # This time, taking advantage of positional args and default values.
-#     as_bytes = int(binary_str, 2).to_bytes(2, 'big')
-#     return int.from_bytes(as_bytes, 'big', signed=True)
+    return dec
 
 
-# ################# step counter ###############
-
-# def to_decimal_step_counter (acc):
-
-
-#     acc_Xind=[]
-#     for j in range(acc.shape[0]):
-#         for i in range(1,121,6):
-#             acc_Xind.append(DecimalToBinary(acc.iloc[j,i+1])[-1::-1]+DecimalToBinary(acc.iloc[j,i])[-1::-1])
-
-#     acc_X=[]
-#     for i in range(len(acc_Xind)):
-#         acc_X.append(as_signed_big(acc_Xind[i]))
-#     acc_X=np.asarray(acc_X)
-
-#     acc_Yind=[]
-#     for j in range(acc.shape[0]):
-#         for i in range(3,121,6):
-#             acc_Yind.append(DecimalToBinary(acc.iloc[j,i+1])[-1::-1]+DecimalToBinary(acc.iloc[j,i])[-1::-1])
-
-#     acc_Y=[]
-#     for i in range(len(acc_Yind)):
-#         acc_Y.append(as_signed_big(acc_Yind[i]))
-#     acc_Y=np.asarray(acc_Y)
-
-#     acc_Zind=[]
-#     for j in range(acc.shape[0]):
-#         for i in range(5,121,6):
-#             acc_Zind.append(DecimalToBinary(acc.iloc[j,i+1])[-1::-1]+DecimalToBinary(acc.iloc[j,i])[-1::-1])
-
-#     acc_Z=[]
-#     for i in range(len(acc_Zind)):
-#         acc_Z.append(as_signed_big(acc_Zind[i]))
-#     acc_Z=np.asarray(acc_Z)
+def as_signed_big(binary_str):
+    # This time, taking advantage of positional args and default values.
+    as_bytes = int(binary_str, 2).to_bytes(2, 'big')
+    return int.from_bytes(as_bytes, 'big', signed=True)
 
 
-#     for index_z in range(19 , len(acc_Z) , 20) :
-#         acc_Z[index_z] = np.mean(acc_Z[index_z - 19 : index_z -1])
+################# step counter ###############
 
-#     return acc_X , acc_Y , acc_Z
+def to_decimal_step_counter(acc):
+    acc_Xind = []
+    for j in range(acc.shape[0]):
+        for i in range(1, 121, 6):
+            acc_Xind.append(DecimalToBinary(acc.iloc[j, i + 1])[-1::-1] + DecimalToBinary(acc.iloc[j, i])[-1::-1])
+
+    acc_X = []
+    for i in range(len(acc_Xind)):
+        acc_X.append(as_signed_big(acc_Xind[i]))
+    acc_X = np.asarray(acc_X)
+
+    acc_Yind = []
+    for j in range(acc.shape[0]):
+        for i in range(3, 121, 6):
+            acc_Yind.append(DecimalToBinary(acc.iloc[j, i + 1])[-1::-1] + DecimalToBinary(acc.iloc[j, i])[-1::-1])
+
+    acc_Y = []
+    for i in range(len(acc_Yind)):
+        acc_Y.append(as_signed_big(acc_Yind[i]))
+    acc_Y = np.asarray(acc_Y)
+
+    acc_Zind = []
+    for j in range(acc.shape[0]):
+        for i in range(5, 121, 6):
+            acc_Zind.append(DecimalToBinary(acc.iloc[j, i + 1])[-1::-1] + DecimalToBinary(acc.iloc[j, i])[-1::-1])
+
+    acc_Z = []
+    for i in range(len(acc_Zind)):
+        acc_Z.append(as_signed_big(acc_Zind[i]))
+    acc_Z = np.asarray(acc_Z)
+
+    for index_z in range(19, len(acc_Z), 20):
+        acc_Z[index_z] = np.mean(acc_Z[index_z - 19: index_z - 1])
+
+    return acc_X, acc_Y, acc_Z
 
 
-# def step_count(acc_X , acc_Y, acc_Z ):
+def step_count(acc_X, acc_Y, acc_Z):
+    a_x = acc_X * 18.3 / 128.0 / 1000.0 + 0.06
+    a_y = acc_Y * 18.3 / 128.0 / 1000.0 + 0.06
+    a_z = acc_Z * 18.3 / 128.0 / 1000.0 + 0.06
 
-#     a_x = acc_X*18.3/128.0/1000.0+0.06
-#     a_y = acc_Y*18.3/128.0/1000.0+0.06
-#     a_z = acc_Z*18.3/128.0/1000.0+0.06
+    x_abs = abs(a_x)
+    y_abs = abs(a_y)
+    z_abs = abs(a_z)
+    svm = []
 
-#     x_abs = abs(a_x)
-#     y_abs = abs(a_y)
-#     z_abs = abs(a_z)
-#     svm = []
+    for i in range(0, len(a_y)):
+        svm.append(math.sqrt(x_abs[i] ** 2 + y_abs[i] * 2 + z_abs[i] ** 2))
 
-#     for i in range(0, len(a_y)):
-#         svm.append(math.sqrt(x_abs[i]**2 + y_abs[i]*2 + z_abs[i]**2))
+    peaks, properties = find_peaks(svm, height=2, prominence=1)
+    peaks_heights = properties['peak_heights']
+    step = len(peaks)
 
-#     peaks , properties = find_peaks(svm , height = 2, prominence=1)
-#     peaks_heights = properties['peak_heights']
-#     step = len(peaks)
+    peaks_heights_4root = [(l * (float(1 / 4))) / 2 for l in peaks_heights]
+    peaks_height_sum = np.sum(peaks_heights_4root)
 
-#     peaks_heights_4root = [(l*(float(1/4)))/2 for l in peaks_heights]
-#     peaks_height_sum = np.sum(peaks_heights_4root)
+    stride = float('%.2f' % ((np.mean(peaks_heights_4root) - 0.1) * 2))
+    peaks_height_sum = float('%.2f' % (peaks_height_sum))
 
-#     stride =  float('%.2f'%((np.mean(peaks_heights_4root) - 0.1) * 2))
-#     peaks_height_sum = float('%.2f'%(peaks_height_sum))
+    if len(peaks) == 0 or len(peaks_heights) == 0:
+        step, peaks_height_sum, stride = 0, 0, 0
 
-#     if len(peaks) == 0  or len(peaks_heights) == 0:
-#         step  , peaks_height_sum , stride = 0 , 0 , 0
-
-#     return step  , peaks_height_sum  , stride
+    return step, peaks_height_sum, stride
 
 
-# ############## Activity and fall ##############
+############## Activity and fall ##############
 
 
 def calc_xy_angles(x, y, z):
@@ -283,46 +278,48 @@ def calc_xy_angles(x, y, z):
     return accel_angle_x, accel_angle_y
 
 
-# def convert_to_decimal (acc):
-#     fs = 20
-#     acc['timestep'] = [d.time() for d in acc['timestep']]
-#     acc['timestep'] = acc['timestep'].astype(str)
-#     time_val=acc['timestep'].to_numpy()
+def convert_to_decimal(acc):
+    fs = 20
+    acc['timestep'] = [d.time() for d in acc['timestep']]
+    acc['timestep'] = acc['timestep'].astype(str)
+    time_val = acc['timestep'].to_numpy()
 
-#     time_step_v=[]
-#     for time in time_val:
-#         time_step_v.append(sum(x * int(t) for x, t in zip([3600, 60, 1], time.split(":"))))
+    time_step_v = []
+    for time in time_val:
+        time_step_v.append(sum(x * int(t) for x, t in zip([3600, 60, 1], time.split(":"))))
 
+    time_step = np.linspace(time_step_v[0], time_step_v[-1], len(time_step_v) * fs)
 
-#     time_step=np.linspace(time_step_v[0],time_step_v[-1],len(time_step_v)*fs)
+    acc_Xind = []
+    for j in range(acc.shape[0]):
+        for i in range(1, 121, 6):
+            acc_Xind.append((int(hex(np.int64(acc.iloc[j, i + 1]).item()) +
+                                 hex(np.int64(acc.iloc[j, i]).item()).split('x')[-1], 16) >> 4) / 128.0)
+    acc_X = np.asarray(acc_Xind)
 
-#     acc_Xind=[]
-#     for j in range(acc.shape[0]):
-#         for i in range(1,121,6):
-#             acc_Xind.append((int(hex(np.int64(acc.iloc[j,i+1]).item())+hex(np.int64(acc.iloc[j,i]).item()).split('x')[-1],16)>>4)/128.0)
-#     acc_X=np.asarray(acc_Xind)
+    acc_Yind = []
+    for j in range(acc.shape[0]):
+        for i in range(3, 121, 6):
+            acc_Yind.append((int(hex(np.int64(acc.iloc[j, i + 1]).item()) +
+                                 hex(np.int64(acc.iloc[j, i]).item()).split('x')[-1], 16) >> 4) / 128.0)
+    acc_Y = np.asarray(acc_Yind)
 
-#     acc_Yind=[]
-#     for j in range(acc.shape[0]):
-#         for i in range(3,121,6):
+    acc_Zind = []
+    for j in range(acc.shape[0]):
+        for i in range(5, 121, 6):
+            acc_Zind.append((int(hex(np.int64(acc.iloc[j, i + 1]).item()) +
+                                 hex(np.int64(acc.iloc[j, i]).item()).split('x')[-1], 16) >> 4) / 128.0)
+    acc_Z = np.asarray(acc_Zind)
 
-#             acc_Yind.append((int(hex(np.int64(acc.iloc[j,i+1]).item())+hex(np.int64(acc.iloc[j,i]).item()).split('x')[-1],16)>>4)/128.0)
-#     acc_Y=np.asarray(acc_Yind)
+    df2 = pd.DataFrame()
 
-#     acc_Zind=[]
-#     for j in range(acc.shape[0]):
-#         for i in range(5,121,6):
-#             acc_Zind.append((int(hex(np.int64(acc.iloc[j,i+1]).item())+hex(np.int64(acc.iloc[j,i]).item()).split('x')[-1],16)>>4)/128.0)
-#     acc_Z=np.asarray(acc_Zind)
+    df2['ACC_X (in g)'] = pd.Series(acc_X)
+    df2['ACC_Y (in g)'] = pd.Series(acc_Y)
+    df2['ACC_Z (in g)'] = pd.Series(acc_Z)
+    df2['timestep'] = pd.Series(time_step)
 
-#     df2=pd.DataFrame()
+    return df2
 
-#     df2['ACC_X (in g)']=pd.Series(acc_X)
-#     df2['ACC_Y (in g)']=pd.Series(acc_Y)
-#     df2['ACC_Z (in g)']=pd.Series(acc_Z)
-#     df2['timestep']=pd.Series(time_step)
-
-#     return df2
 
 def convert_to_decimal_Fall(acc):
     fs = 20
@@ -392,30 +389,30 @@ def find_slop_distance(df, col_name):
     return slop_distance
 
 
-def delete_outlier(window_to_decimal):
-    index_row = window_to_decimal[
-        (window_to_decimal['ACC_X (in g)'] >= 5) | (window_to_decimal['ACC_X (in g)'] <= -5)].index
-    window_to_decimal.drop(index_row, inplace=True)
+def delete_outlier(window_df_decimal_fall):
+    index_row = window_df_decimal_fall[
+        (window_df_decimal_fall['ACC_X (in g)'] >= 5) | (window_df_decimal_fall['ACC_X (in g)'] <= -5)].index
+    window_df_decimal_fall.drop(index_row, inplace=True)
 
-    index_row = window_to_decimal[
-        (window_to_decimal['ACC_Y (in g)'] >= 5) | (window_to_decimal['ACC_Y (in g)'] <= -5)].index
-    window_to_decimal.drop(index_row, inplace=True)
+    index_row = window_df_decimal_fall[
+        (window_df_decimal_fall['ACC_Y (in g)'] >= 5) | (window_df_decimal_fall['ACC_Y (in g)'] <= -5)].index
+    window_df_decimal_fall.drop(index_row, inplace=True)
 
-    index_row = window_to_decimal[
-        (window_to_decimal['ACC_Z (in g)'] >= 5) | (window_to_decimal['ACC_Z (in g)'] <= -5)].index
-    window_to_decimal.drop(index_row, inplace=True)
+    index_row = window_df_decimal_fall[
+        (window_df_decimal_fall['ACC_Z (in g)'] >= 5) | (window_df_decimal_fall['ACC_Z (in g)'] <= -5)].index
+    window_df_decimal_fall.drop(index_row, inplace=True)
 
-    return window_to_decimal
+    return window_df_decimal_fall
 
 
-def fall_detect(window_to_decimal, threshold_x, threshold_y, threshold_z):
-    window_to_decimal = delete_outlier(window_to_decimal)
-    window_to_decimal = window_to_decimal.reset_index()
+def fall_detect(window_df_decimal_fall, threshold_x, threshold_y, threshold_z):
+    window_df_decimal_fall = delete_outlier(window_df_decimal_fall)
+    window_df_decimal_fall = window_df_decimal_fall.reset_index()
     fall_event_time = 0
 
-    df_x = find_slop_distance(window_to_decimal, 'ACC_X (in g)')
-    df_y = find_slop_distance(window_to_decimal, 'ACC_Y (in g)')
-    df_z = find_slop_distance(window_to_decimal, 'ACC_Z (in g)')
+    df_x = find_slop_distance(window_df_decimal_fall, 'ACC_X (in g)')
+    df_y = find_slop_distance(window_df_decimal_fall, 'ACC_Y (in g)')
+    df_z = find_slop_distance(window_df_decimal_fall, 'ACC_Z (in g)')
 
     df_x['theta'] = df_x['theta'].apply(lambda x: float('%.6f' % (x)))
     df_y['theta'] = df_y['theta'].apply(lambda x: float('%.6f' % (x)))
@@ -430,8 +427,7 @@ def fall_detect(window_to_decimal, threshold_x, threshold_y, threshold_z):
     df_z_angle = df_z_angle.drop_duplicates(subset=['distance', 'theta'], keep='last').reset_index(drop=True)
 
     if len(df_x_angle) == 0 or len(df_y_angle) == 0 or len(df_z_angle) == 0:
-        # return len(df_x_angle)  # fall_event_time
-        fall_event_time=len(df_x_angle)
+        return fall_event_time
 
     else:
         max_height_x_index = -1
@@ -449,8 +445,7 @@ def fall_detect(window_to_decimal, threshold_x, threshold_y, threshold_z):
             min_angle_x_index = df_x_angle['theta'].argmin()
 
             if min_angle_x < -90:
-                # return fall_event_time
-                fall_event_time=fall_event_time
+                return fall_event_time
 
         if not (df_y_angle.empty):
             max_height_y = np.max(df_y_angle['distance'])
@@ -459,8 +454,7 @@ def fall_detect(window_to_decimal, threshold_x, threshold_y, threshold_z):
             min_angle_y_index = df_y_angle['theta'].argmin()
 
             if min_angle_y < -90:
-                # return fall_event_time
-                fall_event_time=fall_event_time
+                return fall_event_time
 
         if not (df_z_angle.empty):
 
@@ -470,8 +464,7 @@ def fall_detect(window_to_decimal, threshold_x, threshold_y, threshold_z):
             min_angle_z_index = df_z_angle['theta'].argmin()
 
             if min_angle_z < -90:
-                # return fall_event_time
-                fall_event_time=fall_event_time
+                return fall_event_time
 
         if (max_height_x_index == min_angle_x_index) and (max_height_y_index == min_angle_y_index) \
                 and (max_height_z_index == min_angle_z_index) and (
@@ -485,14 +478,13 @@ def fall_detect(window_to_decimal, threshold_x, threshold_y, threshold_z):
     return fall_event_time
 
 
-def main2(window_df, model):
-    print('')
+def main(window_df, model):
     threshold_x = 0
     threshold_y = 0
     threshold_z = 0
 
     window_df_fall = window_df.copy()
-    # window_df_step = window_df.copy()
+    window_df_step = window_df.copy()
 
     predict_y = []
     activity = ''
@@ -501,29 +493,30 @@ def main2(window_df, model):
     step_count_value = 0
     stride = 0
 
-    # window_df_decimal  = convert_to_decimal(window_df)
+    window_df_decimal = convert_to_decimal(window_df)
 
     window_df_decimal_fall = convert_to_decimal_Fall(window_df_fall)
 
-    # window_feature = extract_features(window_df_decimal)
+    window_feature = extract_features(window_df_decimal)
 
-    # reshaped_segments = np.asarray(window_feature, dtype= np.float32).reshape(-1, 10, 47)
+    reshaped_segments = np.asarray(window_feature, dtype=np.float32).reshape(-1, 10, 47)
 
-    # predict_y = model.predict(reshaped_segments)
+    predict_y = model.predict(reshaped_segments)
 
-    # window_feature = window_feature.drop(window_feature.index[range(0 ,len(window_feature))])
-    # window_feature = window_feature.dropna()
+    window_feature = window_feature.drop(window_feature.index[range(0, len(window_feature))])
+    window_feature = window_feature.dropna()
 
-    # x_groupby = window_df_decimal_fall.groupby(['ACC_X (in g)']).size().reset_index(name='counts')
-    # y_groupby = window_df_decimal_fall.groupby(['ACC_Y (in g)']).size().reset_index(name='counts')
-    # z_groupby = window_df_decimal_fall.groupby(['ACC_Z (in g)']).size().reset_index(name='counts')
+    x_groupby = window_df_decimal_fall.groupby(['ACC_X (in g)']).size().reset_index(name='counts')
+    y_groupby = window_df_decimal_fall.groupby(['ACC_Y (in g)']).size().reset_index(name='counts')
+    z_groupby = window_df_decimal_fall.groupby(['ACC_Z (in g)']).size().reset_index(name='counts')
 
-    # if  (x_groupby['counts'] >= 180).any() and (y_groupby['counts'] >= 180).any() and (z_groupby['counts'] >= 180).any():
-    #     result_index = 2   ### sleep activity
+    if (x_groupby['counts'] >= 180).any() and (y_groupby['counts'] >= 180).any() and (z_groupby['counts'] >= 180).any():
+        result_index = 2  ### sleep activity
 
-    # else:
-    #     result_index = 0 #predict_y.argmax()
-    result_index = 0
+
+    else:
+        result_index = predict_y.argmax()
+
     if result_index == 0:
         activity = 'Sit'
         threshold_x = 0.4
@@ -536,8 +529,8 @@ def main2(window_df, model):
         threshold_y = 0.5
         threshold_z = 0.5
 
-        # X , Y , Z  = to_decimal_step_counter(window_df_step)
-        # step_count_value , peaks_height_sum  , stride = step_count(X,Y,Z)
+        X, Y, Z = to_decimal_step_counter(window_df_step)
+        step_count_value, peaks_height_sum, stride = step_count(X, Y, Z)
 
     if result_index == 2:
         activity = 'Sleep'
@@ -550,7 +543,7 @@ def main2(window_df, model):
     if fall_event_time != 0:
         fall_event_time = str(datetime.timedelta(seconds=fall_event_time))
 
-    return activity, fall_event_time  # , step_count_value , peaks_height_sum , stride
+    return activity, fall_event_time, step_count_value, peaks_height_sum, stride
 
 
 ########### Read data #############
@@ -559,7 +552,8 @@ def main2(window_df, model):
 def call_model_(data2):
     window_df = pd.DataFrame(columns=range(0, 121))
     acc_data_df = pd.DataFrame(columns=['data', '_id', 'app_date', 'Gap'])
-    # CNN_model = load_model('D:\HeartWatch_Post_APIs-master\HeartWatch_Post_APIs-master\HeartWatch\heart_rate\Accelerometer/CNN_walk_sit_feature20_10second_originalZ.h5')
+    CNN_model = load_model(
+        r'C:\Users\Yuvraj\Desktop\API Creation\Heart_watch\HeartWatch\heart_rate\Accelerometer\CNN_walk_sit_feature20_10second_originalZ.h5')
     window_size = 10
     two_minutes = 120
     predict_activity = ''
@@ -569,23 +563,12 @@ def call_model_(data2):
     # print('data_')
     # print(data_)
     # for data_ in data2:
-    row=0
-    for acc_data in data2:
-        # print('ppg')
-        # print(ppg_data)
-        acc_data_df.loc[row,'data'] = acc_data['data']
-
-        acc_data_df.loc[row, '_id'] = acc_data['_id']
-        acc_data_df.loc[row, 'app_date'] = acc_data['app_date']
-        row+=1
-    #
-    # print(type(data2))
-    # for index, dt in enumerate(data2):
-    #     print('index ',index)
-    #     print('dt ' ,dt)
-    #     acc_data_df.loc[index, 'data'] = dt['data']
-    #     acc_data_df.loc[index, '_id'] = dt['_id']
-    #     acc_data_df.loc[index, 'app_date'] = dt['app_date']
+    for index, dt in enumerate(data2):
+        # print('index ',index)
+        # print('dt ' ,dt)
+        acc_data_df.loc[index, 'data'] = dt['data']
+        acc_data_df.loc[index, '_id'] = dt['_id']
+        acc_data_df.loc[index, 'app_date'] = dt['app_date']
 
     acc_data_df['app_date'] = pd.to_datetime(acc_data_df['app_date'], format='%d/%m/%Y %H:%M:%S')
     for index, row in acc_data_df.iterrows():
@@ -598,8 +581,7 @@ def call_model_(data2):
                 window_df.loc[index, 'timestep'] = row['app_date']
 
             if len(window_df) == window_size:
-                activity, fall = main2(window_df, 0)  # , step_count_value, peaks_height_sum, stride
-                # print(fall)
+                activity, fall, step_count_value, peaks_height_sum, stride = main(window_df, CNN_model)
                 predict_activity = activity
                 fall_timestamps = fall
                 window_df = window_df.drop(window_df.index[range(0, len(window_df))])
@@ -609,8 +591,9 @@ def call_model_(data2):
         fall_flag = True
     else:
         fall_flag = False
-    res = {"activity": 'Sit', "fall_flag": fall_flag, "fall_time": 0, "steps": 0, "distance": 0, "stride": 0}
-    # print(X)
+    res = {"activity": predict_activity, "fall_flag": fall_flag, "fall_time": fall_timestamps,
+           "steps": step_count_value, "distance": peaks_height_sum, "stride": stride}
+
     return res
 
 # data = '[{"_id":"6052e4dc605f500004ef6d3f","app_date":"11/12/2021 18:42:12","data": [61,69,-1,41,0,-89,0,71,-1,40,0,-88,0,69,-1,38,0,-86,0,70,-1,35,0,-87,0,72,-1,35,0,-87,0,72,-1,34,0,-88,0,71,-1,35,0,-88,0,71,-1,38,0,-87,0,70,-1,39,0,-87,0,70,-1,38,0,-86,0,69,-1,36,0,-87,0,70,-1,37,0,-88,0,68,-1,40,0,-89,0,68,-1,33,0,-87,0,65,-1,38,0,-91,0,64,-1,39,0,-88,0,66,-1,29,0,-88,0,66,-1,9,0,-92,0,71,-1,-4,-1,-98,0,70,-1,1,0,-102,14],"id":0},' \
@@ -623,8 +606,8 @@ def call_model_(data2):
 #         '{"_id":"6052e4dc605f500004ef6d3f","app_date":"11/12/2021 18:42:13","data": [61,69,-1,41,0,-89,0,71,-1,40,0,-88,0,69,-1,38,0,-86,0,70,-1,35,0,-87,0,72,-1,35,0,-87,0,72,-1,34,0,-88,0,71,-1,35,0,-88,0,71,-1,38,0,-87,0,70,-1,39,0,-87,0,70,-1,38,0,-86,0,69,-1,36,0,-87,0,70,-1,37,0,-88,0,68,-1,40,0,-89,0,68,-1,33,0,-87,0,65,-1,38,0,-91,0,64,-1,39,0,-88,0,66,-1,29,0,-88,0,66,-1,9,0,-92,0,71,-1,-4,-1,-98,0,70,-1,1,0,-102,14],"id":0},'\
 #         '{"_id":"6052e4dc605f500004ef6d3f","app_date":"11/12/2021 18:42:13","data": [61,69,-1,41,0,-89,0,71,-1,40,0,-88,0,69,-1,38,0,-86,0,70,-1,35,0,-87,0,72,-1,35,0,-87,0,72,-1,34,0,-88,0,71,-1,35,0,-88,0,71,-1,38,0,-87,0,70,-1,39,0,-87,0,70,-1,38,0,-86,0,69,-1,36,0,-87,0,70,-1,37,0,-88,0,68,-1,40,0,-89,0,68,-1,33,0,-87,0,65,-1,38,0,-91,0,64,-1,39,0,-88,0,66,-1,29,0,-88,0,66,-1,9,0,-92,0,71,-1,-4,-1,-98,0,70,-1,1,0,-102,14],"id":0},'\
 #         '{"_id":"6052e4dc605f500004ef6d3f","app_date":"11/12/2021 18:42:13","data": [61,69,-1,41,0,-89,0,71,-1,40,0,-88,0,69,-1,38,0,-86,0,70,-1,35,0,-87,0,72,-1,35,0,-87,0,72,-1,34,0,-88,0,71,-1,35,0,-88,0,71,-1,38,0,-87,0,70,-1,39,0,-87,0,70,-1,38,0,-86,0,69,-1,36,0,-87,0,70,-1,37,0,-88,0,68,-1,40,0,-89,0,68,-1,33,0,-87,0,65,-1,38,0,-91,0,64,-1,39,0,-88,0,66,-1,29,0,-88,0,66,-1,9,0,-92,0,71,-1,-4,-1,-98,0,70,-1,1,0,-102,14],"id":0}]'
-
-# data = [{"app_date":"24/12/2021 00:36:50","data":[61,-94,-1,112,-1,82,-1,-88,-1,107,-1,68,-1,-93,-1,101,-1,80,-1,-89,-1,102,-1,80,-1,-90,-1,101,-1,79,-1,-89,-1,105,-1,78,-1,-93,-1,113,-1,74,-1,-93,-1,96,-1,71,-1,-87,-1,103,-1,66,-1,-89,-1,111,-1,72,-1,-92,-1,115,-1,75,-1,-99,-1,112,-1,88,-1,-96,-1,106,-1,86,-1,-90,-1,104,-1,78,-1,-98,-1,101,-1,85,-1,-94,-1,102,-1,80,-1,-95,-1,116,-1,73,-1,-93,-1,112,-1,72,-1,-95,-1,105,-1,77,-1,-101,-1,115,-1,73,28],"_id":"6052e4dc605f500004ef6d3f"},{"app_date":"24/12/2021 00:36:50","data":[61,-60,-1,-102,-1,40,-1,-56,-1,-111,-1,43,-1,-55,-1,127,-1,53,-1,-63,-1,119,-1,83,-1,-68,-1,107,-1,75,-1,-65,-1,110,-1,66,-1,-74,-1,106,-1,100,-1,-87,-1,105,-1,87,-1,-75,-1,93,-1,70,-1,-81,-1,110,-1,66,-1,-84,-1,113,-1,61,-1,-82,-1,120,-1,57,-1,-88,-1,123,-1,64,-1,-89,-1,123,-1,60,-1,-91,-1,-126,-1,62,-1,-91,-1,118,-1,65,-1,-88,-1,123,-1,63,-1,-91,-1,117,-1,75,-1,-87,-1,121,-1,69,-1,-87,-1,122,-1,71,108],"_id":"6052e4dc605f500004ef6d3f"},{"app_date":"24/12/2021 00:36:49","data":[61,-99,-1,-106,-1,52,-1,-99,-1,-106,-1,52,-1,-99,-1,-106,-1,51,-1,-98,-1,-105,-1,51,-1,-98,-1,-107,-1,50,-1,-99,-1,-107,-1,50,-1,-98,-1,-106,-1,50,-1,-99,-1,-105,-1,52,-1,-100,-1,-105,-1,51,-1,-99,-1,-105,-1,50,-1,-100,-1,-106,-1,50,-1,-107,-1,-100,-1,50,-1,-108,-1,-101,-1,49,-1,-113,-1,-101,-1,54,-1,-115,-1,-96,-1,54,-1,-101,-1,-95,-1,38,-1,-88,-1,-83,-1,22,-1,-85,-1,-83,-1,32,-1,-72,-1,-77,-1,19,-1,-64,-1,-94,-1,26,42],"_id":"6052e4dc605f500004ef6d3f"},{"app_date":"24/12/2021 00:36:49","data":[61,-99,-1,-105,-1,49,-1,-98,-1,-104,-1,51,-1,-98,-1,-104,-1,51,-1,-99,-1,-105,-1,52,-1,-98,-1,-104,-1,51,-1,-97,-1,-104,-1,51,-1,-97,-1,-104,-1,50,-1,-98,-1,-105,-1,50,-1,-98,-1,-106,-1,50,-1,-98,-1,-106,-1,51,-1,-98,-1,-105,-1,51,-1,-98,-1,-106,-1,52,-1,-97,-1,-104,-1,51,-1,-98,-1,-104,-1,52,-1,-98,-1,-106,-1,51,-1,-98,-1,-107,-1,51,-1,-99,-1,-107,-1,50,-1,-98,-1,-107,-1,51,-1,-98,-1,-105,-1,51,-1,-98,-1,-106,-1,51,27],"_id":"6052e4dc605f500004ef6d3f"},{"app_date":"24/12/2021 00:36:48","data":[61,-99,-1,-104,-1,51,-1,-98,-1,-103,-1,50,-1,-99,-1,-102,-1,51,-1,-98,-1,-102,-1,51,-1,-99,-1,-102,-1,53,-1,-98,-1,-103,-1,51,-1,-99,-1,-104,-1,51,-1,-98,-1,-105,-1,49,-1,-98,-1,-104,-1,49,-1,-98,-1,-105,-1,49,-1,-98,-1,-104,-1,50,-1,-98,-1,-104,-1,52,-1,-97,-1,-105,-1,52,-1,-98,-1,-105,-1,52,-1,-99,-1,-104,-1,50,-1,-98,-1,-103,-1,50,-1,-98,-1,-103,-1,50,-1,-98,-1,-104,-1,49,-1,-98,-1,-105,-1,49,-1,-98,-1,-104,-1,50,44],"_id":"6052e4dc605f500004ef6d3f"},{"app_date":"24/12/2021 00:36:47","data":[61,-98,-1,-105,-1,50,-1,-97,-1,-105,-1,50,-1,-97,-1,-106,-1,51,-1,-97,-1,-106,-1,50,-1,-99,-1,-106,-1,51,-1,-98,-1,-105,-1,50,-1,-98,-1,-103,-1,48,-1,-99,-1,-104,-1,47,-1,-99,-1,-104,-1,47,-1,-99,-1,-104,-1,50,-1,-98,-1,-104,-1,50,-1,-99,-1,-104,-1,50,-1,-98,-1,-103,-1,50,-1,-98,-1,-103,-1,52,-1,-98,-1,-103,-1,51,-1,-98,-1,-103,-1,52,-1,-98,-1,-104,-1,51,-1,-98,-1,-104,-1,52,-1,-98,-1,-104,-1,50,-1,-98,-1,-103,-1,49,30],"_id":"6052e4dc605f500004ef6d3f"},{"app_date":"24/12/2021 00:36:47","data":[61,-96,-1,-106,-1,50,-1,-96,-1,-106,-1,52,-1,-96,-1,-105,-1,51,-1,-96,-1,-107,-1,51,-1,-96,-1,-106,-1,50,-1,-96,-1,-105,-1,50,-1,-97,-1,-104,-1,49,-1,-98,-1,-103,-1,49,-1,-96,-1,-103,-1,51,-1,-96,-1,-103,-1,52,-1,-97,-1,-104,-1,50,-1,-96,-1,-107,-1,48,-1,-96,-1,-107,-1,48,-1,-95,-1,-106,-1,51,-1,-96,-1,-106,-1,49,-1,-97,-1,-106,-1,51,-1,-98,-1,-106,-1,50,-1,-98,-1,-104,-1,49,-1,-98,-1,-104,-1,51,-1,-99,-1,-104,-1,51,42],"_id":"6052e4dc605f500004ef6d3f"},{"app_date":"24/12/2021 00:36:46","data":[61,-98,-1,-104,-1,51,-1,-98,-1,-105,-1,50,-1,-97,-1,-106,-1,52,-1,-97,-1,-107,-1,52,-1,-98,-1,-106,-1,51,-1,-97,-1,-106,-1,51,-1,-97,-1,-105,-1,51,-1,-98,-1,-105,-1,51,-1,-98,-1,-105,-1,49,-1,-99,-1,-105,-1,49,-1,-98,-1,-105,-1,49,-1,-98,-1,-105,-1,50,-1,-98,-1,-105,-1,50,-1,-98,-1,-105,-1,52,-1,-99,-1,-106,-1,51,-1,-100,-1,-107,-1,50,-1,-100,-1,-107,-1,50,-1,-98,-1,-106,-1,50,-1,-98,-1,-106,-1,48,-1,-96,-1,-106,-1,49,8],"_id":"6052e4dc605f500004ef6d3f"},{"app_date":"24/12/2021 00:36:45","data":[61,-98,-1,-104,-1,51,-1,-98,-1,-105,-1,50,-1,-97,-1,-106,-1,52,-1,-97,-1,-107,-1,52,-1,-98,-1,-106,-1,51,-1,-97,-1,-106,-1,51,-1,-97,-1,-105,-1,51,-1,-98,-1,-105,-1,51,-1,-98,-1,-105,-1,49,-1,-99,-1,-105,-1,49,-1,-98,-1,-105,-1,49,-1,-98,-1,-105,-1,50,-1,-98,-1,-105,-1,50,-1,-98,-1,-105,-1,52,-1,-99,-1,-106,-1,51,-1,-100,-1,-107,-1,50,-1,-100,-1,-107,-1,50,-1,-98,-1,-106,-1,50,-1,-98,-1,-106,-1,48,-1,-96,-1,-106,-1,49,8],"_id":"6052e4dc605f500004ef6d3f"},{"app_date":"24/12/2021 00:36:44","data":[61,-98,-1,-104,-1,51,-1,-98,-1,-105,-1,50,-1,-97,-1,-106,-1,52,-1,-97,-1,-107,-1,52,-1,-98,-1,-106,-1,51,-1,-97,-1,-106,-1,51,-1,-97,-1,-105,-1,51,-1,-98,-1,-105,-1,51,-1,-98,-1,-105,-1,49,-1,-99,-1,-105,-1,49,-1,-98,-1,-105,-1,49,-1,-98,-1,-105,-1,50,-1,-98,-1,-105,-1,50,-1,-98,-1,-105,-1,52,-1,-99,-1,-106,-1,51,-1,-100,-1,-107,-1,50,-1,-100,-1,-107,-1,50,-1,-98,-1,-106,-1,50,-1,-98,-1,-106,-1,48,-1,-96,-1,-106,-1,49,8],"_id":"6052e4dc605f500004ef6d3f"},{"app_date":"24/12/2021 00:36:43","data":[61,-98,-1,-104,-1,51,-1,-98,-1,-105,-1,50,-1,-97,-1,-106,-1,52,-1,-97,-1,-107,-1,52,-1,-98,-1,-106,-1,51,-1,-97,-1,-106,-1,51,-1,-97,-1,-105,-1,51,-1,-98,-1,-105,-1,51,-1,-98,-1,-105,-1,49,-1,-99,-1,-105,-1,49,-1,-98,-1,-105,-1,49,-1,-98,-1,-105,-1,50,-1,-98,-1,-105,-1,50,-1,-98,-1,-105,-1,52,-1,-99,-1,-106,-1,51,-1,-100,-1,-107,-1,50,-1,-100,-1,-107,-1,50,-1,-98,-1,-106,-1,50,-1,-98,-1,-106,-1,48,-1,-96,-1,-106,-1,49,8],"_id":"6052e4dc605f500004ef6d3f"}]
-
-# result=call_model_(data)
+#
+#
+#
+# result=call_model(data)
 # print(result)
