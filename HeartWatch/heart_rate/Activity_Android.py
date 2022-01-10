@@ -7,11 +7,14 @@ from scipy.stats import iqr
 from scipy.signal import butter, lfilter
 import math
 from keras.models import load_model
-import json
 import datetime
 from bitstring import BitArray
 import scipy.signal as signal
 from scipy.signal import find_peaks
+# import matplotlib.pyplot as plt
+import warnings
+
+warnings.filterwarnings('ignore')
 
 
 ########### Feature Extraction ########
@@ -288,64 +291,26 @@ def convert_to_decimal(acc):
             acc_Zind.append((int(hex(np.int64(acc.iloc[j, i + 1]).item()) +
                                  hex(np.int64(acc.iloc[j, i]).item()).split('x')[-1], 16) >> 4) / 128.0)
     acc_Z = np.asarray(acc_Zind)
+    acc_Z_convert = acc_Z.copy()
 
-    df2 = pd.DataFrame()
+    for index_z in range(19, len(acc_Z_convert), 20):
+        acc_Z_convert[index_z] = np.mean(acc_Z_convert[index_z - 19: index_z - 1])
 
-    df2['ACC_X (in g)'] = pd.Series(acc_X)
-    df2['ACC_Y (in g)'] = pd.Series(acc_Y)
-    df2['ACC_Z (in g)'] = pd.Series(acc_Z)
-    df2['timestep'] = pd.Series(time_step)
+    df_activity = pd.DataFrame()
 
-    return df2
+    df_activity['ACC_X (in g)'] = pd.Series(acc_X)
+    df_activity['ACC_Y (in g)'] = pd.Series(acc_Y)
+    df_activity['ACC_Z (in g)'] = pd.Series(acc_Z)
+    df_activity['timestep'] = pd.Series(time_step)
 
+    df_fall = pd.DataFrame()
 
-def convert_to_decimal_Fall(acc):
-    fs = 20
+    df_fall['ACC_X (in g)'] = pd.Series(acc_X)
+    df_fall['ACC_Y (in g)'] = pd.Series(acc_Y)
+    df_fall['ACC_Z (in g)'] = pd.Series(acc_Z_convert)
+    df_fall['timestep'] = pd.Series(time_step)
 
-    time = acc['timestep'].time()
-    time = str(time)
-    # time_val=acc['timestep'].to_numpy()
-
-    time_step_v = []
-    time_step_v.append(sum(x * int(t) for x, t in zip([3600, 60, 1], time.split(":"))))
-    time_step_v.append(time_step_v[0] + 2)
-
-    time_step = np.linspace(time_step_v[0], time_step_v[-1], len(time_step_v) * fs)
-
-    acc_Xind = []
-    # for j in range(acc.shape[0]):
-    for i in range(1, 121, 6):
-        acc_Xind.append((int(hex(np.int64(acc.iloc[i + 1]).item()) + hex(np.int64(acc.iloc[i]).item()).split('x')[-1],
-                             16) >> 4) / 128.0)
-    acc_X = np.asarray(acc_Xind)
-
-    acc_Yind = []
-    # for j in range(acc.shape[0]):
-    for i in range(3, 121, 6):
-        acc_Yind.append((int(hex(np.int64(acc.iloc[i + 1]).item()) + hex(np.int64(acc.iloc[i]).item()).split('x')[-1],
-                             16) >> 4) / 128.0)
-    acc_Y = np.asarray(acc_Yind)
-
-    acc_Zind = []
-    # for j in range(acc.shape[0]):
-    for i in range(5, 121, 6):
-        acc_Zind.append((int(hex(np.int64(acc.iloc[i + 1]).item()) + hex(np.int64(acc.iloc[i]).item()).split('x')[-1],
-                             16) >> 4) / 128.0)
-    acc_Z = np.asarray(acc_Zind)
-
-    df2 = pd.DataFrame()
-
-    for index_z in range(19, len(acc_Z), 20):
-        acc_Z[index_z] = np.mean(acc_Z[index_z - 19: index_z - 1])
-
-    df2 = pd.DataFrame()
-
-    df2['ACC_X (in g)'] = pd.Series(acc_X)
-    df2['ACC_Y (in g)'] = pd.Series(acc_Y)
-    df2['ACC_Z (in g)'] = pd.Series(acc_Z)
-    df2['timestep'] = pd.Series(time_step)
-
-    return df2
+    return df_activity, df_fall
 
 
 def find_slop_distance(df, col_name):
@@ -385,72 +350,106 @@ def delete_outlier(window_df_decimal_fall):
 
 
 def fall_detect(window_df_decimal_fall, threshold_x, threshold_y, threshold_z):
-    window_df_decimal_fall = delete_outlier(window_df_decimal_fall)
-    window_df_decimal_fall = window_df_decimal_fall.reset_index()
+    # print(window_df_decimal_fall)
+    window_df_decimal_fall = window_df_decimal_fall.iloc[-40:, :].reset_index(drop=True)
+    # print(window_df_decimal_fall)
     fall_event_time = 0
+    window_df_decimal_fall = delete_outlier(window_df_decimal_fall)
 
-    df_x = find_slop_distance(window_df_decimal_fall, 'ACC_X (in g)')
-    df_y = find_slop_distance(window_df_decimal_fall, 'ACC_Y (in g)')
-    df_z = find_slop_distance(window_df_decimal_fall, 'ACC_Z (in g)')
+    window_df_decimal_fall = window_df_decimal_fall.reset_index(drop=True)
 
-    df_x['theta'] = df_x['theta'].apply(lambda x: float('%.6f' % (x)))
-    df_y['theta'] = df_y['theta'].apply(lambda x: float('%.6f' % (x)))
-    df_z['theta'] = df_z['theta'].apply(lambda x: float('%.6f' % (x)))
+    peak_x = window_df_decimal_fall['ACC_X (in g)'].max()
+    peak_y = window_df_decimal_fall['ACC_Y (in g)'].max()
+    peak_z = window_df_decimal_fall['ACC_Z (in g)'].max()
 
-    df_x_angle = df_x[df_x['theta'] < -75]
-    df_y_angle = df_y[df_y['theta'] < -75]
-    df_z_angle = df_z[df_z['theta'] < -75]
-
-    df_x_angle = df_x_angle.drop_duplicates(subset=['distance', 'theta'], keep='last').reset_index(drop=True)
-    df_y_angle = df_y_angle.drop_duplicates(subset=['distance', 'theta'], keep='last').reset_index(drop=True)
-    df_z_angle = df_z_angle.drop_duplicates(subset=['distance', 'theta'], keep='last').reset_index(drop=True)
-
-    if len(df_x_angle) == 0 or len(df_y_angle) == 0 or len(df_z_angle) == 0:
+    if peak_x <= 0.25 and peak_y <= 0.25 and peak_z <= 0.25:
         return fall_event_time
 
+
     else:
-        max_height_x_index = -1
-        min_angle_x_index = -2
-        max_height_y_index = -1
-        min_angle_y_index = -2
-        max_height_z_index = -1
-        min_angle_z_index = -2
+        main_peak = max(peak_x, peak_y, peak_z)
+        if main_peak == peak_x:
+            peak_timestamp_upLimit = window_df_decimal_fall['ACC_X (in g)'].argmax() + 20
+            peak_timestamp_downLimit = window_df_decimal_fall['ACC_X (in g)'].argmax() - 20
 
-        if not (df_x_angle.empty):
+        elif main_peak == peak_y:
+            peak_timestamp_upLimit = window_df_decimal_fall['ACC_Y (in g)'].argmax() + 20
+            peak_timestamp_downLimit = window_df_decimal_fall['ACC_Y (in g)'].argmax() - 20
+        else:
+            peak_timestamp_upLimit = window_df_decimal_fall['ACC_Z (in g)'].argmax() + 20
+            peak_timestamp_downLimit = window_df_decimal_fall['ACC_Z (in g)'].argmax() - 20
 
-            max_height_x = np.max(df_x_angle['distance'])
-            min_angle_x = np.min(df_x_angle['theta'])
-            max_height_x_index = df_x_angle['distance'].argmax()
-            min_angle_x_index = df_x_angle['theta'].argmin()
+        if peak_timestamp_upLimit > len(window_df_decimal_fall):
+            peak_timestamp_upLimit = len(window_df_decimal_fall)
 
-            if min_angle_x < -90:
-                return fall_event_time
+        if peak_timestamp_downLimit < 0:
+            peak_timestamp_downLimit = 0
 
-        if not (df_y_angle.empty):
-            max_height_y = np.max(df_y_angle['distance'])
-            min_angle_y = np.min(df_y_angle['theta'])
-            max_height_y_index = df_y_angle['distance'].argmax()
-            min_angle_y_index = df_y_angle['theta'].argmin()
+        window_df_decimal_fall = window_df_decimal_fall.iloc[peak_timestamp_downLimit:peak_timestamp_upLimit,
+                                 :].reset_index(drop=True)
 
-            if min_angle_y < -90:
-                return fall_event_time
+        df_x = find_slop_distance(window_df_decimal_fall, 'ACC_X (in g)')
+        df_y = find_slop_distance(window_df_decimal_fall, 'ACC_Y (in g)')
+        df_z = find_slop_distance(window_df_decimal_fall, 'ACC_Z (in g)')
 
-        if not (df_z_angle.empty):
+        df_x['theta'] = df_x['theta'].apply(lambda x: float('%.6f' % (x)))
+        df_y['theta'] = df_y['theta'].apply(lambda x: float('%.6f' % (x)))
+        df_z['theta'] = df_z['theta'].apply(lambda x: float('%.6f' % (x)))
 
-            max_height_z = np.max(df_z_angle['distance'])
-            min_angle_z = np.min(df_z_angle['theta'])
-            max_height_z_index = df_z_angle['distance'].argmax()
-            min_angle_z_index = df_z_angle['theta'].argmin()
+        df_x_angle = df_x[df_x['theta'] < -75]
+        df_y_angle = df_y[df_y['theta'] < -75]
+        df_z_angle = df_z[df_z['theta'] < -75]
 
-            if min_angle_z < -90:
-                return fall_event_time
+        df_x_angle = df_x_angle.drop_duplicates(subset=['distance', 'theta'], keep='last').reset_index(drop=True)
+        df_y_angle = df_y_angle.drop_duplicates(subset=['distance', 'theta'], keep='last').reset_index(drop=True)
+        df_z_angle = df_z_angle.drop_duplicates(subset=['distance', 'theta'], keep='last').reset_index(drop=True)
 
-        if (max_height_x_index == min_angle_x_index) and (max_height_y_index == min_angle_y_index) \
-                and (max_height_z_index == min_angle_z_index) and (
-                max_height_x >= threshold_x or max_height_y >= threshold_y or max_height_z >= threshold_z):
-            time_x = df_x_angle.loc[max_height_x_index, 'timestep']
+        if len(df_x_angle) == 0 or len(df_y_angle) == 0 or len(df_z_angle) == 0:
+            return fall_event_time
 
-            fall_event_time = time_x
+        else:
+            max_height_x_index = -1
+            min_angle_x_index = -2
+            max_height_y_index = -1
+            min_angle_y_index = -2
+            max_height_z_index = -1
+            min_angle_z_index = -2
+
+            if not (df_x_angle.empty):
+
+                max_height_x = np.max(df_x_angle['distance'])
+                min_angle_x = np.min(df_x_angle['theta'])
+                max_height_x_index = df_x_angle['distance'].argmax()
+                min_angle_x_index = df_x_angle['theta'].argmin()
+
+                if min_angle_x < -90:
+                    return fall_event_time
+
+            if not (df_y_angle.empty):
+                max_height_y = np.max(df_y_angle['distance'])
+                min_angle_y = np.min(df_y_angle['theta'])
+                max_height_y_index = df_y_angle['distance'].argmax()
+                min_angle_y_index = df_y_angle['theta'].argmin()
+
+                if min_angle_y < -90:
+                    return fall_event_time
+
+            if not (df_z_angle.empty):
+
+                max_height_z = np.max(df_z_angle['distance'])
+                min_angle_z = np.min(df_z_angle['theta'])
+                max_height_z_index = df_z_angle['distance'].argmax()
+                min_angle_z_index = df_z_angle['theta'].argmin()
+
+                if min_angle_z < -90:
+                    return fall_event_time
+
+            if (max_height_x_index == min_angle_x_index) and (max_height_y_index == min_angle_y_index) \
+                    and (max_height_z_index == min_angle_z_index) and (
+                    max_height_x >= threshold_x or max_height_y >= threshold_y or max_height_z >= threshold_z):
+                time_x = df_x_angle.loc[max_height_x_index, 'timestep']
+
+                fall_event_time = time_x
 
     return fall_event_time
 
@@ -460,8 +459,7 @@ def main(window_df, model):
     threshold_y = 0
     threshold_z = 0
 
-    window_df_fall = window_df.iloc[-1, :]  # .copy()
-    window_df_step = window_df.iloc[-1, :]  # .copy()
+    window_df_step = window_df.copy()
 
     predict_y = []
     activity = ''
@@ -470,9 +468,7 @@ def main(window_df, model):
     step_count_value = 0
     stride = 0
 
-    window_df_decimal = convert_to_decimal(window_df)
-
-    window_df_decimal_fall = convert_to_decimal_Fall(window_df_fall)
+    window_df_decimal, window_df_decimal_fall = convert_to_decimal(window_df)
 
     window_feature = extract_features(window_df_decimal)
 
