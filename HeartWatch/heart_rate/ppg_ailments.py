@@ -44,7 +44,7 @@ def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
     return y
 
 
-def bessel_bandpass(lowcut=0.13, highcut=0.48, fs=26, order=4):
+def bessel_bandpass(lowcut=0.13, highcut=0.48, fs=25, order=4):
     nyq = 0.5 * fs
     low = lowcut / nyq
     high = highcut / nyq
@@ -67,7 +67,7 @@ def standardize(x):
 
 
 def rr_calulation(ppg_sig, fl=0.1, fh=0.4, o=5):
-    fs = 26
+    fs = 25
 
     p1 = normalize(ppg_sig)
     ppg_1 = bessel_bandpass_filter(p1, fl, fh, fs=fs, order=o)
@@ -86,7 +86,7 @@ def ppg_plot_hr(ppg_sig, time_val,fl=0.3, fh=4, o=5, n=4, diff_max=20, r=4):
     ppg_bpf = []
     time_stamp = []
     hr_diff = []
-    fs = 26
+    fs = 25
     n = n * fs
     jump = 1 * fs
     t_diff_afib = []
@@ -258,7 +258,7 @@ def ailments_stats_2(ppg_json_array):
         # print(ppg_sec)
         time_val.append(ppg_data['app_date'].split()[1])
 
-        for j in range(1, len(ppg_sec), 2):
+        for j in range(3, len(ppg_sec), 2):
             ppg_bytes.append(decimal_to_binary(ppg_sec[j + 1]) + decimal_to_binary(ppg_sec[j]))
     ppg_sig = []
     for i in range(len(ppg_bytes)):
